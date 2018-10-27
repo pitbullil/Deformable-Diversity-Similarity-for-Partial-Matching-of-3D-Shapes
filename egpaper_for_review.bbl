@@ -1,0 +1,172 @@
+\begin{thebibliography}{10}\itemsep=-1pt
+
+\bibitem{Aiger:2008:CSR:1360612.1360684}
+D.~Aiger, N.~J. Mitra, and D.~Cohen-Or.
+\newblock 4pointss congruent sets for robust pairwise surface registration.
+\newblock {\em ACM Trans. Graph.}, 27(3):85:1--85:10, Aug. 2008.
+
+\bibitem{aigerman2015seamless}
+N.~Aigerman, R.~Poranne, and Y.~Lipman.
+\newblock Seamless surface mappings.
+\newblock {\em ACM Transactions on Graphics (TOG)}, 34(4):72, 2015.
+
+\bibitem{aubry2011wave}
+M.~Aubry, U.~Schlickewei, and D.~Cremers.
+\newblock The wave kernel signature: A quantum mechanical approach to shape
+  analysis.
+\newblock In {\em Computer Vision Workshops (ICCV Workshops), 2011 IEEE
+  International Conference on}, pages 1626--1633. IEEE, 2011.
+
+\bibitem{bronstein2008not}
+A.~M. Bronstein and M.~M. Bronstein.
+\newblock Not only size matters: regularized partial matching of nonrigid
+  shapes.
+\newblock In {\em Computer Vision and Pattern Recognition Workshops, 2008.
+  CVPRW'08. IEEE Computer Society Conference on}, pages 1--6. IEEE, 2008.
+
+\bibitem{bronstein2009partial}
+A.~M. Bronstein, M.~M. Bronstein, A.~M. Bruckstein, and R.~Kimmel.
+\newblock Partial similarity of objects, or how to compare a centaur to a
+  horse.
+\newblock {\em International Journal of Computer Vision}, 84(2):163, 2009.
+
+\bibitem{bronstein2006generalized}
+A.~M. Bronstein, M.~M. Bronstein, and R.~Kimmel.
+\newblock Generalized multidimensional scaling: a framework for
+  isometry-invariant partial surface matching.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  103(5):1168--1172, 2006.
+
+\bibitem{bronstein2010scale}
+M.~M. Bronstein and I.~Kokkinos.
+\newblock Scale-invariant heat kernel signatures for non-rigid shape
+  recognition.
+\newblock In {\em Computer Vision and Pattern Recognition (CVPR), 2010 IEEE
+  Conference on}, pages 1704--1711. IEEE, 2010.
+
+\bibitem{cosmo2016shrec}
+L.~Cosmo, E.~Rodol{\`a}, M.~Bronstein, A.~Torsello, D.~Cremers, and
+  Y.~Sahillioglu.
+\newblock Shrec’16: Partial matching of deformable shapes.
+\newblock {\em Proc. 3DOR}, 2, 2016.
+
+\bibitem{dekel2015best}
+T.~Dekel, S.~Oron, M.~Rubinstein, S.~Avidan, and W.~T. Freeman.
+\newblock Best-buddies similarity for robust template matching.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}, pages 2021--2029, 2015.
+
+\bibitem{kim2011blended}
+V.~G. Kim, Y.~Lipman, and T.~Funkhouser.
+\newblock Blended intrinsic maps.
+\newblock In {\em ACM Transactions on Graphics (TOG)}, volume~30, page~79. ACM,
+  2011.
+
+\bibitem{kovnatsky2015functional}
+A.~Kovnatsky, M.~M. Bronstein, X.~Bresson, and P.~Vandergheynst.
+\newblock Functional correspondence by matrix completion.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 905--914, 2015.
+
+\bibitem{litany2017fully}
+O.~Litany, E.~Rodol{\`a}, A.~M. Bronstein, and M.~M. Bronstein.
+\newblock Fully spectral partial shape matching.
+\newblock In {\em Computer Graphics Forum}, volume~36, pages 247--258. Wiley
+  Online Library, 2017.
+
+\bibitem{maron2016point}
+H.~Maron, N.~Dym, I.~Kezurer, S.~Kovalsky, and Y.~Lipman.
+\newblock Point registration via efficient convex relaxation.
+\newblock {\em ACM Transactions on Graphics (TOG)}, 35(4):73, 2016.
+
+\bibitem{Ovsjanikov:2012:FMF:2185520.2185526}
+M.~Ovsjanikov, M.~Ben-Chen, J.~Solomon, A.~Butscher, and L.~Guibas.
+\newblock Functional maps: A flexible representation of maps between shapes.
+\newblock {\em ACM Trans. Graph.}, 31(4):30:1--30:11, July 2012.
+
+\bibitem{pokrass2013partial}
+J.~Pokrass, A.~M. Bronstein, and M.~M. Bronstein.
+\newblock Partial shape matching without point-wise correspondence.
+\newblock {\em Numerical Mathematics: Theory, Methods and Applications},
+  6(1):223--244, 2013.
+
+\bibitem{pokrass2013sparse}
+J.~Pokrass, A.~M. Bronstein, M.~M. Bronstein, P.~Sprechmann, and G.~Sapiro.
+\newblock Sparse modeling of intrinsic correspondences.
+\newblock In {\em Computer Graphics Forum}, volume~32, pages 459--468. Wiley
+  Online Library, 2013.
+
+\bibitem{rodola2017partial}
+E.~Rodol{\`a}, L.~Cosmo, M.~M. Bronstein, A.~Torsello, and D.~Cremers.
+\newblock Partial functional correspondence.
+\newblock In {\em Computer Graphics Forum}, volume~36, pages 222--236. Wiley
+  Online Library, 2017.
+
+\bibitem{rodola2013elastic}
+E.~Rodola, A.~Torsello, T.~Harada, Y.~Kuniyoshi, and D.~Cremers.
+\newblock Elastic net constraints for shape matching.
+\newblock In {\em Proceedings of the IEEE International Conference on Computer
+  Vision}, pages 1169--1176, 2013.
+
+\bibitem{rusu2009fast}
+R.~B. Rusu, N.~Blodow, and M.~Beetz.
+\newblock Fast point feature histograms (fpfh) for 3d registration.
+\newblock In {\em Robotics and Automation, 2009. ICRA'09. IEEE International
+  Conference on}, pages 3212--3217. Citeseer, 2009.
+
+\bibitem{rusu2008learning}
+R.~B. Rusu, Z.~C. Marton, N.~Blodow, and M.~Beetz.
+\newblock Learning informative point classes for the acquisition of object
+  model maps.
+\newblock In {\em Control, Automation, Robotics and Vision, 2008. ICARCV 2008.
+  10th International Conference on}, pages 643--650. IEEE, 2008.
+
+\bibitem{rusu2008towards}
+R.~B. Rusu, Z.~C. Marton, N.~Blodow, M.~Dolha, and M.~Beetz.
+\newblock Towards 3d point cloud based object maps for household environments.
+\newblock {\em Robotics and Autonomous Systems}, 56(11):927--941, 2008.
+
+\bibitem{sahilliouglu2012scale}
+Y.~Sahillio{\u{g}}lu and Y.~Yemez.
+\newblock Scale normalization for isometric shape matching.
+\newblock In {\em Computer Graphics Forum}, volume~31, pages 2233--2240. Wiley
+  Online Library, 2012.
+
+\bibitem{sahilliouglu2014multiple}
+Y.~Sahillio{\u{g}}lu and Y.~Yemez.
+\newblock Multiple shape correspondence by dynamic programming.
+\newblock In {\em Computer Graphics Forum}, volume~33, pages 121--130. Wiley
+  Online Library, 2014.
+
+\bibitem{solomon2016entropic}
+J.~Solomon, G.~Peyr{\'e}, V.~G. Kim, and S.~Sra.
+\newblock Entropic metric alignment for correspondence problems.
+\newblock {\em ACM Transactions on Graphics (TOG)}, 35(4):72, 2016.
+
+\bibitem{talmi2017template}
+I.~Talmi, R.~Mechrez, and L.~Zelnik-Manor.
+\newblock Template matching with deformable diversity similarity.
+\newblock In {\em Proc. of IEEE Conf. on Computer Vision and Pattern
+  Recognition}, pages 1311--1319, 2017.
+
+\bibitem{Torsello:2012:GAD:2354409.2354702}
+A.~Torsello.
+\newblock A game-theoretic approach to deformable shape matching.
+\newblock In {\em Proceedings of the 2012 IEEE Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, CVPR '12, pages 182--189, Washington, DC,
+  USA, 2012. IEEE Computer Society.
+
+\bibitem{vestner2017efficient}
+M.~Vestner, Z.~L{\"a}hner, A.~Boyarski, O.~Litany, R.~Slossberg, T.~Remez,
+  E.~Rodola, A.~Bronstein, M.~Bronstein, R.~Kimmel, et~al.
+\newblock Efficient deformable shape correspondence via kernel matching.
+\newblock In {\em 3D Vision (3DV), 2017 International Conference on}, pages
+  517--526. IEEE, 2017.
+
+\bibitem{vestner2017product}
+M.~Vestner, R.~Litman, E.~Rodol{\`a}, A.~M. Bronstein, and D.~Cremers.
+\newblock Product manifold filter: Non-rigid shape correspondence via kernel
+  density estimation in the product space.
+\newblock In {\em CVPR}, pages 6681--6690, 2017.
+
+\end{thebibliography}

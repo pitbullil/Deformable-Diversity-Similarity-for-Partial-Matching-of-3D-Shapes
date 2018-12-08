@@ -56,27 +56,37 @@ We propose a novel approach for the matching of partial deformable shapes in 3D.
 \section{Introduction}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Problem Statement
-Shape correspondence is a fundamental and challenging problem in computer vision and graphics. It has usage in various applications such as transferring texture and animation. Shapes rarely, if ever manifest in only one pose. While rigid transformations between surfaces is a well researched topic with many adequate solutions, a more challenging problem arises when a shape is deformed non-rigidly, though approximately isometrically, a case all too common for people, animals and objects.
-Moreover, shape acquisition processes almost always lead to partiality of the scanned object. Occlusions arise from different angles of acquisition, which cause an object to occlude itself,  or stem from other occluding objects. Faulty sensors and bad acquisition conditions may also contribute ta a creation of missing or noisy data.
-All of these combined give rise to the challenging problem of partial correspondences, where a deformed and incomplete shape, has to be matched with its full version. The goal of this paper is to deal with this challenging problem.
+Shape correspondence is a fundamental and challenging problem in computer vision and graphics. It has usage in various applications such as transferring texture and animation. 
+Shapes rarely, if ever manifest in only one pose. While rigid transformations between surfaces is a well researched topic with many adequate solutions, a more challenging problem arises when a shape is deformed non-rigidly, a case all too common for people, animals and objects.
+Moreover, the shape acquisition process almost always lead to partiality of the scanned object. Occlusions arise from different angles of acquisition, which cause an object to occlude itself, or stem from other occluding objects. 
+An additional type of difficulty which might be occur is topological noise, occurring when shapes touch pn another, thus making  sensors unable to seperate them.
+All of these combined give rise to the challenging problem of partial correspondences, where a deformed and incomplete shape, possibly with topological changes, has to be matched with its full version. The goal of this paper is to deal with this challenging problem.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Previous Works
-While in a rigid setting the problem can be solved by RANSAC and ICP like approaches/cite, extending these to non-rigid case produces mediocre results due to an underlying assumption of small deformations. 
+While in a rigid setting the problem can be solved by RANSAC and ICP like approaches\cite{rusu2009fast, holz2015registration}, extending these to non-rigid case produces mediocre results due to an underlying assumption of small deformations. 
+%%%%Isometry based methods
 Early methods specialized for the non-rigid problem focused on minimization of intrinsic metric distortion\cite{bronstein2006generalized,Torsello:2012:GAD:2354409.2354702,Rodola:2013:ENC:2586117.2587323} and regularity of parts\cite{Bronstein:2009:PSO:1553357.1553368,bronstein2008not}. These methods all contain with them a global assumption of isometry which holds only approximately, these tended to break down with it, and are also unable to handle extreme partiality. 
-Another family of method is based on functional correspondence. These methods model correspondences as a linear operator of a known nature between a space of functions on manifolds, usually the eigenfunctions of the Laplace Beltrami operator\cite{Ovsjanikov:2012:FMF:2185520.2185526,litany2017fully,vestner2017efficient,rodola2017partial}. These methods have achieved state of the art results on various partial matching tasks in recent year, and produce dense correspondence maps, but are not parallelizable, and their reliance on intrinsic metrics makes them invariant to symmetry. 
+%%functional correspondences
+Another family of method is based on functional correspondence. These methods model correspondences as a linear operator of a known nature between a space of functions on manifolds\cite{Ovsjanikov:2012:FMF:2185520.2185526}. These methods, originally designed for the full shape correspondence scenario have achieved state of the art results on various partial matching tasks in the recent years\cite{litany2017fully,vestner2017efficient,rodola2017partial}, and produce dense correspondence maps, but are not parallelizable, and their reliance on intrinsic metrics makes them invariant to symmetry. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Our key ideas
 We take a different approach. We take advantage of the fact that while the isometric property tends to break over large distances, it usually holds approximately in limited environments. These also tend to suffer a lot less from boundary effects, especially when concentrated around the extremities of a shape. 
+
 We can thus treat the problem of partial correspondences as matching of multiple templates, each smaller then the partial surface centered around shape landmarks. 
 
-We follow the approach of\cite{talmi2017template} which tackles template matching in 2D and use simple statistical assumptions on the nature of nearest neighbors between small patch descriptors, along with the assumption of small deformations in medium environments to obtain similarity scores between these partial shape templates and produce sparse matches.
-Though the number of our generated correspondences is small, they prove to be superior in quality not only to other sparse correspondence producing methods, but also to state of the art dense correspondences. 
+In addition, since point descriptors are known to be modified by partiality and deformations, instead of using them directly, we follow the approach of\cite{talmi2017template}(\textbf{DDIS}) which tackles template matching in 2D and use simple statistical assumptions on the nature of nearest neighbors between small patch descriptors, along with the assumption of small deformations in medium environments to obtain similarity scores between these partial shape templates.
+
+We analyze the behavior of DDIS similarity in different scales and devise a multi scale scheme which leverages the advantages of each scale while masking their shortcomings.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Our improvements
+We show that using this approach, we are able to generate a set of sparse correspondences, which are less prone to symmetrical assignment than functional correspondence reliant methods, and are of superior quality on the SHREC16 Partial matching challenge\cite{cosmo2016shrec}. We then demonstrate how these sparse correspondences can be used as an input to existing functional correspondence algorithms to obtain dense correspondences or a higher quality.
 
 In summary, our contributions are:
 \begin{itemize}
 	\item A non trivial extension of Deformable Diversity from 2 to 3 Dimensions.
-	\item A modified DDIS similarity measure which is more well suited to handle matching of templates with a different number of points, and is refined at multiple scales.
-	\item A novel multi-template matching approach to partial matching of deformable shapes which produces sparse correspondences which are competitive with state of the art methods.
+	\item A modified DDIS similarity measure which is more well suited to handle matching of templates with a different number of points.
+	\item An empirical analysis of DDIS behavior in different scales, leading to an improved multi-scale framework.
+	\item A novel multi-template approach to partial matching of deformable shapes which can both produce state of the art sparse correspondences, and be used as an input to functional correspondence algorithms, significantly improving the results obtained by these.
 \end{itemize}
 
 The rest of the work is organized as follows: in section 2 we go over related works in the field of shape analysis. Section 3 introduces our Deformable Diversity framework for 3D shape matching. Experiments and results are given in section 4, and the conclusions are in section 5.
@@ -98,13 +108,14 @@ The rest of the work is organized as follows: in section 2 we go over related wo
 \section{Related work}\label{chap:related work}
 
 
-\textbf{Matching Of Surfaces}
+\subsection{Matching Of Surfaces}
 As a fundamental problem in computer graphics and vision, an extensive body of work have been done on the matching of surfaces.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Rigid shapes
 For the rigid setup an adequate solution exists. Iterative Closest Point(ICP)\cite{Aiger:2008:CSR:1360612.1360684} algorithm, preceded by initial alignment\cite{rusu2008towards} tackle partial matching successfully. Adapting this to the rigid setup however has proved to have limited success due to the alignment which is necessary, and thus is only fit for very small non-rigid deformation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Full correspondence methods
 In contrast, early non-rigid correspondence methods were designed to work in the scenarios of little to no partiality. The assumption of near isometry\cite{bronstein2006generalized} has been used commonly. This assumption is usually broken in the partial setup. Recent works, which address the full correspondence problem\cite{aigerman2015seamless,maron2016point,solomon2016entropic,vestner2017product} manage to cope with distortion by using smarter optimization objectives, but use the assumption of a bijection between the shapes, and thus cannot handle significant partiality.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Pairwise(distance metrics and heat kernels)
+\subsection{Partial Matching of Deformable shapes}
 Early works which were designed with partial matching in mid\cite{bronstein2008not,bronstein2009partial} solved a combined optimization problem over the metric distortion and the regularity of corresponding parts. Following works relaxed the regularity requirement by allowing for sparse correspondence\cite{Torsello:2012:GAD:2354409.2354702} and controlling the sparsity of which \cite{rodola2013elastic}. Other metric distortion based works\cite{sahilliouglu2012scale,sahilliouglu2014multiple} minimized the distortion metric over the shape extremities by doing combinatorial search of least distortion matches and then densify while refining them in the process.I n addition to only supplying sparse correspondences and having a high computational complexity, relying only on the intrinsic distortion metric makes these methods fail when boundary effects plays a significant role.
 
 In\cite{pokrass2013partial} a bag of words point-wise descriptors on a part in conjunction with a constraint on area similarity and the regularity of the boundary length to produce correspondence less matching parts without point to point correspondences.
@@ -121,7 +132,7 @@ On the other hand intrinsic features such as Heat\cite{bronstein2010scale} and W
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: 2D Shape Matching
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{Template matching in 2D}
+\subsection{Template matching in 2D}
 Template matching in 2D is a well researched topic. Similarly to 3D objects are going complex deformations of pose, and are only seen partially depending on the camera point of view. Recently a series of works which use a very simplistic framework based on the statistical properties of nearest neighbors in low level feature space had made good strides in tackling this complex task.
 
 \textbf{Best Buddies Similarity}

@@ -56,6 +56,12 @@ T.~Dekel, S.~Oron, M.~Rubinstein, S.~Avidan, and W.~T. Freeman.
 \newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
   Pattern Recognition}, pages 2021--2029, 2015.
 
+\bibitem{holz2015registration}
+D.~Holz, A.~E. Ichim, F.~Tombari, R.~B. Rusu, and S.~Behnke.
+\newblock Registration with the point cloud library: A modular framework for
+  aligning in 3-d.
+\newblock {\em IEEE Robotics \& Automation Magazine}, 22(4):110--124, 2015.
+
 \bibitem{kim2011blended}
 V.~G. Kim, Y.~Lipman, and T.~Funkhouser.
 \newblock Blended intrinsic maps.

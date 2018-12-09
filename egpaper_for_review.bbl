@@ -155,6 +155,12 @@ I.~Talmi, R.~Mechrez, and L.~Zelnik-Manor.
 \newblock In {\em Proc. of IEEE Conf. on Computer Vision and Pattern
   Recognition}, pages 1311--1319, 2017.
 
+\bibitem{tombari2010unique}
+F.~Tombari, S.~Salti, and L.~Di~Stefano.
+\newblock Unique signatures of histograms for local surface description.
+\newblock In {\em European conference on computer vision}, pages 356--369.
+  Springer, 2010.
+
 \bibitem{Torsello:2012:GAD:2354409.2354702}
 A.~Torsello.
 \newblock A game-theoretic approach to deformable shape matching.

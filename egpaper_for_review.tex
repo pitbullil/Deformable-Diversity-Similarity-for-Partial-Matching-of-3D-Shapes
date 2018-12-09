@@ -109,13 +109,24 @@ The rest of the work is organized as follows: in section 2 we go over related wo
 
 
 \subsection{Matching Of Surfaces}
+[APL15] [MDK16] [SPKS16][VLR17][OBCS12][KBB13][PBB13b][KBBV15][HWG14]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Shape Descriptors%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 As a fundamental problem in computer graphics and vision, an extensive body of work have been done on the matching of surfaces.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Rigid shapes
-For the rigid setup an adequate solution exists. Iterative Closest Point(ICP)\cite{Aiger:2008:CSR:1360612.1360684} algorithm, preceded by initial alignment\cite{rusu2008towards} tackle partial matching successfully. Adapting this to the rigid setup however has proved to have limited success due to the alignment which is necessary, and thus is only fit for very small non-rigid deformation.
+A variety of shape descriptors have been devised for this task which can be roughly divided in to 2 families. 
+Extrinsic ones, such as PFH\cite{rusu2008learning}, SHOT\cite{tombari2010unique} and FPFH\cite{rusu2009fast} which are usually calculated in euclidean space and are thus sensitive to non rigid deformations, but can discern between reflections and are also more robust to noise, topological artifacts and boundary effects.
+ 
+On the other hand intrinsic features such as Heat\cite{bronstein2010scale} and Wave Kernel signatures\cite{aubry2011wave} are invariant under isometric transformations, but are very sensitive to partiality and are unable to discern between symmetric parts.
+
+These have been commonly used to generate rough correspondences between surfaces and point clouds, but on their own are noisy and offer little in terms of bijectivity and continuity of the solution.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Full correspondence methods
-In contrast, early non-rigid correspondence methods were designed to work in the scenarios of little to no partiality. The assumption of near isometry\cite{bronstein2006generalized} has been used commonly. This assumption is usually broken in the partial setup. Recent works, which address the full correspondence problem\cite{aigerman2015seamless,maron2016point,solomon2016entropic,vestner2017product} manage to cope with distortion by using smarter optimization objectives, but use the assumption of a bijection between the shapes, and thus cannot handle significant partiality.
+ Recent works, which address the full correspondence problem\cite{aigerman2015seamless,maron2016point,solomon2016entropic,vestner2017product} manage to cope with distortion by using smarter optimization objectives, but use the assumption of a bijection between the shapes, and thus cannot handle significant partiality.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Pairwise(distance metrics and heat kernels)
 \subsection{Partial Matching of Deformable shapes}
+
+For the rigid setup an adequate solution exists. Iterative Closest Point(ICP)\cite{Aiger:2008:CSR:1360612.1360684} algorithm, preceded by initial alignment\cite{rusu2008towards} tackle partial matching successfully. Adapting this to the rigid setup however has proved to have limited success due to the alignment which is necessary, and thus is only fit for very small non-rigid deformation.
+
+Early non-rigid partial correspondence methods were aimed at minimizing distortion
 Early works which were designed with partial matching in mid\cite{bronstein2008not,bronstein2009partial} solved a combined optimization problem over the metric distortion and the regularity of corresponding parts. Following works relaxed the regularity requirement by allowing for sparse correspondence\cite{Torsello:2012:GAD:2354409.2354702} and controlling the sparsity of which \cite{rodola2013elastic}. Other metric distortion based works\cite{sahilliouglu2012scale,sahilliouglu2014multiple} minimized the distortion metric over the shape extremities by doing combinatorial search of least distortion matches and then densify while refining them in the process.I n addition to only supplying sparse correspondences and having a high computational complexity, relying only on the intrinsic distortion metric makes these methods fail when boundary effects plays a significant role.
 
 In\cite{pokrass2013partial} a bag of words point-wise descriptors on a part in conjunction with a constraint on area similarity and the regularity of the boundary length to produce correspondence less matching parts without point to point correspondences.
@@ -125,9 +136,7 @@ Another notable family of works are derived from functional correspondences. Int
 Recently \cite{rodola2017partial} had proven that partiality induces a slanted diagonal structure in the correspondence matrix and found the Laplacian eigenfunctions from each basis which induces this structure. Current state of the art\cite{litany2017fully} uses this notion in conjunction with joint diagnolization. The main drawback of this method, shared with other intrinsic methods, is its invariance to symmetries. In addition, using sequential optimization, the entire family of methods cannot be parallelized. 
 
 \textbf{3D Shape Descriptors} 
-A fundamental building block in many shape analysis tasks are shape descriptors , these are mappings  $f_\mathcal{M}:\mathcal{M}\rightarrow\Re^q,f_\mathcal{N}:\mathcal{N}\rightarrow\Re^q$ which are constructed in a way which embeds similar shapes close in a euclidean space of dimension $q$. 
-Shape descriptors of the extrinsic variety such as PFH\cite{rusu2008learning}, SHOT and FPFH\cite{rusu2009fast} which are usually calculated in euclidean space and are thus sensitive to non rigid deformations, but are generally better in discerning between symmetrical shapes, and are also more robust to noise, topology artifacts and boundaries. 
-On the other hand intrinsic features such as Heat\cite{bronstein2010scale} and Wave Kernel signatures\cite{aubry2011wave} are invariant under isometric transformations, but are very sensitive to partiality and are unable to discern between symmetric parts.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: 2D Shape Matching
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

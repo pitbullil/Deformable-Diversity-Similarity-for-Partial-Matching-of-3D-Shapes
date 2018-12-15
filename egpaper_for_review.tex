@@ -1,4 +1,4 @@
-\documentclass[10pt,twocolumn,letterpaper]{article}
+  \documentclass[10pt,twocolumn,letterpaper]{article}
 
 \usepackage{cvpr}
 \usepackage{times}
@@ -55,7 +55,7 @@ We propose a novel approach for the matching of partial deformable shapes in 3D.
 %%%%%%%%% BODY TEXT
 \section{Introduction}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Problem Statement
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Problem Definition
 Shape correspondence is a fundamental and challenging problem in computer vision and graphics. It has usage in various applications such as transferring texture and animation. 
 Shapes rarely, if ever manifest in only one pose. While rigid transformations between surfaces is a well researched topic with many adequate solutions, a more challenging problem arises when a shape is deformed non-rigidly, a case all too common for people, animals and objects.
 Moreover, the shape acquisition process almost always lead to partiality of the scanned object. Occlusions arise from different angles of acquisition, which cause an object to occlude itself, or stem from other occluding objects. 
@@ -65,7 +65,7 @@ All of these combined give rise to the challenging problem of partial correspond
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Previous Works
 While in a rigid setting the problem can be solved by RANSAC and ICP like approaches\cite{rusu2009fast, holz2015registration}, extending these to non-rigid case produces mediocre results due to an underlying assumption of small deformations. 
 %%%%Isometry based methods
-Early methods specialized for the non-rigid problem focused on minimization of intrinsic metric distortion\cite{bronstein2006generalized,Torsello:2012:GAD:2354409.2354702,Rodola:2013:ENC:2586117.2587323} and regularity of parts\cite{Bronstein:2009:PSO:1553357.1553368,bronstein2008not}. These methods all contain with them a global assumption of isometry which holds only approximately, these tended to break down with it, and are also unable to handle extreme partiality. 
+Early methods specialized for the non-rigid problem focused on minimization of intrinsic metric distortion\cite{bronstein2006generalized,Torsello:2012:GAD:2354409.2354702} and regularity of parts\cite{Bronstein:2009:PSO:1553357.1553368,bronstein2008not}. These methods all contain with them a global assumption of isometry which holds only approximately, these tended to break down with it, and are also unable to handle extreme partiality. 
 %%functional correspondences
 Another family of method is based on functional correspondence. These methods model correspondences as a linear operator of a known nature between a space of functions on manifolds\cite{Ovsjanikov:2012:FMF:2185520.2185526}. These methods, originally designed for the full shape correspondence scenario have achieved state of the art results on various partial matching tasks in the recent years\cite{litany2017fully,vestner2017efficient,rodola2017partial}, and produce dense correspondence maps, but are not parallelizable, and their reliance on intrinsic metrics makes them invariant to symmetry. 
 
@@ -74,13 +74,13 @@ We take a different approach. We take advantage of the fact that while the isome
 
 We can thus treat the problem of partial correspondences as matching of multiple templates, each smaller then the partial surface centered around shape landmarks. 
 
-In addition, since point descriptors are known to be modified by partiality and deformations, instead of using them directly, we follow the approach of\cite{talmi2017template}(\textbf{DDIS}) which tackles template matching in 2D and use simple statistical assumptions on the nature of nearest neighbors between small patch descriptors, along with the assumption of small deformations in medium environments to obtain similarity scores between these partial shape templates.
+In addition, since point descriptors are known to be modified by partiality and deformations, instead of using them directly, we follow the approach of\cite{talmi2017template}(\textbf{DDIS}) which tackles template matching in 2D and use simple statistical assumptions on the nature of nearest neighbors between small patch descriptors, along with the assumption of an approximate conservation of distances in medium environments to obtain similarity scores between these partial shape templates.
 
 We analyze the behavior of DDIS similarity in different scales and devise a multi scale scheme which leverages the advantages of each scale while masking their shortcomings.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Our improvements
 We show that using this approach, we are able to generate a set of sparse correspondences, which are less prone to symmetrical assignment than functional correspondence reliant methods, and are of superior quality on the SHREC16 Partial matching challenge\cite{cosmo2016shrec}. We then demonstrate how these sparse correspondences can be used as an input to existing functional correspondence algorithms to obtain dense correspondences or a higher quality.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Our Contributions
 In summary, our contributions are:
 \begin{itemize}
 	\item A non trivial extension of Deformable Diversity from 2 to 3 Dimensions.
@@ -90,16 +90,6 @@ In summary, our contributions are:
 \end{itemize}
 
 The rest of the work is organized as follows: in section 2 we go over related works in the field of shape analysis. Section 3 introduces our Deformable Diversity framework for 3D shape matching. Experiments and results are given in section 4, and the conclusions are in section 5.
-{\color{red}
-	2. What previous work suggested -key ideas and drawbacks
-	
-	3. Our key ideas
-	
-	4. Our results 
-	
-	5. Major contributions
-	
-	6. Roadmap}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: Related work
@@ -108,32 +98,35 @@ The rest of the work is organized as follows: in section 2 we go over related wo
 \section{Related work}\label{chap:related work}
 
 
-\subsection{Matching Of Surfaces}
+\subsection{Matching Of Deformable Surfaces}
 %%[APL15] [MDK16] [SPKS16][VLR17][OBCS12][KBB13][PBB13b][KBBV15][HWG14]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Shape Descriptors%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 As a fundamental problem in computer graphics and vision, an extensive body of work have been done on the matching of surfaces.
 A variety of shape descriptors have been devised for this task which can be roughly divided in to 2 families. 
 Extrinsic ones, such as PFH\cite{rusu2008learning}, SHOT\cite{tombari2010unique} and FPFH\cite{rusu2009fast} which are usually calculated in euclidean space and are thus sensitive to non rigid deformations, but can discern between reflections and are also more robust to noise, topological artifacts and boundary effects.
- 
 On the other hand intrinsic features such as Heat\cite{bronstein2010scale} and Wave Kernel signatures\cite{aubry2011wave} are invariant under isometric transformations, but are very sensitive to partiality and are unable to discern between symmetric parts.
+These have been commonly used to generate rough correspondences between surfaces and point clouds based on their similarity, but are noisy and offer little in terms of bijectivity and continuity of the solution. a measure of global consistency using these can be achieved by solving an energy minimization of the disimilarity matrices steming from an assignment, and the auction algorithm has been commonly employed for this purpose.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Distortion minimization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Other methods use pairwise relations between points such as geodesic distances\cite{sahilliouglu2012minimum,sahilliouglu2012scale,sahillioǧlu2011coarse}, and search for a configuration which minimizes the distortions of these. These methods usually carry a high complexity, both due to calculating the pairwise relations, and the combinatorial configuration search, and are thus either obtain sparse matches\cite{sahilliouglu2012minimum,sahilliouglu2012scale,sahillioǧlu2011coarse} to alleviate this complexity, or used strategies such as coarse to fine solutions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Embedding Space%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Another common approach has been to embed the shapes into a different lower dimension "canonical"  space, this has been done by generalized MDS\cite{bronstein2006generalized}, an embedding into the mobius group\cite{lipman2009mobius}, or by representation in the LBO basis\cite{shtern2014matching}
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Functional Correspondences%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ A notable family of works are derived from functional correspondences. Introduced at\cite{Ovsjanikov:2012:FMF:2185520.2185526,pokrass2013sparse,kovnatsky2015functional,vestner2017efficient} these assume that functions can be mapped from one manifold to another via a linear operator, finding this transfer operator allows to embed point in a space where the ICP method can obtain correspondences. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Learning%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Lately there has been a large body of works which employ learning methods such as Random Forests\cite{Rodola:2014:DNS:2679600.2679987} and deep learning architectures\cite{masci2016geometric,boscaini2016learning,monti2017geometric}. These show the promise of achieving state of the art performance, but require a lot of annotated data.
 
-These have been commonly used to generate rough correspondences between surfaces and point clouds, but on their own are noisy and offer little in terms of bijectivity and continuity of the solution.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Full correspondence methods
- Recent works, which address the full correspondence problem\cite{aigerman2015seamless,maron2016point,solomon2016entropic,vestner2017product} manage to cope with distortion by using smarter optimization objectives, but use the assumption of a bijection between the shapes, and thus cannot handle significant partiality.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Pairwise(distance metrics and heat kernels)
 \subsection{Partial Matching of Deformable shapes}
+The introduction of partiality adds complications which ar not present in the full correspondence scenario. Spectral quantities change drastically, while geodesic paths disappear.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Rigid partial matching%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+For the rigid setup, the Iterative Closest Point(ICP)\cite{Aiger:2008:CSR:1360612.1360684} algorithm, preceded by initial alignment\cite{rusu2008towards} tackle partial matching successfully. Adapting this to the rigid setup however has proved to have limited success due to the alignment which is necessary, and thus is only fit for very small non-rigid deformation.
 
-For the rigid setup an adequate solution exists. Iterative Closest Point(ICP)\cite{Aiger:2008:CSR:1360612.1360684} algorithm, preceded by initial alignment\cite{rusu2008towards} tackle partial matching successfully. Adapting this to the rigid setup however has proved to have limited success due to the alignment which is necessary, and thus is only fit for very small non-rigid deformation.
+Early works which were designed with partial matching in mind\cite{bronstein2008not,bronstein2009partial} formulated an energy minimization problem over metric distortion and regularity of corresponding parts. Following works relaxed the regularity requirement by allowing for sparse correspondences\cite{Torsello:2012:GAD:2354409.2354702,rodola2013elastic}. 
+Other works\cite{sahilliouglu2012scale,sahilliouglu2012minimum} minimized the distortion metric over the shape extremities by doing combinatorial search of least distortion matches and then densify them while employing a refining scheme in the process. 
 
-Early non-rigid partial correspondence methods were aimed at minimizing distortion
-Early works which were designed with partial matching in mid\cite{bronstein2008not,bronstein2009partial} solved a combined optimization problem over the metric distortion and the regularity of corresponding parts. Following works relaxed the regularity requirement by allowing for sparse correspondence\cite{Torsello:2012:GAD:2354409.2354702} and controlling the sparsity of which \cite{rodola2013elastic}. Other metric distortion based works\cite{sahilliouglu2012scale,sahilliouglu2014multiple} minimized the distortion metric over the shape extremities by doing combinatorial search of least distortion matches and then densify while refining them in the process.I n addition to only supplying sparse correspondences and having a high computational complexity, relying only on the intrinsic distortion metric makes these methods fail when boundary effects plays a significant role.
+In\cite{pokrass2013partial} a bag of words point-wise descriptors on a part in conjunction with a constraint on area similarity and the regularity of the boundary length to produce correspondence less matching parts without point to point correspondences by energy minimization.
 
-In\cite{pokrass2013partial} a bag of words point-wise descriptors on a part in conjunction with a constraint on area similarity and the regularity of the boundary length to produce correspondence less matching parts without point to point correspondences.
-
-Another notable family of works are derived from functional correspondences. Introduced at\cite{Ovsjanikov:2012:FMF:2185520.2185526} these assume that correspondences between spaces of functions on a manifold can be modeled as a linear operators, approximately diagonal given a smart choice of functions, which, given a small set of known correspondences can be recovered. The original paper used the Laplace Beltrami eigenfunctions. Following works employed joint diagnolization of the Laplacian matrices to find an optimal basis, and\cite{pokrass2013sparse} extended it to the setting where the order of the functions is unknown, by solving for permutation of correspondence as well. It has been shown in \cite{kovnatsky2015functional} that matrix completion can address non-isometry and mild partiality. A combination with heat kernels as a distortion metric\cite{vestner2017efficient} has been shown to be able to handle some partiality, given an initialization with sparse correspondences, but this relies heavily on obtaining good initial correspondences, and thus application to partial matching has only been shown as a proof of concept.
-
-Recently \cite{rodola2017partial} had proven that partiality induces a slanted diagonal structure in the correspondence matrix and found the Laplacian eigenfunctions from each basis which induces this structure. Current state of the art\cite{litany2017fully} uses this notion in conjunction with joint diagnolization. The main drawback of this method, shared with other intrinsic methods, is its invariance to symmetries. In addition, using sequential optimization, the entire family of methods cannot be parallelized. 
+Another line of works employ machine learning techniques to learn correspondences between manifolds. 
+Recently \cite{rodola2017partial} had proven that partiality induces a slanted diagonal structure in the correspondence matrix and found the Laplacian eigenfunctions from each basis which induces this structure. Current state of the art\cite{litany2017fully} uses this notion in conjunction with joint diagnolization. The main drawback of this method, shared with other intrinsic methods, is its invariance to symmetries. 
 
 \textbf{3D Shape Descriptors} 
 
@@ -145,24 +138,26 @@ Recently \cite{rodola2017partial} had proven that partiality induces a slanted d
 Template matching in 2D is a well researched topic. Similarly to 3D objects are going complex deformations of pose, and are only seen partially depending on the camera point of view. Recently a series of works which use a very simplistic framework based on the statistical properties of nearest neighbors in low level feature space had made good strides in tackling this complex task.
 
 \textbf{Best Buddies Similarity}
-Great strides had been achieved in the field of 2D template matching. Best Buddies Similarity\cite{dekel2015best} is a simple framework which employs a statistical assumption in which between two windows containing the same template $\mathcal{N}$,$\mathcal{M}$ patches maintain Bi Directional Similarity. 
-That is - given a point $n_i\in\mathcal{N}$ and a corresponding point $m_i\in\mathcal{M}$ they should maintain a relationship of Bi-Directional Similarity - that is if $NN_{\mathcal{M}}(n_i)=m_j$ then on a matching template we should expect $NN_{\mathcal{N}}(m_j)=n_i$. This led to a significant improvement in template matching.
+Great strides had been achieved in the field of 2D template matching. Best Buddies Similarity\cite{dekel2015best} is a simple framework which employs a statistical assumption - if two regions $\mathcal{N}$,$\mathcal{M}$ contain the same template patches should maintain Bi Directional Similarity. 
+That is - given a point $n_i\in\mathcal{N}$ and a corresponding point $m_i\in\mathcal{M}$ they should point too each other as nearest neighbors - that is if $NN_{\mathcal{M}}(n_i)=m_j$ then on a matching template we should expect $NN_{\mathcal{N}}(m_j)=n_i$. Solving for a matching template then amounts to finding the region which has the highest count of best buddies. This amazingly simple scheme has been show to be able to handle occlusions, missing parts and complex deformations of templates.
 
 \textbf{Deformable Diversity Similarity}
-Building upon the above work, \cite{talmi2017template}  added two additional and rather simple assumptions. The first of which is that the diversity of Nearest Neighbors between corresponding templates should be high. This is actually a prerequisite to a high best buddies similarity score and serves as a rough approximations. For this end diversity is formally defined as:
+Building upon the above work, \cite{talmi2017template}  relaxed the requirement for a best buddy relation, and added a requirement for spatial coherency.
+
+The rather cumbersome best buddy relation has been relaxed to requiring only that the diversity of the set of nearest neighbors sets between corresponding templates should be high. This is actually prerequisite to a high best buddies similarity score and serves as a rough approximation of it. For this end diversity is formally defined as:
 \begin{equation}
-\underset{\mathcal{M}\leftarrow\mathcal{N}}{DIS}=c\cdot |n_i\in\mathcal{N}:\exists m_j\in\mathcal{M},NN(m_j,\mathcal{N}=n_i)|
+\underset{\mathcal{N}\rightarrow\mathcal{M}}{DIS}=c\cdot |\{n_i\in\mathcal{N}:\exists m_j\in\mathcal{M},NN(m_j,\mathcal{N})=n_i\}|
 \end{equation}
 where $|{.}|$ denotes group size and $c=1/min(|\mathcal{M}|,|\mathcal{N}|)$ is a normalization factor. Between non corresponding windows, indeed one should expect most points to have no real corresponding point, and thus be mapped to a very and remote nearest neighbors.  On the other hand, regions containing matching objects are drawn from the same distribution, thus the diversity of nearest neighbors should be high.
 To accommodate this assumption not only did they rewarded high diversity of nearest neighbors, but also penalized mapping to the same patch. To this end, another, a negative diversity measure had been defined:
 \begin{equation}
-\kappa(n_i)=|\{m\in\mathcal{M}:NN^a(m,\mathcal{N}=n_i)\}|
+\kappa_{\mathcal{M}}(n_i)=|\{m\in\mathcal{M}:NN^a(m,\mathcal{N})=n_i\}|
 \end{equation}
 With $x_i^a$ denoting the appearance descriptor of point $x_i$.
-Thus the contribution of being a nearest neighbor to a patch with multiple nearest neighbors would become $exp(1-\kappa(NN^a(m_j,\mathcal{N})))$. 
-A final observation made has been that while non rigid deformations do occur, they should be restricted, small, in real objects. With the distance on the window pixel grid between 2 nearest neighbor points defined as $r_j=d(m_j^l,n_i^l)$ with $x_i^l$ denoting the location of $x_i$ relative to the center of the template, the final Deformable Diversity Similarity formulation becomes:
+Thus the contribution of a patch $m_j:NN^a(m_j,\mathcal{N})=n_i$ is $exp(1-\kappa_{\mathcal{M}}(n_i))$. 
+An additional observation made has been that while non isometric deformations do occur, they should be restricted, small, in real objects. With  distance on the window pixel grid between 2 nearest neighbor points defined as $r_j=d(m_j^l,n_i^l)$ with $x_i^l$ denoting the location of $x_i$ on a grid, the final Deformable Diversity Similarity formulation becomes:
 \begin{equation}
-\underset{\mathcal{M}\leftarrow\mathcal{N}}{DDIS}=c\sum_{m_j\in\mathcal{M}} \frac{1}{1+r_j} \cdot exp(1-\kappa (NN^a(m_j,\mathcal{N})))
+\underset{\mathcal{N}\rightarrow\mathcal{M}}{DDIS}=c\sum_{m_j\in\mathcal{M}} \frac{1}{1+r_j} \cdot exp(1-\kappa (NN^a(m_j,\mathcal{N})))
 \end{equation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -179,22 +174,22 @@ A final observation made has been that while non rigid deformations do occur, th
 	
 	1. Goal of this section
 }
-In this section we will describe the Deformable Diversity framework for matching of deformable shapes, as we had adjusted it for the 3D setting.
-The algorithm follows the ideas presented by \cite{talmi2017template}, and adjusts them for the unique challenges posed by the 3D setting in which information is sparser and of varying density, and the scenario of partial shape correspondence in which the part and the scene are of comparable area.
+In this section we will describe the application of DDIS framework for matching of partial deformable shapes.
 
 {\color{red}
 	2. Key ideas of the algorithm
 }
-As stated above, a lot of the key ideas are similar to the 2D scenario - the feature nearest neighbor field between a part and his transformed version tends to give rise to a high diversity of matches.
-In addition, correct corresponding points between a template and a matching object should lie in nearby regions with relation to some reference point on the template.
-We improve upon these with the realization that while deformation should hold very roughly for the entire part, it tends to hold better the closer we are to the reference point. This gives rise to a framework in which instead of matching the whole template at once, we break it into multiple tasks of smaller template matching, effectively using DDIS as a mid level psuedo-metric to describe part similarity.
-Finally we employ a strategy of choosing extremities on the surface for the central points of the mini templates. Picking these extremities together with the matching of mini templates tends to both mitigate boundary effects, and pushes the size of the object in the full shape and the partial shape to be more similar.
+The core of the method lies in utilizing DDIS as a similarity measure between surface parts. While partiality and non rigid deformations causes pointwise descriptors to be inexact, the underlying distribution of the data is still approximately the same for corresponding surface patches.
+As in 2D, correct corresponding points between a template and a matching object should lie in nearby regions with relation to some reference point on the template.
+However, the preservation of distances holds only approximately even for full template matching, and even less so in the presence of partiality and topological noise.
+It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them. Thus, instead of using the entire part for a correspondence between 2 points, we use a subset of it for the matching. 
+Instead of looking for one central point as done in the original paper, we sample many points and treat each of them as a separate template for matching. Thus obtaining better localization. Even though we do not consider the entire part, and thus do not enforce global coherency, matches stemming from this framework are overwhelmingly correct, and this give way to simple scheme of pruning bad matches.
 Finally, we observe that DDIS has different properties at different scales and thus employ a multi-scale cascade to take advantage of this fact.
 
-{\color{red} 	3. Overview of the algorithm (Preprocessing (normal estimation, FPFH), Finding the landmark points, computing DDIS correspondence for pairs, computing correspondence of surfaces)
+{\color{red} 	3. Outline of the algorithm (Preprocessing (normal estimation, FPFH), Finding the landmark points, computing DDIS correspondence for pairs, computing correspondence of surfaces)
 	Include an image of this general overview.}
-
-The outline of the algorithm is as follows: we first calculate the nearest neighbor field between the full shape and the part - we begin by calculating local point descriptors and use ANN to find for each point $m_i \mathcal{M}$ it's most similar point $NN^S(m_i,\mathcal{N})$. We then use an extremity locating algorithm to find suitable mini template centers. for each of those we extract a surface piece of a certain geodesic radius around it to serve as the mini template. Then for each of these templates we look for the most similar piece of surface of a similar radius around each point on $\mathcal{M}$. We use DDIS as a similarity measure between all pairs of mini templates. The points whose surface patch maximize this function for each mini template are then set as the corresponding points to their centers.
+\subsection{Algorithm Outline}
+We employ the following pipeline to obtain a sparse set of correspondences. We begin by finding extremities on the part $\mathcal{N}$ and use them as anchors for a quasi uniform sampling of the part. We define a template for each of the sampled points by extracting a geodesic disk in a defined radius around it. We calculate point-wise descriptors for both $\mathcal{N},\mathcal{M}$ and the induced nearest neighbor field. We then traverse all the points on $\mathcal{M}$, calculating deformable diversity similarity between it and all the query points and pick the pairs maximizing these as the initial set of correspondences. We then filter out matches which have a high distortion score and use a greedy search for a better match for these from the set of local similarity maximas. 
 
 {\color{red}
 	4. Road-map to the section
@@ -202,7 +197,7 @@ The outline of the algorithm is as follows: we first calculate the nearest neigh
 We will begin with a description of the changes made for the deformable diversity framework as a result of moving from 2D to 3D. We will then go over the specific stages of preprocessing necessary for Deformable Diversity in 3D. We will continue with describing the matching process of a single mini template on a full shape. Finally we will describe the extraction of multiple correspondences using this framework.
 
 
-\textbf{3D Deformable Diversity Formulation}
+\subsection{Deformable Diversity Similarity in 3D}
 \begin{figure}[htb]
 	
 	\includegraphics[width=0.5\textwidth]{figures/DDIS2.png}
@@ -212,82 +207,59 @@ We will begin with a description of the changes made for the deformable diversit
 \end{figure}
 
 The nature of 3D data gives rise to unique problems which do not occur in the 2D scenario. Data is distributed in space both sparsely and with varying densities - the amount of data points occupying a given volume can vary drastically.
-
-A second problem arises from the absence of a regular grid. These problems require different definitions for key components to the 2D deformable diversity formulation. For this work we chose the image patch to be replaced by a neighborhood which is required to calculate a selected shape descriptor, usually a small sphere in euclidean space or a surface patch in a small environment with a radius $r_F$. The search window  of a template is replaced by a bigger environment around a chosen point, one which encompasses the entire desired part ,with a radius denoted by $R$. The pixel grid distance is replaced by either a euclidean distance $d_{Euc}(x^l,y^l)$(in the case of point cloud) or geodesic distance $d_{Geo}(x^l,y^l)$(for surface meshes).
-Given these DDIS  between shape parts $\mathcal{M}_{x,R}$ and $\mathcal{N}_{y,R}$ can be naively formulated as:
+A second problem arises from the absence of a regular grid. These problems require different definitions for key components to the 2D deformable diversity formulation. For this work we chose the image patch to be replaced by a neighborhood which is required to calculate a selected shape descriptor, usually a small sphere in euclidean space or a surface patch with a radius $r_F$. The search window  of a template is defined as a geodesic disc around the query point, with a radius denoted by $R_T$. The pixel grid distance is replaced by either a euclidean distance $d_{Euc}(x^l,y^l)$(in the case of point clouds) or geodesic distance $d_{Geo}(x^l,y^l)$(for surface meshes).
+Given these DDIS  between shape parts $\mathcal{M}_{x,R_T}$ and $\mathcal{N}_{y,R_T}$ can be naively formulated as:
 \begin{equation}
-DDIS=c\cdot\sum_{m_j\in\mathcal{M}_{x,R}}\frac{exp(1-\kappa(NN^S(m_j,\mathcal{N}_{y,R}))}{1+r_j}
+DDIS=c\cdot\sum_{m_j\in\mathcal{M}_{x,R_T}}\frac{exp(1-\kappa(NN^S(m_j,\mathcal{N}_{y,R_T}))}{1+r_j}
 \end{equation}
-where $\mathcal{M}_{x,R}$ and $\mathcal{N}_{y,R}$ are the shape parts in a radius $R$ surrounding the points $m_x$ and $n_y$ respectively,and $r_j=|d(m_j^l,m_x^l)-d(NN^S(m_j,\mathcal{N}_{y,R})^l,n_y^l)|/(\gamma\cdot R)$ , where $\gamma$ is a tunable parameter and $c=1/min{|\mathcal{N}_{y,R}|,|\mathcal{M}_{x,R}|}$.
+where $\mathcal{M}_{x,R_T}$ and $\mathcal{N}_{y,R_T}$ are the shape parts in a radius $R_T$ surrounding the points $x\in \mathcal{M}$ and $y \in \mathcal{N}$ respectively, $r_j$ is the induced deformation
+\begin{equation} 
+r_j=\frac{|d(m_j^l,m_x^l)-d(NN^S(m_j,\mathcal{N}_{y,R})^l,n_y^l)|}{\gamma\cdot R_T}
+\end{equation}
+,where $\gamma$ is a selected fraction and $c$ is a normalization coefficient $c=1/min{|\mathcal{N}_{y,R_T}|,|\mathcal{M}_{x,R_T}|}$.
 
 However, we wouldn't like to penalize our similarity score in case of repeating patterns or symmetrical shapes which have both symmetries in the template search window. Intuitively and empirically the exponent is too harsh and indeed unnecessary as both deformity and diversity will attenuate the score in case of multiple nearest neighbors. On the other hand, we wouldn't want to reward far correspondences at all. 
-{\color{red} explain why -- can we see it visually on the same example?}{\color{green} no visual example yet, as the partition into smaller templates mitigates some of the problems of the old formulation it seems, though the new one has still given an extra 2 percent of accurate matches even in the mini template setting}
-To account for this the following formulation has been found to work better: given a point $n_i\subset \mathcal{N}_{y,R}$ has a set of points
-$\mathcal{M}_{n_i}=\{m_j\in\mathcal{M}_{j,R}:NN^S(m_j,N_{y,R})=n_i\}$ 
-for which it is the nearest neighbor, we define 
+{\color{red} explain why -- can we see it visually on the same example?}{\color{green} no visual example yet, as the partition into smaller templates mitigates some of the problems of the old formulation it seems, though the new one has still given an extra 2 percent of accurate matches even in the mini template setting}\\
+
+To account for this the following formulation has been found to work better: given a point $n_i\subset \mathcal{N}_{y,R}$ has a set of nearest neighbors in descriptor space on a geodesic disc 
+$\mathcal{M}_{n_i}=\{m_j\in\mathcal{M}_{j,R_T}:NN^S(m_j,N_{y,R_T})=n_i\}$ 
+, we define 
 $m_i' = \underset{m_j\in\mathcal{M}_{n_i}}{argmin}\space (r_j)$
-and $r_i'$ the minimal distortion distance our corrected formula becomes
+and $r_i'$ the minimal distortion distance, we add only the contribution of this point to the similarity score which then becomes
 \begin{equation}
-DDIS(N_{y,R},\mathcal{M}_{x,R},\gamma)=\sum_{m_i'}\frac{1}{1+r_i'}
+DDIS(N_{y,R_T},\mathcal{M}_{x,R_T},\gamma)=\sum_{m_i'}\frac{1}{1+r_i'}
 \end{equation}
-This equation still promotes both diversity and low deformations, but is less biased towards unsymmetrical surfaces.
-
-
-
-\begin{algorithm}
-	\caption{3DIS Correspondence}
-	\begin{algorithmic}
-		\Procedure{DDIS Match}{$\mathcal{M},n_y,\mathcal{N},R_{thresh},\underset{\mathcal{M}\rightarrow\mathcal{N}}{NNF}$}\Comment{Returns the location of the $n_i\subset\mathcal{N} \space in \mathcal{M}$}
-		\State{$\mathcal{N}_{y,R}\leftarrow \{N_i\in \mathcal{N}:d_{Geo}(n_i,n_x)<R_{thresh}\}$}
-		\State{$Similarity_{max}\leftarrow 0$}
-		\For{$m_x\in \mathcal{M}$} \Comment{DDIS calculation Loop}
-		\State{$\mathcal{M}_{x,R}\leftarrow \{m_j\in 
-			\mathcal{M}:d_{Geo}(m_x,m_j)<1.05\cdot R_{thresh}\}$}
-		\State{$Similarity[x]\leftarrow DDIS(\mathcal{M}_{x,R},\mathcal{N}_{y,R})$}
-		\If{$Similarity[x]>Similarity_{max}$}
-		\State{$Similarity_{max}\leftarrow Similarity[x]$}
-		\State{$m_y^*\leftarrow m_x$}
-		\EndIf
-		\EndFor
-		\State{return $m_y^*$}
-		\EndProcedure
-	\end{algorithmic}
-\end{algorithm}
-
-\begin{figure}[htb]
-	\includegraphics[width=0.5\textwidth]{figures/NNF.png}
-	\caption{Nearest Neighbor Field calculation.}
-\end{figure}
+This equation still promotes both diversity and low deformations, but is less biased toward surfaces which are either symmetrical, or exhibit repeating patterns.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: DDIS Correspondence between a Point and a Surface
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{DDIS Template Matching}
 {\color{red} Goal of the algorithm}
-In this section we go over the flow of template matching of 3D shapes using DDIS, the solution of which constitutes the core of our partial shape matching. Given a template $\mathcal{N}_{y,R}$ with a reference point $n_y$ as it's center and a maximal distance $R$, we aim to find on and object $\mathcal{M}$ which has a deformed version of it, the corresponding surface piece $\mathcal{M}_{y*,R}$ and it's center $m_y*$. The solution is obtained by finding the point on $\mathcal{M}$ whose surrounding surface maximizes the above mentioned DDIS measure.
+In this section we go over the flow of template matching of 3D shapes using DDIS, the solution of which constitutes the core of our partial shape matching. Given a template $\mathcal{N}_{y,R_T}$ with a reference point $n_y$ as it's center and a maximal distance $R_T$, we aim to find on a model $\mathcal{M}$ which has a deformed version of it, the corresponding surface piece $\mathcal{M}_{y*,R_T}$ and it's center $m_y*$. The solution is obtained by finding the point on $\mathcal{M}$ whose surrounding geodesic disc maximizes the above mentioned DDIS measure.
 {\color{red}key ideas}
 
 {\color{red} Overview}
 We'll first give an overview, and then give an extended description of each of each stage. 
 
 We start by calculating the normals for $\mathcal{M}$ and $\mathcal{N}$.
-We than calculate local patch descriptors for each patch of some neighborhood around the points in each mesh(For our purpose FPFH seemed to work the best of our tested descriptors). 
-Having calculated these descriptors we calculate a nearest neighbor field by finding for each patch in $\mathcal{M}$ it's Nearest Neighbor in $\mathcal{N}$. 
-We now find the distance of every point $n\in \mathcal{N}$ to the desired point $n_y$ for a desired neighborhood $R$.
- We now go over every point $m_x\in mathcal{M}$. For each we extract the surface $\mathcal{M}_{x,R}$ in an $R$ neighborhood around it.
- We take notice that while the above stages are done here in the context of template matching for one template, when matching multiple templates all of the above calculations have to be done only once between the shapes, with the exception of geodesic distance field extraction for the template itself.
- 
- Now we calculate our DDIS similarity measure of this surface with $\mathcal{N}_{x,R}$ which has $n_y$ as it's center. Having done that for every location, the point $m_y*$  which gets the maximal DDIS Score is deemed the corresponding point to $n_y$
+We than calculate local point descriptors for each patch of some neighborhood around the points in each mesh(For our purpose FPFH seemed to work the best of our tested descriptors). 
+Having calculated these, we calculate a nearest neighbor field by finding for each patch in $\mathcal{M}$ it's Nearest Neighbor in $\mathcal{N}$. 
+We now find the distance of every point $n\in \mathcal{N}$ to the desired point $y\in \mathcal{N}$ for a desired neighborhood $R_T$.
+We now go over every point $x\in mathcal{M}$. For each we extract the geodesic disc $\mathcal{M}_{x,R_T}$ around it.
+We take notice that while the above stages are done here in the context of template matching for one template, when matching multiple templates all of the above calculations have to be done only once between the shapes, with the exception of geodesic distance field extraction for the template itself. 
+Finally we calculate DDIS for this disc with $\mathcal{N}_{y,R}$ which has $y$ as it's center. Having done that for every point, the point $y*\in \mathcal{M}$  which gets the maximal DDIS Score is deemed the corresponding point to $y$.
 
 
 \textbf{Point Normal Estimation}
-There are various schemes for the estimation of point normals given a triangulated mesh surface. We have picked the one which is available in the standard PCL. Given a vertex $p_i$ on a triangulated mesh $\mathcal{X}$ and it's associated polygons $\{A_j\}_{j=1}^k$ and their normals $N_{A_j}$ the point normal $N_i = \sum_{j=1}^k{|A_j|\cdot N_{A_j}}$
+There are various schemes for estimating point normals given a triangulated mesh surface. We have picked the one which is available in the standard PCL. Given a vertex $p_i$ on a triangulated mesh $\mathcal{X}$ and it's associated polygons $\{A_j\}_{j=1}^k$ and their normals $N_{A_j}$ the point normal $N_i = \sum_{j=1}^k{|A_j|\cdot N_{A_j}}$
 
 \textbf{Local Patch Size choice}
-DDIS as defined by [] uses patch descriptors as low level features for their similarity measure. While a patch in an image can by defined by the images grid no such grid exists on 3D point clouds and meshes, where density of data points can vary. Thus a patch has to be defined by some geometric measure. While the more robust way to define it would be using geodesic distance, since we are talking a small environment around a point on the mesh we have found that for practical purposes a patch in a defined euclidean radius around a point serves well enough. We pick this radius in the following way: given the full surface mesh $\mathcal{M}$ we define a characteristic length $D_\mathcal{M} = \sqrt{Area(\mathcal{M})}$, and tune a parameter $\alpha$ to obtain $r_{F} = \frac{\alpha}{100}*D_\mathcal{M}$
+DDIS as defined by \cite{talmi2017template} uses patch descriptors as low level features for their similarity measure. While a patch in an image can by defined by the images grid no such grid exists on 3D point clouds and meshes, where density of data points can vary. Thus a patch has to be defined by some geometric measure. While the more robust way to define it would be using geodesic distance, since we are talking a small environment around a point on the mesh we have found that for practical purposes a patch in a defined euclidean radius $r_F$ around a point serves well enough. We pick this radius in the following way: given the full surface mesh $\mathcal{M}$ we find it's equivalent of a diameter $D_\mathcal{M} = \sqrt{Area(\mathcal{M})}$, and tune a parameter $\alpha$ to obtain $r_{F} = \frac{\alpha}*D_\mathcal{M}$
 
 \textbf{Local Patch Descriptor}
 A lot of local shape descriptors have been used successfully in 3D shape analysis. We have tested the following descriptors which are included in the Point Cloud Library: ROPS[\cite[Theorem 2]{Knuth1973}] PFH[] SHOT[],HKS[],SIHKS[],ROPS[] and FPFH[]. Out of these 4 FPFH has achieved the best performance, and thus the descriptor for the local patch has been chosen to be FPFH. 
+
 \textbf{Nearest Neighbor Field}
 As an intermediate stage towards the calculation of Deformable Diversity Similarity measure, the calculation of the nearest neighbor field(will be abbreviated as $NNF$) needs to be calculated. Thus for every patch $m\in \mathcal{M}$ we have to find the patch on the template $n\in\mathcal{n}$ which resembles it the most. For $FPFH, NN^S(m_j,\mathcal{N})$ is defined $NN^S (m_j,\mathcal{N}) \equiv \underset{i}{argmin}\chi^2(FPFH(m_j],FPFH(n_i))$ and the Nearest Neighbor Field is the set of all these correspondences.
 

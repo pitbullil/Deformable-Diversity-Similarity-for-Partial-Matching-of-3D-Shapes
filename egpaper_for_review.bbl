@@ -5,17 +5,19 @@ D.~Aiger, N.~J. Mitra, and D.~Cohen-Or.
 \newblock 4pointss congruent sets for robust pairwise surface registration.
 \newblock {\em ACM Trans. Graph.}, 27(3):85:1--85:10, Aug. 2008.
 
-\bibitem{aigerman2015seamless}
-N.~Aigerman, R.~Poranne, and Y.~Lipman.
-\newblock Seamless surface mappings.
-\newblock {\em ACM Transactions on Graphics (TOG)}, 34(4):72, 2015.
-
 \bibitem{aubry2011wave}
 M.~Aubry, U.~Schlickewei, and D.~Cremers.
 \newblock The wave kernel signature: A quantum mechanical approach to shape
   analysis.
 \newblock In {\em Computer Vision Workshops (ICCV Workshops), 2011 IEEE
   International Conference on}, pages 1626--1633. IEEE, 2011.
+
+\bibitem{boscaini2016learning}
+D.~Boscaini, J.~Masci, E.~Rodol{\`a}, and M.~Bronstein.
+\newblock Learning shape correspondence with anisotropic convolutional neural
+  networks.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  3189--3197, 2016.
 
 \bibitem{bronstein2008not}
 A.~M. Bronstein and M.~M. Bronstein.
@@ -74,16 +76,26 @@ A.~Kovnatsky, M.~M. Bronstein, X.~Bresson, and P.~Vandergheynst.
 \newblock In {\em Proceedings of the IEEE conference on computer vision and
   pattern recognition}, pages 905--914, 2015.
 
+\bibitem{lipman2009mobius}
+Y.~Lipman and T.~Funkhouser.
+\newblock M{\"o}bius voting for surface correspondence.
+\newblock {\em ACM Transactions on Graphics (TOG)}, 28(3):72, 2009.
+
 \bibitem{litany2017fully}
 O.~Litany, E.~Rodol{\`a}, A.~M. Bronstein, and M.~M. Bronstein.
 \newblock Fully spectral partial shape matching.
 \newblock In {\em Computer Graphics Forum}, volume~36, pages 247--258. Wiley
   Online Library, 2017.
 
-\bibitem{maron2016point}
-H.~Maron, N.~Dym, I.~Kezurer, S.~Kovalsky, and Y.~Lipman.
-\newblock Point registration via efficient convex relaxation.
-\newblock {\em ACM Transactions on Graphics (TOG)}, 35(4):73, 2016.
+\bibitem{masci2016geometric}
+J.~Masci, E.~Rodol{\`a}, D.~Boscaini, M.~M. Bronstein, and H.~Li.
+\newblock Geometric deep learning.
+\newblock In {\em SIGGRAPH ASIA 2016 Courses}, page~1. ACM, 2016.
+
+\bibitem{monti2017geometric}
+F.~Monti, D.~Boscaini, and J.~Masci.
+\newblock Geometric deep learning on graphs and manifolds using mixture model
+  cnns.
 
 \bibitem{Ovsjanikov:2012:FMF:2185520.2185526}
 M.~Ovsjanikov, M.~Ben-Chen, J.~Solomon, A.~Butscher, and L.~Guibas.
@@ -101,6 +113,13 @@ J.~Pokrass, A.~M. Bronstein, M.~M. Bronstein, P.~Sprechmann, and G.~Sapiro.
 \newblock Sparse modeling of intrinsic correspondences.
 \newblock In {\em Computer Graphics Forum}, volume~32, pages 459--468. Wiley
   Online Library, 2013.
+
+\bibitem{Rodola:2014:DNS:2679600.2679987}
+E.~Rodol\`{a}, S.~R. Bul\`{o}, T.~Windheuser, M.~Vestner, and D.~Cremers.
+\newblock Dense non-rigid shape correspondence using random forests.
+\newblock In {\em Proceedings of the 2014 IEEE Conference on Computer Vision
+  and Pattern Recognition}, CVPR '14, pages 4177--4184, Washington, DC, USA,
+  2014. IEEE Computer Society.
 
 \bibitem{rodola2017partial}
 E.~Rodol{\`a}, L.~Cosmo, M.~M. Bronstein, A.~Torsello, and D.~Cremers.
@@ -132,22 +151,30 @@ R.~B. Rusu, Z.~C. Marton, N.~Blodow, M.~Dolha, and M.~Beetz.
 \newblock Towards 3d point cloud based object maps for household environments.
 \newblock {\em Robotics and Autonomous Systems}, 56(11):927--941, 2008.
 
+\bibitem{sahilliouglu2012minimum}
+Y.~Sahillio{\u{g}}lu and Y.~Yemez.
+\newblock Minimum-distortion isometric shape correspondence using em algorithm.
+\newblock {\em IEEE transactions on pattern analysis and machine intelligence},
+  34(11):2203--2215, 2012.
+
 \bibitem{sahilliouglu2012scale}
 Y.~Sahillio{\u{g}}lu and Y.~Yemez.
 \newblock Scale normalization for isometric shape matching.
 \newblock In {\em Computer Graphics Forum}, volume~31, pages 2233--2240. Wiley
   Online Library, 2012.
 
-\bibitem{sahilliouglu2014multiple}
-Y.~Sahillio{\u{g}}lu and Y.~Yemez.
-\newblock Multiple shape correspondence by dynamic programming.
-\newblock In {\em Computer Graphics Forum}, volume~33, pages 121--130. Wiley
-  Online Library, 2014.
+\bibitem{sahillioǧlu2011coarse}
+Y.~Sahillioǧlu and Y.~Yemez.
+\newblock Coarse-to-fine combinatorial matching for dense isometric shape
+  correspondence.
+\newblock In {\em Computer Graphics Forum}, volume~30, pages 1461--1470. Wiley
+  Online Library, 2011.
 
-\bibitem{solomon2016entropic}
-J.~Solomon, G.~Peyr{\'e}, V.~G. Kim, and S.~Sra.
-\newblock Entropic metric alignment for correspondence problems.
-\newblock {\em ACM Transactions on Graphics (TOG)}, 35(4):72, 2016.
+\bibitem{shtern2014matching}
+A.~Shtern and R.~Kimmel.
+\newblock Matching the lbo eigenspace of non-rigid shapes via high order
+  statistics.
+\newblock {\em Axioms}, 3(3):300--319, 2014.
 
 \bibitem{talmi2017template}
 I.~Talmi, R.~Mechrez, and L.~Zelnik-Manor.
@@ -174,11 +201,5 @@ M.~Vestner, Z.~L{\"a}hner, A.~Boyarski, O.~Litany, R.~Slossberg, T.~Remez,
 \newblock Efficient deformable shape correspondence via kernel matching.
 \newblock In {\em 3D Vision (3DV), 2017 International Conference on}, pages
   517--526. IEEE, 2017.
-
-\bibitem{vestner2017product}
-M.~Vestner, R.~Litman, E.~Rodol{\`a}, A.~M. Bronstein, and D.~Cremers.
-\newblock Product manifold filter: Non-rigid shape correspondence via kernel
-  density estimation in the product space.
-\newblock In {\em CVPR}, pages 6681--6690, 2017.
 
 \end{thebibliography}

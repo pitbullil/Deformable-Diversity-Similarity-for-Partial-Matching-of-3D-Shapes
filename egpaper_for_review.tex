@@ -207,7 +207,8 @@ We will begin with a description of the changes made for the deformable diversit
 \end{figure}
 
 The nature of 3D data gives rise to unique problems which do not occur in the 2D scenario. Data is distributed in space both sparsely and with varying densities - the amount of data points occupying a given volume can vary drastically.
-A second problem arises from the absence of a regular grid. These problems require different definitions for key components to the 2D deformable diversity formulation. For this work we chose the image patch to be replaced by a neighborhood which is required to calculate a selected shape descriptor, usually a small sphere in euclidean space or a surface patch with a radius $r_F$. The search window  of a template is defined as a geodesic disc around the query point, with a radius denoted by $R_T$. The pixel grid distance is replaced by either a euclidean distance $d_{Euc}(x^l,y^l)$(in the case of point clouds) or geodesic distance $d_{Geo}(x^l,y^l)$(for surface meshes).
+A second problem arises from the absence of a regular grid. These problems require different definitions for key components to the 2D deformable diversity formulation. For this work we chose the image patch to be replaced by a neighborhood which is required to calculate a selected shape descriptor, usually a small sphere in euclidean space or a surface patch with a radius $r_F$. 
+The search window  of a template is defined as a geodesic disc around the query point, with a radius denoted by $R_T$. The pixel grid distance is replaced by either a euclidean distance $d_{Euc}(x^l,y^l)$(in the case of point clouds) or geodesic distance $d_{Geo}(x^l,y^l)$(for surface meshes).
 Given these DDIS  between shape parts $\mathcal{M}_{x,R_T}$ and $\mathcal{N}_{y,R_T}$ can be naively formulated as:
 \begin{equation}
 DDIS=c\cdot\sum_{m_j\in\mathcal{M}_{x,R_T}}\frac{exp(1-\kappa(NN^S(m_j,\mathcal{N}_{y,R_T}))}{1+r_j}
@@ -275,13 +276,18 @@ A key takeaway from experimenting with DDIS as a template matching algorithm for
 We then employ a simple sampling scheme which ensures a good quasi uniform covering of the surface.
 Finally, we for each sample point we extract a geodesic disc, and find its counterpart on $\mathcal{M}$ which maximizes DDIS. 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% subsection: Mesh Sampling
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \textbf{Landmark Extraction}
-We follow the work of [Sagi Katz Ayellet Tal] to obtain interesting landmark points. Given a shape the work employs the following framework to extract it's extremities. A point is detected as an extremity if it fulfills 2 conditions: - it's sum of geodesic distances is a local extrema, formally, for $v\in S$ ,where $S$ is a surface mesh, we define the set of points with a direct edge to it as $N_v$, the point is a critical point if :
+We follow the work of\cite{katz2005mesh} to obtain mesh extremities. Given a shape the work employs the following framework to extract it's extremities. A point is detected as an extremity if it fulfills 2 conditions: - it's sum of geodesic distances is a local extrema, formally, for $v\in S$ ,where $S$ is a surface mesh, we define the set of points with a direct edge to it as $N_v$, the point is a critical point if :
 \begin{equation}
 \sum_{v_i\in S}d_{geo}(v,v_i)>\sum_{v_i\in S}d_{geo}(v_n,v_i), \forall v_n\in N_v
 \end{equation}
-An additional requirement for it to be an extremities is for it to lie on the convex hull of the shape's MDS. In this work we have dropped the last condition, but chose $N_v*$ - a neighborhood of $0.03\cdot \sqrt{Area(S)}$.
+An additional requirement for it to be an extremities is for it to lie on the convex hull of the shape's MDS. In this work we have dropped the last condition, but chose $N_v*$ - a neighborhood of $0.03\cdot \sqrt{Area(S)}$. This stage gives us the initial set of sample denoted $S_0$
 
+\textbf{Mesh sampling}
+We employ a sampling scheme very reminiscent of the one employed in\cite{sahillioǧlu2011coarse}. In each stage $k$, we take the set of samples $S_{k-1}$ and mark all the points in a radius $R_S$ around them. From the set of remaining point we choose the one whose distance to the set $S_{k-1}$ is minimal to create the set $S_k$. We repeat this process until all the points are marked.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%% subsection: Landmark Template Matching
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -308,8 +314,9 @@ An additional requirement for it to be an extremities is for it to lie on the co
 \end{algorithm}
 
 \textbf{Landmark Template Matching}
-For this end, we create a template for each landmark point - we collect all surface point in a geodesic neighborhood around it of $\beta\cdot\sqrt{area(\mathcal{M}}$  where for this case a good $\beta~(0.2,0.5)$ where larger $beta$ prevents global scale error, such as a cats paw being mapped to a hind paw, while smaller beta promotes tighter localization on the part itself. This can be seen in Figure[] While it might seem natural to calculate a different nearest neighbor field for each landmark template it has been empirically found that using the global nearest neighbor field gives much better results. This is probably due to the fact that the nearest neighbor field encodes global information when obtained this way and eliminates local distractors.
-Each landmark template is compared to all surface parts of a similar $R$ on $\mathcal{M}$ to obtain final point correspondences.
+For this end, we create a template for each landmark point - we collect all surface point in a surrounding geodesic disc of radius $R_T=\beta\cdot\sqrt{area(\mathcal{M}}$. While it might seem natural to calculate a different nearest neighbor field for each landmark template it has been empirically found that using the global nearest neighbor field gives much better results. This is hypothesized to occur due to the fact that this nearest neighbor field encodes global information when obtained this way and might  eliminates local distractors.
+
+Each landmark template is compared to all surface parts of a similar $R_T$ on $\mathcal{M}$ to obtain correspondences.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -319,7 +326,7 @@ Each landmark template is compared to all surface parts of a similar $R$ on $\ma
 The observation of the effects of the choice of $\beta$ and the trade-off between finer localization and avoidance of global errors naturally leads to the adoption of a multi scale framework. We calculate $DDIS$ score for multiple $beta$ values, and use the location obtained with a large beta to select a narrow environment in which we look for the maximum of DDIS with a smaller value $beta$, thus using the larger scale to get a rough global location, and the smaller scale to fit it into a more exact location. While this might be done at multiple custom scales we have found that the triplet $\beta ,2\cdot beta/3\beta/3$ works well.
 \begin{figure}[htb]
 	\includegraphics[width=0.5\textwidth]{figures/MultiScaleDis.png}
-	\caption{Illustration of the multi scale framework. Gray point are the area chosen by the previous scale to be valid. It can be seen that Wrong maxima in lower scales are ignored due to this process}
+	\caption{Illustration of the multi scale framework. The green grid marks the area chosen by the previous scale to be valid. It can be seen that wrong maxima in lower scales are ignored due to this process}
 \end{figure}
 
 \begin{figure*}
@@ -327,6 +334,24 @@ The observation of the effects of the choice of $\beta$ and the trade-off betwee
 	\includegraphics[width=1\textwidth]{figures/AblationStudyThreshold.png}
 	\caption{Effect of the $\beta$ parameter on the results: it can be seen that a smaller beta promotes better localization in a small neighborhood, while higher values of $\beta$ lead to more local errors but are more robust to global errors. It can be seen that the multi-scale cascade achieves better results both locally and globally.}
 \end{figure*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% section: Greedy outlier rejection
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Greedy Outlier Fixation}
+The results obtained by the pipeline, while empirically already producing matches of superior quality to state of the art algorithms in the field nevertheless have no explicit requirement on generating a coherent set of matches. We thus as a post processing step identify outliers and replace them with more suitable correspondences. 
+Inspired by distortion minimization methods such as\cite{sahillioǧlu2011coarse} we pick the distortion of a correspondence as a measure of its coherency to the set. For a correspondence $(y,x)\in \mathcal{N}\times\mathcal{M}$ the distortion as the mean of it deviation of relative distance to all other points in the set. Given a set of correspondences $P={p_i=(y_i,x_i)\in \mathcal{N}\times\mathcal{M}}$ the distortion is defined by the equation
+\begin{equation}
+	D(p_i) = \frac{1}{|P|-1}\sum_{j \neq i}{\rho(p_i,p_j)}
+\end{equation}
+where $\rho$ is the individual relative distortion induced by 2 correspondences
+\begin{equation}
+\rho(p_i,p_j) = max(\frac{d(y_i,y_j)}{d(x_i,x_j)},\frac{d(x_i,x_j)}{d(y_i,y_j)})
+\end{equation}
+where $d$ is the geodesic distance between 2 points.
+We first filter out outliers by thresholding matches whose distortion is larger then 1.2 of the mean distortion, and then greedily add from the set of DDIS maximas the point which minimizes this distortion.
+\subsection{Densification}
+If necessary, the sparse correspondences produced by our algorithm can then be passed as an input for the method of \cite{litany2017fully} to produce dense matches. This is done in a manner identical to the refinement step which is already used in the method, and improves its results.
 \section{Experiments and results}\label{section:results}
 
 In this section we will briefly go over the experiments performed and their results. We'll introduce the datasets, detail our experiments and their results

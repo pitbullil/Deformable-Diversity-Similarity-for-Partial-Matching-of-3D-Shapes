@@ -189,7 +189,13 @@ Finally, we observe that DDIS has different properties at different scales and t
 {\color{red} 	3. Outline of the algorithm (Preprocessing (normal estimation, FPFH), Finding the landmark points, computing DDIS correspondence for pairs, computing correspondence of surfaces)
 	Include an image of this general overview.}
 \subsection{Algorithm Outline}
-We employ the following pipeline to obtain a sparse set of correspondences. We begin by finding extremities on the part $\mathcal{N}$ and use them as anchors for a quasi uniform sampling of the part. We define a template for each of the sampled points by extracting a geodesic disk in a defined radius around it. We calculate point-wise descriptors for both $\mathcal{N},\mathcal{M}$ and the induced nearest neighbor field. We then traverse all the points on $\mathcal{M}$, calculating deformable diversity similarity between it and all the query points and pick the pairs maximizing these as the initial set of correspondences. We then filter out matches which have a high distortion score and use a greedy search for a better match for these from the set of local similarity maximas. 
+The following pipeline is employed to obtain a sparse set of point-wise correspondences. 
+We calculate point-wise descriptors(FPFH) for both $\mathcal{N},\mathcal{M}$.
+We then find the nearest neighbor on $\mathcal{N} for every point.
+We begin by finding extremities on the part $\mathcal{N}$. 
+These are then used as anchors for a quasi uniform sampling of the part. 
+A geodesic disk of a defined radius is extracted for each sample.
+ We then traverse all the points on $\mathcal{M}$, calculating deformable diversity similarity between it and all the query points and pick the pairs maximizing these as the initial set of correspondences. We then filter out matches which have a high distortion score and use a greedy search for a better match for these from the set of local similarity maximas. 
 
 {\color{red}
 	4. Road-map to the section

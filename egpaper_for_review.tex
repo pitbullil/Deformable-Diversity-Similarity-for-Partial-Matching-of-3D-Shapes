@@ -16,6 +16,30 @@
 % run, let it finish, and you should be clear).
 \usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false,draft]{hyperref}
 
+
+%%% comment \ShowNotes out to remove all colored comments defined with \newcommand below %%%
+\newcommand*{\ShowNotes}{}
+
+\ifdefined\ShowNotes
+  \newcommand{\colornote}[3]{{\color{#1}\bf{#2: #3}\normalfont}}
+\else
+  \newcommand{\colornote}[3]{}
+\fi
+% maybe requires 
+\usepackage[usenames]{color}
+\definecolor{darkred}{rgb}{0.7,0.1,0.1}
+\definecolor{darkgreen}{rgb}{0.1,0.7,0.1}
+\definecolor{cyan}{rgb}{0.7,0.0,0.7}
+\definecolor{dblue}{rgb}{0.2,0.2,0.8}
+\definecolor{maroon}{rgb}{0.76,.13,.28}
+\definecolor{burntorange}{rgb}{0.81,.33,0}
+
+%\newcommand {\note}[1]{\colornote{maroon}{Note}{#1}}
+\newcommand {\todo}[1]{\colornote{cyan}{TODO}{#1}}
+\newcommand {\lihi}[1]{\colornote{magenta}{LZ}{#1}}
+\newcommand {\ayellet}[1]{\colornote{blue}{AT}{#1}}
+\newcommand {\nadav}[1]{\colornote{red}{NA}{#1}}
+
 % \cvprfinalcopy % *** Uncomment this line for the final submission
 
 \def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
@@ -26,7 +50,7 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{Deformable Diversity Similarity for Partial Matching of 3D Shapes}
+\title{Partial Matching of 3D Shapes using Deformable Diversity}
 
 \author{First Author\\
 Institution1\\
@@ -41,6 +65,8 @@ Institution1 address\\
 Second Author\\
 Institution2\\
 First line of institution2 address\\
+51
+
 {\tt\small secondauthor@i2.org}
 }
 
@@ -163,39 +189,45 @@ An additional observation made has been that while non isometric deformations do
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: 3D Deformable Diversity Similarity
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Deformable Diversity for Partial matching of 3D surfaces}\label{sec:algorithm}
+\section{General Approach}
+\label{sec:algorithm}
 \begin{figure*}[htb]
 	\centering
 	\includegraphics[width=1\textwidth]{figures/Birds_Flight.png}
 	\caption{High level illustration of the DDIS Partial Correspondence pipe.}
 \end{figure*}
 
-{\color{red}
-	
-	1. Goal of this section
-}
-In this section we will describe the application of DDIS framework for matching of partial deformable shapes.
+Given two surfaces $\mathcal{M}$ and $\mathcal{N}$,the goal is to find the best match of  $\mathcal{N}$ within  $\mathcal{M}$.
+Our approach is based on \ayellet{XXXX} key ideas, which we describe hereafter.
 
-{\color{red}
-	2. Key ideas of the algorithm
+\ayellet{Nadav, this paragraph (key ideas) is a mess. 
+A key idea is NOT how you you implemented it (e.g. DDIS), but rather what lies behind it.
+Re-write it.
 }
 The core of the method lies in utilizing DDIS as a similarity measure between surface parts. While partiality and non rigid deformations causes pointwise descriptors to be inexact, the underlying distribution of the data is still approximately the same for corresponding surface patches.
 As in 2D, correct corresponding points between a template and a matching object should lie in nearby regions with relation to some reference point on the template.
 However, the preservation of distances holds only approximately even for full template matching, and even less so in the presence of partiality and topological noise.
-It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them. Thus, instead of using the entire part for a correspondence between 2 points, we use a subset of it for the matching. 
-Instead of looking for one central point as done in the original paper, we sample many points and treat each of them as a separate template for matching. Thus obtaining better localization. Even though we do not consider the entire part, and thus do not enforce global coherency, matches stemming from this framework are overwhelmingly correct, and this give way to simple scheme of pruning bad matches.
+It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them. 
+Thus, instead of using the entire part for a correspondence between 2 points, we use a subset of it for the matching. 
+Instead of looking for one central point as done in the original paper, we sample many points and treat each of them as a separate template for matching. 
+Thus obtaining better localization. Even though we do not consider the entire part, and thus do not enforce global coherency, matches stemming from this framework are overwhelmingly correct, and this give way to simple scheme of pruning bad matches.
 Finally, we observe that DDIS has different properties at different scales and thus employ a multi-scale cascade to take advantage of this fact.
 
+Therefore, our algorithm, which is illustraed inFigure XXX, consists of the following steps.
+\begin{enumerate}
+    \item 
+    Pre-processing. 
+\end{enumerate}
 {\color{red} 	3. Outline of the algorithm (Preprocessing (normal estimation, FPFH), Finding the landmark points, computing DDIS correspondence for pairs, computing correspondence of surfaces)
 	Include an image of this general overview.}
 \subsection{Algorithm Outline}
 The following pipeline is employed to obtain a sparse set of point-wise correspondences. 
-We first calculate point-wise descriptor by obtaining mesh normals and calculating FPFH shape descriptors for every points on both meshes.
+We first a calculate dense point-wise descriptor field by obtaining mesh normals and calculating FPFH shape descriptors for every points on both meshes.
 Then the FPFH space nearest neighbor of every point in $\mathcal{M}$ in $\mathcal{N}$ is calculated - this is denoted the nearest neighbor field.
 The surface $\mathcal{N}$ is sampled quasi uniformly by iteratively choosing a sample, marking all the vertices in a radius around it and setting the unmarked vertex with minimal distance to the marked set as our next sample, obtaining a set of samples $S$ which covers $\mathcal{N}$.
 A template $s_{i,R_T}$ around each point $s_i\in S$ is then obtained by extracting a geodesic disc of a radius $R_T$ around it.
-We then traverse every point $m_j \in \mathcal{M}$, and calculate the deformable diversity similarity measure between its surrounding geodesic disc $m_{j,R_T}$ to each sample template.
-We determine our correspondences  each sample point $s_i\in S$ we set the point in $\hat{m}_i\mathcal{M}$ whose surrounding geodesic disc maximizes the similarity to $s_{i,R_T}$ has it's correspon 
+We then traverse every point $m_j \in \mathcal{M}$, and calculate the deformable diversity similarity score between its surrounding geodesic disc $m_{j,R_T}$ to each sample template.
+We determine our initial sparse correspondence set $\S = \{(s_i,\hat{m}_i)\}$  by setting for each p the points $\hat{m}_i$ whose geodesic disc $\hat{m}_{i,R_T}$ similarity $s_{i,R_T}$ is maximal.  
 We then filter out matches which have a high distortion score and use a greedy search for a better match for these from the set of local similarity maximas. 
 
 {\color{red}
@@ -203,8 +235,10 @@ We then filter out matches which have a high distortion score and use a greedy s
 }
 We will begin with a description of the changes made for the deformable diversity framework as a result of moving from 2D to 3D. We will then go over the specific stages of preprocessing necessary for Deformable Diversity in 3D. We will continue with describing the matching process of a single mini template on a full shape. Finally we will describe the extraction of multiple correspondences using this framework.
 
-
-\subsection{Deformable Diversity Similarity in 3D}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%% section: Deformable Diversity Similarity in 3D
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Deformable Diversity Similarity in 3D}
 \begin{figure}[htb]
 	
 	\includegraphics[width=0.5\textwidth]{figures/DDIS2.png}

@@ -204,19 +204,35 @@ Our approach is based on \ayellet{XXXX} key ideas, which we describe hereafter.
 A key idea is NOT how you you implemented it (e.g. DDIS), but rather what lies behind it.
 Re-write it.
 }
-The core of the method lies in utilizing DDIS as a similarity measure between surface parts. While partiality and non rigid deformations causes pointwise descriptors to be inexact, the underlying distribution of the data is still approximately the same for corresponding surface patches.
-As in 2D, correct corresponding points between a template and a matching object should lie in nearby regions with relation to some reference point on the template.
-However, the preservation of distances holds only approximately even for full template matching, and even less so in the presence of partiality and topological noise.
-It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them. 
-Thus, instead of using the entire part for a correspondence between 2 points, we use a subset of it for the matching. 
-Instead of looking for one central point as done in the original paper, we sample many points and treat each of them as a separate template for matching. 
-Thus obtaining better localization. Even though we do not consider the entire part, and thus do not enforce global coherency, matches stemming from this framework are overwhelmingly correct, and this give way to simple scheme of pruning bad matches.
-Finally, we observe that DDIS has different properties at different scales and thus employ a multi-scale cascade to take advantage of this fact.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : diversity%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+One key to our method is the assumption that while non rigid deformations and partiality leads to changes in the data, the underlying shape distributions from which the shapes on the surfaces are drawn should remain highly overlapping, and thus the data points drawn from these should be spread approximately uniformly, one inside the other, leading to a high diversity of nearest neighbors.
+%%%%%%%%%%%%%%%%%%%%%The idea underlying our improvement%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+However, since unlike in\cite{talmi2017template} we don't have the benefit of having a template and a query of the same size in the absence of a grid, and the space of geometric shapes is more constrained then that of RGBXY, one should not expect a near bijection. 
 
-Therefore, our algorithm, which is illustraed inFigure XXX, consists of the following steps.
+%%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : low deformation%%%%%%%%%
+Another assumption is that of a geometrical coherency  - geodesic distances of corresponding pairs of points on a shape and a roughly isometrically deformed version of which should hold approximately leading us to use the assumption of low distortion.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Our added observation%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+However, the preservation of distances holds only approximately even for full template matching, and even less so in the presence of partiality and topological noise.
+It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them, either due to a non isometric deformation, partiality removing a piece of the geodesic path or topological noise introducing a shortcut.
+It follows from this that the smaller the pieces we are trying to match will be, the higher the likelihood of pairwise distance to preserve.
+
+Therefore, our algorithm, which is illustrated inFigure XXX, consists of the following steps.
 \begin{enumerate}
     \item 
-    Pre-processing. 
+    Pre-processing.
+    \begin{itemize}
+     \item Dense shape descriptor fields are calculated for both shapes.
+     \item Approximate nearest neighbor field is used in the shape descriptor space to obtain the Nearest Neighbor Field.
+   \end{itemize}
+   \item
+   Part Sampling.
+   \begin{itemize}
+     \item Dense shape descriptor fields are calculated for both shapes.
+     \item Approximate nearest neighbor field is used in the shape descriptor space to obtain the Nearest Neighbor Field.
+   \end{itemize}
+
 \end{enumerate}
 {\color{red} 	3. Outline of the algorithm (Preprocessing (normal estimation, FPFH), Finding the landmark points, computing DDIS correspondence for pairs, computing correspondence of surfaces)
 	Include an image of this general overview.}

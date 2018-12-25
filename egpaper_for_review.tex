@@ -116,7 +116,7 @@ Another common approach has been to embed the shapes into a different lower dime
 Lately there has been a large body of works which employ learning methods such as Random Forests\cite{Rodola:2014:DNS:2679600.2679987} and deep learning architectures\cite{masci2016geometric,boscaini2016learning,monti2017geometric}. These show the promise of achieving state of the art performance, but require a lot of annotated data.
 
 \subsection{Partial Matching of Deformable shapes}
-The introduction of partiality adds complications which ar not present in the full correspondence scenario. Spectral quantities change drastically, while geodesic paths disappear.
+The introduction of partiality adds complications which are not present in the full correspondence scenario. Spectral quantities change drastically, while geodesic paths disappear.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Rigid partial matching%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 For the rigid setup, the Iterative Closest Point(ICP)\cite{Aiger:2008:CSR:1360612.1360684} algorithm, preceded by initial alignment\cite{rusu2008towards} tackle partial matching successfully. Adapting this to the rigid setup however has proved to have limited success due to the alignment which is necessary, and thus is only fit for very small non-rigid deformation.
 
@@ -190,12 +190,13 @@ Finally, we observe that DDIS has different properties at different scales and t
 	Include an image of this general overview.}
 \subsection{Algorithm Outline}
 The following pipeline is employed to obtain a sparse set of point-wise correspondences. 
-We calculate point-wise descriptors(FPFH) for both $\mathcal{N},\mathcal{M}$.
-We then find the nearest neighbor on $\mathcal{N} for every point.
-We begin by finding extremities on the part $\mathcal{N}$. 
-These are then used as anchors for a quasi uniform sampling of the part. 
-A geodesic disk of a defined radius is extracted for each sample.
- We then traverse all the points on $\mathcal{M}$, calculating deformable diversity similarity between it and all the query points and pick the pairs maximizing these as the initial set of correspondences. We then filter out matches which have a high distortion score and use a greedy search for a better match for these from the set of local similarity maximas. 
+We first calculate point-wise descriptor by obtaining mesh normals and calculating FPFH shape descriptors for every points on both meshes.
+Then the FPFH space nearest neighbor of every point in $\mathcal{M}$ in $\mathcal{N}$ is calculated - this is denoted the nearest neighbor field.
+The surface $\mathcal{N}$ is sampled quasi uniformly by iteratively choosing a sample, marking all the vertices in a radius around it and setting the unmarked vertex with minimal distance to the marked set as our next sample, obtaining a set of samples $S$ which covers $\mathcal{N}$.
+A template $s_{i,R_T}$ around each point $s_i\in S$ is then obtained by extracting a geodesic disc of a radius $R_T$ around it.
+We then traverse every point $m_j \in \mathcal{M}$, and calculate the deformable diversity similarity measure between its surrounding geodesic disc $m_{j,R_T}$ to each sample template.
+We determine our correspondences  each sample point $s_i\in S$ we set the point in $\hat{m}_i\mathcal{M}$ whose surrounding geodesic disc maximizes the similarity to $s_{i,R_T}$ has it's correspon 
+We then filter out matches which have a high distortion score and use a greedy search for a better match for these from the set of local similarity maximas. 
 
 {\color{red}
 	4. Road-map to the section
@@ -401,9 +402,9 @@ We achieve results comparable to the state of the art \cite{litany2017fully} qua
 	\centering
 	\begin{tabular}{c  c  c  c  c  c  c c} 
 		\hline
-		& PFM & RF & IM & EN & GT & DIS & DISnoBound \\ \hline
-		cuts & dense & dense & 61.3 & 87.8 & 51.0 & 27.9 & 14.5\\ \hline
-		holes & dense & dense & 78.2 & 112.6 & 76.4 & 77.3 & 52.11 \\ \hline
+		& PFM & RF & IM & EN & GT & DDIS  \\ \hline
+		cuts & dense & dense & 61.3 & 87.8 & 51.0 & 132.2\\ \hline
+		holes & dense & dense & 78.2 & 112.6 & 76.4 & 77.3 \\ \hline
 		
 	\end{tabular}
 	\caption{mean number of correspondence obtained by the algorithms in the SHREC 16 competiton and our algorithm}

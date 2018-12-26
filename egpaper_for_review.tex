@@ -205,7 +205,7 @@ A key idea is NOT how you you implemented it (e.g. DDIS), but rather what lies b
 Re-write it.
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : diversity%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : diversity%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 One key to our method is the assumption that while non rigid deformations and partiality leads to changes in the data, the underlying shape distributions from which the shapes on the surfaces are drawn should remain highly overlapping, and thus the data points drawn from these should be spread approximately uniformly, one inside the other, leading to a high diversity of nearest neighbors.
 %%%%%%%%%%%%%%%%%%%%%The idea underlying our improvement%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -216,9 +216,9 @@ Another assumption is that of a geometrical coherency  - geodesic distances of c
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%Our added observation%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 However, the preservation of distances holds only approximately even for full template matching, and even less so in the presence of partiality and topological noise.
 It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them, either due to a non isometric deformation, partiality removing a piece of the geodesic path or topological noise introducing a shortcut.
-It follows from this that the smaller the pieces we are trying to match will be, the higher the likelihood of pairwise distance to preserve.
+It follows from this that the smaller the pieces we are trying to match will be, the higher the likelihood of pairwise distances to be preserved should be.
 
-Therefore, our algorithm, which is illustrated inFigure XXX, consists of the following steps.
+Therefore, our algorithm, which is illustrated in Figure XXX, consists of the following steps.
 \begin{enumerate}
     \item 
     Pre-processing.
@@ -227,10 +227,25 @@ Therefore, our algorithm, which is illustrated inFigure XXX, consists of the fol
      \item Approximate nearest neighbor field is used in the shape descriptor space to obtain the Nearest Neighbor Field.
    \end{itemize}
    \item
-   Part Sampling.
+   Sampling.
    \begin{itemize}
-     \item Dense shape descriptor fields are calculated for both shapes.
-     \item Approximate nearest neighbor field is used in the shape descriptor space to obtain the Nearest Neighbor Field.
+     \item Shape extremities are extracted as an initial set of samples.
+     \item The set is iteratively expanded to obtain a set covering the entire part.
+   \end{itemize}
+   \item
+   Similarity Calculation- to obtain a set of correspondences we calculate similarity score between the samples and every point 
+      \begin{itemize}
+        \item For each sample point geodesic discs of radii $ R_T$ is defined as its template.
+        \item Deformable Diversity score is calculated between the geodesic discs surrounding each point on the model and the sample point templates.
+        \item Correspondences are then determined for each sample point by taking the point in the model which achieve the maximal similarity score w.r.t. to it.
+       \end{itemize}
+   \item
+
+    Refinement. The goal of this stage is to achieve better correspondences based on simple global tests and constraints
+      \begin{itemize}
+        \item Correspondences which exhibit high distortion are determined are marked as not trusted.
+        \item For Correspondences which are deemed not trusted we search among the local maximas of the DDIS score a point which minimizes their distortion w.r.t to trusted point.
+
    \end{itemize}
 
 \end{enumerate}

@@ -291,8 +291,13 @@ r_j=\frac{|d(m_j^l,m_x^l)-d(NN^S(m_j,\mathcal{N}_{y,R})^l,n_y^l)|}{\gamma\cdot R
 \end{equation}
 ,where $\gamma$ is a selected fraction and $c$ is a normalization coefficient $c=1/min{|\mathcal{N}_{y,R_T}|,|\mathcal{M}_{x,R_T}|}$.
 
-However, we wouldn't like to penalize our similarity score in case of repeating patterns or symmetrical shapes which have both symmetries in the template search window. Intuitively and empirically the exponent is too harsh and indeed unnecessary as both deformity and diversity will attenuate the score in case of multiple nearest neighbors. On the other hand, we wouldn't want to reward far correspondences at all. 
-{\color{red} explain why -- can we see it visually on the same example?}{\color{green} no visual example yet, as the partition into smaller templates mitigates some of the problems of the old formulation it seems, though the new one has still given an extra 2 percent of accurate matches even in the mini template setting}\\
+However, we wouldn't like to penalize our similarity score in case of repeating patterns or symmetrical shapes which have both symmetries in the template search window. Intuitively and empirically the exponent is too harsh and indeed unnecessary as both deformity and diversity will attenuate the score in case of multiple nearest neighbors. On the other hand, we wouldn't want to reward far correspondences at all because they are unlikely to originate from a corresponding patch. 
+
+{\color{red} explain why -- can we see it visually on the same example?}{\color{green} added both qualitative(visual, and quantitative example}\\
+\begin{figure}[htb]
+	\includegraphics[width=0.5\textwidth]{figures/DDISvsWDIS.png}
+	\caption{Qualitative and quantitative illustration of the improvement introduces by our formulation. On the right hand we is the Nearest neighbor mapping between the part and its corresponding ground truth geodesic disc. As can be seen low distortion is occurring between the true corresponding points, but the symmetrical part which is not included on the partial model maps to the same points - thus attenuating the score originating from these. One the middle part we see the piece chosen by the original DDIS formulation. The arrows with low distortion seldom have other points which are their nearest neighbors and thus achieves a better score without our modification. The cumulative error curves show an improvement of ~5 percent on the training set using our formulation.}
+\end{figure}
 
 To account for this the following formulation has been found to work better: given a point $n_i\subset \mathcal{N}_{y,R}$ has a set of nearest neighbors in descriptor space on a geodesic disc 
 $\mathcal{M}_{n_i}=\{m_j\in\mathcal{M}_{j,R_T}:NN^S(m_j,N_{y,R_T})=n_i\}$ 
@@ -302,7 +307,7 @@ and $r_i'$ the minimal distortion distance, we add only the contribution of this
 \begin{equation}
 DDIS(N_{y,R_T},\mathcal{M}_{x,R_T},\gamma)=\sum_{m_i'}\frac{1}{1+r_i'}
 \end{equation}
-This equation still promotes both diversity and low deformations, but is less biased toward surfaces which are either symmetrical, or exhibit repeating patterns.
+This equation still promotes both diversity and low deformations, but is less biased toward surfaces which are either symmetrical, or exhibit repeating patterns and achieves a considerable improvement over the original formulation, as can be seen in Fig. XX.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: DDIS Correspondence between a Point and a Surface
@@ -327,10 +332,10 @@ Finally we calculate DDIS for this disc with $\mathcal{N}_{y,R}$ which has $y$ a
 \textbf{Point Normal Estimation}
 There are various schemes for estimating point normals given a triangulated mesh surface. We have picked the one which is available in the standard PCL. Given a vertex $p_i$ on a triangulated mesh $\mathcal{X}$ and it's associated polygons $\{A_j\}_{j=1}^k$ and their normals $N_{A_j}$ the point normal $N_i = \sum_{j=1}^k{|A_j|\cdot N_{A_j}}$
 
-\textbf{Local Patch Size choice}
-DDIS as defined by \cite{talmi2017template} uses patch descriptors as low level features for their similarity measure. While a patch in an image can by defined by the images grid no such grid exists on 3D point clouds and meshes, where density of data points can vary. Thus a patch has to be defined by some geometric measure. While the more robust way to define it would be using geodesic distance, since we are talking a small environment around a point on the mesh we have found that for practical purposes a patch in a defined euclidean radius $r_F$ around a point serves well enough. We pick this radius in the following way: given the full surface mesh $\mathcal{M}$ we find it's equivalent of a diameter $D_\mathcal{M} = \sqrt{Area(\mathcal{M})}$, and tune a parameter $\alpha$ to obtain $r_{F} = \frac{\alpha}*D_\mathcal{M}$
-
 \textbf{Local Patch Descriptor}
+%%%%%%%%%%%%%Defining an equivalent to a 2D patch#########
+DDIS as defined by \cite{talmi2017template} uses patch descriptors as low level features for their similarity measure. While a patch in an image can by defined by the images grid no such grid exists on 3D point clouds and meshes, where density of data points can vary. Thus a patch has to be defined by some geometric measure. While the more robust way to define it would be using geodesic distance, since we are talking a small environment around a point on the mesh we have found that for practical purposes a patch in a defined euclidean radius $r_F$ around a point serves well enough. We pick this radius in the following way: given the full surface mesh $\mathcal{M}$ we find it's equivalent of a diameter $D_\mathcal{M} = \sqrt{Area(\mathcal{M})}$, and tune a parameter $\alpha$ to obtain $r_{F} = \frac{\alpha}*D_\mathcal{M}$
+%%%%%%%%%%%%%%Descriptor selection#######################
 A lot of local shape descriptors have been used successfully in 3D shape analysis. We have tested the following descriptors: PFH\cite{rusu2008learning} SHOT\cite{tombari2010unique},HKS\cite{Sun:2009:CPI:1735603.1735621},SIHKS\cite{bronstein2010scale},ROPS\cite{guo2013rotational} and FPFH\cite{rusu2009fast}. Out of these FPFH has achieved the best performance, and thus the descriptor for the local patch has been chosen to be FPFH. 
 
 \textbf{Nearest Neighbor Field}
@@ -410,7 +415,7 @@ The observation of the effects of the choice of $\beta$ and the trade-off betwee
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%% section: Greedy outlier rejection
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Greedy Outlier Fixation}
+\subsection{Greedy Outlier Fix}
 The results obtained by the pipeline, while empirically already producing matches of superior quality to state of the art algorithms in the field nevertheless have no explicit requirement on generating a coherent set of matches. We thus as a post processing step identify outliers and replace them with more suitable correspondences. 
 Inspired by distortion minimization methods such as\cite{sahillioǧlu2011coarse} we pick the distortion of a correspondence as a measure of its coherency to the set. For a correspondence $(y,x)\in \mathcal{N}\times\mathcal{M}$ the distortion as the mean of it deviation of relative distance to all other points in the set. Given a set of correspondences $P={p_i=(y_i,x_i)\in \mathcal{N}\times\mathcal{M}}$ the distortion is defined by the equation
 \begin{equation}

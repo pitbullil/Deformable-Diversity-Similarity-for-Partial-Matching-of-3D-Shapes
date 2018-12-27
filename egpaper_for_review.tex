@@ -293,11 +293,7 @@ r_j=\frac{|d(m_j^l,m_x^l)-d(NN^S(m_j,\mathcal{N}_{y,R})^l,n_y^l)|}{\gamma\cdot R
 
 However, we wouldn't like to penalize our similarity score in case of repeating patterns or symmetrical shapes which have both symmetries in the template search window. Intuitively and empirically the exponent is too harsh and indeed unnecessary as both deformity and diversity will attenuate the score in case of multiple nearest neighbors. On the other hand, we wouldn't want to reward far correspondences at all because they are unlikely to originate from a corresponding patch. 
 
-{\color{red} explain why -- can we see it visually on the same example?}{\color{green} added both qualitative(visual, and quantitative example}\\
-\begin{figure}[htb]
-	\includegraphics[width=0.5\textwidth]{figures/DDISvsWDIS.png}
-	\caption{Qualitative and quantitative illustration of the improvement introduces by our formulation. On the right hand we is the Nearest neighbor mapping between the part and its corresponding ground truth geodesic disc. As can be seen low distortion is occurring between the true corresponding points, but the symmetrical part which is not included on the partial model maps to the same points - thus attenuating the score originating from these. One the middle part we see the piece chosen by the original DDIS formulation. The arrows with low distortion seldom have other points which are their nearest neighbors and thus achieves a better score without our modification. The cumulative error curves show an improvement of ~5 percent on the training set using our formulation.}
-\end{figure}
+
 
 To account for this the following formulation has been found to work better: given a point $n_i\subset \mathcal{N}_{y,R}$ has a set of nearest neighbors in descriptor space on a geodesic disc 
 $\mathcal{M}_{n_i}=\{m_j\in\mathcal{M}_{j,R_T}:NN^S(m_j,N_{y,R_T})=n_i\}$ 
@@ -307,6 +303,11 @@ and $r_i'$ the minimal distortion distance, we add only the contribution of this
 \begin{equation}
 DDIS(N_{y,R_T},\mathcal{M}_{x,R_T},\gamma)=\sum_{m_i'}\frac{1}{1+r_i'}
 \end{equation}
+{\color{red} explain why -- can we see it visually on the same example?}{\color{green} added both qualitative(visual, and quantitative example}\\
+\begin{figure}[htb]
+	\includegraphics[width=0.5\textwidth]{figures/DDISvsWDIS.png}
+	\caption{Qualitative and quantitative illustration of the improvement introduces by our formulation. On the top left the Nearest neighbor mapping between the part and its corresponding ground truth geodesic disc. As can be seen low distortion is occurring between the true corresponding points, but the symmetrical part which is not included on the partial model maps to the same points - thus attenuating the score originating from these. One the bottom left we see the piece chosen by the original DDIS formulation. The arrows with low distortion seldom have other points which are their nearest neighbors and thus achieves a better score without our modification. The cumulative error curves show an improvement of ~5 percent on the training set using our formulation.}
+\end{figure}
 This equation still promotes both diversity and low deformations, but is less biased toward surfaces which are either symmetrical, or exhibit repeating patterns and achieves a considerable improvement over the original formulation, as can be seen in Fig. XX.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

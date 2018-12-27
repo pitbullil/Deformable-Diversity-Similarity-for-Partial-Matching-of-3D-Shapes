@@ -66,7 +66,6 @@ Second Author\\
 Institution2\\
 First line of institution2 address\\
 51
-
 {\tt\small secondauthor@i2.org}
 }
 
@@ -76,6 +75,9 @@ First line of institution2 address\\
 %%%%%%%%% ABSTRACT
 \begin{abstract}
 We propose a novel approach for the matching of partial deformable shapes in 3D. Inspired by recent advances in 2D template matching techniques, our method relies on the concept of deformable diversity similarity(DDIS), extends and adapts it from an image to the 3D shape domain, and leverages the distinct behavior of this framework in different scales to achieve shape correspondences. We evaluate this framework on the SHREC16 partial matching of deformable shapes and show state of the art performance in achieving sparse correspondences.
+\ayellet{order of work: 1. Section 3 (Approach), 2. Section 4 (Similarity), Section 5 (Results), Section 2 (Related work), Section 1 (Introduction).
+}
+{\color{cyan}{\bf Currently only Section 3 is sort of done}}
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -121,7 +123,8 @@ The rest of the work is organized as follows: in section 2 we go over related wo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: Related work
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Related work}\label{chap:related work}
+\section{Related work}
+\label{chap:related work}
 
 
 \subsection{Matching Of Deformable Surfaces}
@@ -187,7 +190,7 @@ An additional observation made has been that while non isometric deformations do
 \end{equation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: 3D Deformable Diversity Similarity
+%%%%%%%%%%%%%%%%%%%%%%%% section: 3D Deformable Diversity Similarity
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{General Approach}
 \label{sec:algorithm}
@@ -198,73 +201,76 @@ An additional observation made has been that while non isometric deformations do
 \end{figure*}
 
 Given two surfaces $\mathcal{M}$ and $\mathcal{N}$,the goal is to find the best match of  $\mathcal{N}$ within  $\mathcal{M}$.
-Our approach is based on \ayellet{XXXX} key ideas, which we describe hereafter.
+In particular, we aim at defining a sparse set of point correspondences between the models. 
+Our approach is based on three key ideas, which we describe hereafter.
 
-\ayellet{Nadav, this paragraph (key ideas) is a mess. 
-A key idea is NOT how you you implemented it (e.g. DDIS), but rather what lies behind it.
-Re-write it.
-}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : diversity%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-One key to our method is the assumption that while non rigid deformations and partiality leads to changes in the data, the underlying shape distributions from which the shapes on the surfaces are drawn should remain highly overlapping, and thus the data points drawn from these should be spread approximately uniformly, one inside the other, leading to a high diversity of nearest neighbors.
-%%%%%%%%%%%%%%%%%%%%%The idea underlying our improvement%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-However, since unlike in\cite{talmi2017template} we don't have the benefit of having a template and a query of the same size in the absence of a grid, and the space of geometric shapes is more constrained then that of RGBXY, one should not expect a near bijection. 
-
+%%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : diversity
+First, \ayellet{copy from Lihi - 2-3 sentences that are clear and concise}.
+\nadav{here}
+\ayellet{Similarity should be based both on the diversity... and the consistency of the distances between the points.}
+% One key to our method is the assumption that while non rigid deformations and partiality leads to changes in the data, the underlying shape distributions from which the shapes on the surfaces are drawn should remain highly overlapping, and thus the data points drawn from these should be spread approximately uniformly, one inside the other, leading to a high diversity of nearest neighbors.
+% %%%%%%%%%%%%%%%%%%%%%The idea underlying our improvement%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% However, since unlike in\cite{talmi2017template} we don't have the benefit of having a template and a query of the same size in the absence of a grid, and the space of geometric shapes is more constrained then that of RGBXY, one should not expect a near bijection. 
 %%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : low deformation%%%%%%%%%
-Another assumption is that of a geometrical coherency  - geodesic distances of corresponding pairs of points on a shape and a roughly isometrically deformed version of which should hold approximately leading us to use the assumption of low distortion.
+% Another assumption is that of a geometrical coherency  - geodesic distances of corresponding pairs of points on a shape and a roughly isometrically deformed version of which should hold approximately leading us to use the assumption of low distortion.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%Our added observation%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-However, the preservation of distances holds only approximately even for full template matching, and even less so in the presence of partiality and topological noise.
-It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them, either due to a non isometric deformation, partiality removing a piece of the geodesic path or topological noise introducing a shortcut.
-It follows from this that the smaller the pieces we are trying to match will be, the higher the likelihood of pairwise distances to be preserved should be.
+% However, the preservation of distances holds only approximately even for full template matching, and even less so in the presence of partiality and topological noise.
+% It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them, either due to a non isometric deformation, partiality removing a piece of the geodesic path or topological noise introducing a shortcut.
+% It follows from this that the smaller the pieces we are trying to match will be, the higher the likelihood of pairwise distances to be preserved should be.
+Second, rather the performing the above on $\mathcal{N}$, it is preferable to perform it on segments of it.
+This is so since \ayellet{in one sentence explain why it is better}.
+Third, multi-scale approach is beneficial, since \ayellet{in one sentence why}
 
-Therefore, our algorithm, which is illustrated in Figure XXX, consists of the following steps.
+Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists of the following steps.
 \begin{enumerate}
     \item 
-    \textbf{Pre-processing}, in this step we transform our data to a shape representation space in which similar shapes should have similar representations
-    \begin{itemize}
-     \item Dense shape descriptor fields are calculated for both shapes.
-     \item Approximate nearest neighbor field is used in the shape descriptor space to obtain the Nearest Neighbor Field.
-   \end{itemize}
-   \item
-   \textbf{Part Sampling} - in order for correspondeces to be meaningful, a set which gives a good coverage of the surface should be extracted.
-   \begin{itemize}
-     \item Shape extremities are extracted as an initial set of samples.
-     \item The set is iteratively expanded to obtain a set covering the entire part.
-   \end{itemize}
-   \item
-   \textbf{Similarity Calculation}- to obtain a set of correspondences we calculate similarity score between the samples and every point.
-      \begin{itemize}
-        \item For each sample point geodesic discs of radii $ R_T$ is defined as its template.
-        \item Deformable Diversity score is calculated between the geodesic discs surrounding each point on the model and the sample point templates.
-        \item Correspondences are then determined for each sample point by taking the point in the model which achieve the maximal similarity score w.r.t. to it.
-       \end{itemize}
-   \item
-
-    \textbf{Refinement.} The goal of this stage is to achieve better correspondences based on simple global tests and constraints
-      \begin{itemize}
-        \item Correspondences which exhibit high distortion are determined are marked as not trusted.
-        \item For Correspondences which are deemed not trusted we search among the local maximas of the DDIS score a point which minimizes their distortion w.r.t to trusted point.
-
-   \end{itemize}
-
+    \textbf{Pre-processing}.
+    In this step, shapes descriptor are calculated for both meshes and an approximate nearest neighbor field is computed for the shape descriptors.
+    Many descriptors have been proposed in the literature.
+    We are using the \ayellet{ FPFH~\cite{} due to its benefits....}
+    \item
+    {\bf Sampling \& segmentation of the subsurface.} 
+    Inline with the second key idea, we aim at extracting a meaningful set of points, which also provide a good coverage of the surface. 
+    The key idea here is to start from extremities, which are often highly representative of the surface and iteratively refine, adding more samples and covering more of the surface.
+    This is done by iteratively choosing a sample, and choosing the closest unmarked whose geodesic distance is larger than a pre-defined threshold.
+    Finally, a segment is extracted around each sample point, which is a geodesic disc of radius $R_T$ around it.
+    \ayellet{Is this the segmentation??}
+    \item
+    {\bf Computing the dissimilarity function.} 
+    This is the core step of the algorithm.
+    For every sample point of  $\mathcal{N}$, 
+    % we define a geodesic disc around it and 
+    compute a similarity score between it to all the points of  $\mathcal{M}$.
+    \ayellet{is that correct or the opposite?}
+    The point that maximizes the similarity function is considered the corresponding point.
+    \ayelet{we are missing some "meat" here}
+    % \textbf{Refinement.} The goal of this stage is to achieve better correspondences based on simple global tests and constraints
+    % \begin{itemize}
+    % \item Correspondences which exhibit high distortion are determined are marked as not trusted.
+    % \item For Correspondences which are deemed not trusted we search among the local maximas of the DDIS score a point which minimizes their distortion w.r.t to trusted point.
+    % \end{itemize}
+    \item
+    \ayellet{Is there a stage that takes the point correspondences and creates surface correspondences?}
 \end{enumerate}
-{\color{red} 	3. Outline of the algorithm (Preprocessing (normal estimation, FPFH), Finding the landmark points, computing DDIS correspondence for pairs, computing correspondence of surfaces)
-	Include an image of this general overview.}
-\subsection{Algorithm Outline}
-The following pipeline is employed to obtain a sparse set of point-wise correspondences. 
-We first a calculate dense point-wise descriptor field by obtaining mesh normals and calculating FPFH shape descriptors for every points on both meshes.
-Then the FPFH space nearest neighbor of every point in $\mathcal{M}$ in $\mathcal{N}$ is calculated - this is denoted the nearest neighbor field.
-The surface $\mathcal{N}$ is sampled quasi uniformly by iteratively choosing a sample, marking all the vertices in a radius around it and setting the unmarked vertex with minimal distance to the marked set as our next sample, obtaining a set of samples $S$ which covers $\mathcal{N}$.
-A template $s_{i,R_T}$ around each point $s_i\in S$ is then obtained by extracting a geodesic disc of a radius $R_T$ around it.
-We then traverse every point $m_j \in \mathcal{M}$, and calculate the deformable diversity similarity score between its surrounding geodesic disc $m_{j,R_T}$ to each sample template.
-We determine our initial sparse correspondence set $\S = \{(s_i,\hat{m}_i)\}$  by setting for each p the points $\hat{m}_i$ whose geodesic disc $\hat{m}_{i,R_T}$ similarity $s_{i,R_T}$ is maximal.  
-We then filter out matches which have a high distortion score and use a greedy search for a better match for these from the set of local similarity maximas. 
+The latter two steps are performed in a multi-scale approach.
+\ayellet{missing a couple of sentences here}
 
-{\color{red}
-	4. Road-map to the section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%% section: Similarity
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Similarity}
+\ayellet{
+First paragraph: problem definition
+
+Second paragraph: Key idea, first in laymen language.
+We are inspired by...., but found that the method there is insufficient due to the following reasons.
+
+Third paragraph: the mathematical definition that realizes the key idea
+
+Fourth paragraph: outline of similarity computation
+
+Then, paragraphs/subsections explaining the different stages
 }
-We will begin with a description of the changes made for the deformable diversity framework as a result of moving from 2D to 3D. We will then go over the specific stages of preprocessing necessary for Deformable Diversity in 3D. We will continue with describing the matching process of a single mini template on a full shape. Finally we will describe the extraction of multiple correspondences using this framework.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% section: Deformable Diversity Similarity in 3D
@@ -484,9 +490,6 @@ We achieve results comparable to the state of the art \cite{litany2017fully} qua
 	\caption{mean number of correspondence obtained by the algorithms in the SHREC 16 competiton and our algorithm. Note that our algorithm can combine wi}
 	\label{table:1}
 \end{table}
-
-
-}
 
 \begin{figure*}[htb]
 	\centering

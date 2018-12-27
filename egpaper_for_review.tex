@@ -352,18 +352,21 @@ where $d$ is the geodesic distance between 2 points.
 We first filter out outliers by thresholding matches whose distortion is larger then 1.2 of the mean distortion, and then greedily add from the set of DDIS maximas the point which minimizes this distortion.
 \subsection{Densification}
 If necessary, the sparse correspondences produced by our algorithm can then be passed as an input for the method of \cite{litany2017fully} to produce dense matches. This is done in a manner identical to the refinement step which is already used in the method, and improves its results.
+
+\section{implementation}
+Our code which produces the sparse correspondences is implemented entirely in C++ using the Point Cloud Library. For geodesics we have used  Fast Marching Geodesics adapted from the code published by Ron Kimmel to run in parallel on multiple cores and in conjunction with PCL.
 \section{Experiments and results}\label{section:results}
 
 In this section we will briefly go over the experiments performed and their results. We'll introduce the datasets, detail our experiments and their results
-\subsection{Datasets}
+\subsection{Experimental Results}
 In this section we will briefly go over the available Datasets
-\subsubsection{SHREC 2016}  
-The SHREC partial matching dataset consists of 8 base, neutral pose models: cat, centaur, dog, horse, wolf, and 3 humans – 2 males, and 1 female. Each basic model has corresponding deformed partial shapes obtained either by cutting the shape with a plane or by adding holes on a deformed shape. The set has been divided into train and test sets. The train set is composed of 15 cuts for each base models totaling 120 models,and 10 holed shpaes for each model for which ground truth point to polygon correspondences has been provided in barycentric coordinates. The test set is composed of additional 200 cuts and 200 holed shapes.
+\textbf{SHREC 2016 Partial Correspondence}  
+The SHREC partial matching dataset\cite{cosmo2016shrec} consists of 8 base, neutral pose models: cat, centaur, dog, horse, wolf, and 3 humans – 2 males, and 1 female, each containing 10,000 vertices except for the wolf which contains only ~4,500 vertices. Each basic model has corresponding deformed partial shapes obtained either by cutting the shape with a plane or by adding holes on a deformed shape. The set has been divided into train and test sets. The train set is composed of 15 cuts for each base models totaling 120 models,and 10 holed shapes for each model for which ground truth point to polygon correspondences has been provided in barycentric coordinates. The test set is composed of additional 200 cuts and 200 holed shapes. We have tuned our parameters only on the 120 pairs of cuts.
 
 
 \subsection{Error Metrics}
 The output of partial matching algorithms (as defined in\cite{cosmo2016shrec}) are sub-vertex point-to-point correspondences between partial shapes.
-For all experiments we use the standard practice of not penalizing symmetric solutions. Quality is measured according to the Princeton benchmark protocol \cite{kim2011blended}. For a pair of points $(x,y)\in \mathcal{N}\times \mathcal{M}$ between the full object $\mathcal{M}$ and the partial shape $\mathcal{N}$ produced by an algorithm, where $(x,y^*)$ is the ground truth correspondence the inaccuracy is measured by 
+For all experiments we use the standard practice of not penalizing symmetric solutions. Quality is measured according to the Princeton benchmark protocol \cite{kim2011blended}. For a pair of points $(x,y)\in \mathcal{N}\times \mathcal{M}$ between the full object $\mathcal{M}$ and the partial shape $\mathcal{N}$ produced by an algorithm, where $(x,y^*)$ is the ground truth correspondence the inaccuracy is measured by. We plot curves showing the fraction of correspondences whose errors are below a threshold of the normalized geodesic error
 \begin{equation}
 \varepsilon(x)=\frac{d_{\mathcal{M}}(y,y^*)}{\sqrt{area(\mathcal{M})}}
 \end{equation}

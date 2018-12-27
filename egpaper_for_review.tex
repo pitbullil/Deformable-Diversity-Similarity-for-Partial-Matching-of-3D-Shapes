@@ -308,7 +308,7 @@ DDIS(N_{y,R_T},\mathcal{M}_{x,R_T},\gamma)=\sum_{m_i'}\frac{1}{1+r_i'}
 	\includegraphics[width=0.5\textwidth]{figures/DDISvsWDIS.png}
 	\caption{Qualitative and quantitative illustration of the improvement introduces by our formulation. On the top left the Nearest neighbor mapping between the part and its corresponding ground truth geodesic disc. As can be seen low distortion is occurring between the true corresponding points, but the symmetrical part which is not included on the partial model maps to the same points - thus attenuating the score originating from these. One the bottom left we see the piece chosen by the original DDIS formulation. The arrows with low distortion seldom have other points which are their nearest neighbors and thus achieves a better score without our modification. The cumulative error curves show an improvement of ~5 percent on the training set using our formulation.}
 \end{figure}
-This equation still promotes both diversity and low deformations, but is less biased toward surfaces which are either symmetrical, or exhibit repeating patterns and achieves a considerable improvement over the original formulation, as can be seen in Fig. XX.
+This equation still promotes both diversity and low deformations, but is less biased against surfaces which are either symmetrical, or exhibit repeating patterns and achieves a considerable improvement over the original formulation, as can be seen in Fig. XX.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: DDIS Correspondence between a Point and a Surface
@@ -458,8 +458,8 @@ In this experiment we have chosen for each Template mesh the center point $c_T$ 
 
 \subsection{Sparse Correspondences on the SHREC16 Test set}
 In this experiment we have tested the performance of DDIS in producing sparse correspondences on the SHREC16 Partial Matching of Deformable Shapes competition. 
-We had tuned our parameters on the SHREC16 training dataset using only the cuts part of it. The best results had been produced using FPFH with $r_F = 0.04\sqrt{Area(\mathcal{M}}$, and a piece size radius $R_thresh=0.3\sqrt{Area(\mathcal{M})}$. For Geodesic distances we have found the fast marching algorithm to work the fastest, while giving the lowest error w.r.t. to exact geodesics. For a 10,000 vertices mesh it takes 60s to produce a full distance matrix, Though it should be noted this algorithm has a more efficient GPU implementation. FPFH and Nearest Neighbor field takes 2 s' and similarity between 2 pieces of ~10000 vertices each takes 25s on average, running on a single thread of i7-2700k. Unlike optimization based algorithms this is highly parallelizable.
-We achieve results comparable to the state of the art \cite{litany2017fully} quality wise, even though sparser in nature on both the Cuts and the Holes datasets, Where a particularly impressive result is reported on the Holes dataset. A further look reveals even more reliable results can be obtained taking only the extremity points not lying on the mesh longest boundary, but they will be more sparse
+We had tuned our parameters on the SHREC16 training dataset using only the cuts part of it. The best results had been produced using FPFH with $r_F = 0.03\sqrt{Area(\mathcal{M}}$, and a piece size radii of $R_T=[0.6,0.4,0.2]\sqrt{Area(\mathcal{M})}$. For Geodesic distances we have found the fast marching algorithm to work the fastest, while giving the lowest error w.r.t. to exact geodesics. For a 10,000 vertices mesh it takes 60s to produce a full distance matrix, Though it should be noted this algorithm has a more efficient GPU implementation, and parallelization on a core brought the run time to ~12s with 6 threads. FPFH and Nearest Neighbor field takes 2s, and similarity between 2 pieces of ~10000 vertices each takes XXs on average, running on 6 threads of i7-2700k. Unlike optimization based algorithms this is highly parallelizable.
+We achieve results comparable to the state of the art \cite{litany2017fully} quality wise, even though sparser in nature on both the Cuts and the Holes datasets, Where a particularly impressive result is reported on the Holes dataset, which can then be expanded without a loss of quality by feeding these to the FSPM\cite{litany2017fully} as input instead of low level shape descriptors.
 
 \begin{figure*}[htb]
 	\centering
@@ -484,12 +484,6 @@ We achieve results comparable to the state of the art \cite{litany2017fully} qua
 
 \begin{figure*}[htb]
 	\centering
-	\includegraphics[width=1\textwidth]{figures/Partial_matching_shrec.png}
-
-	\caption{SHREC 16 cuts partial matching dataset.}
-\end{figure*}
-\begin{figure*}[htb]
-	\centering
 	\ifpdf
 	\includegraphics[width=1\textwidth]{figures/Holes.png}
 	\else
@@ -498,15 +492,6 @@ We achieve results comparable to the state of the art \cite{litany2017fully} qua
 	\caption{SHREC 16 holes partial matching dataset.}
 \end{figure*}
 
-\begin{figure*}[htb]
-	\centering
-	\ifpdf
-	\includegraphics[width=1\textwidth]{figures/success.png}
-	\else
-	\includegraphics[width=1\textwidth]{figures/success.png}
-	\fi
-	\caption{Some examples of cuts and their matching similarity score maps. The compared point is marked in yellow on the cut, whereas ground truth polygon is marked in green, symmetrical polygon in purple, and top 5 matches in grayscale}
-\end{figure*}
 
 \begin{figure*}[htb]
 	\centering
@@ -515,7 +500,7 @@ We achieve results comparable to the state of the art \cite{litany2017fully} qua
 	\else
 	\includegraphics[width=1\textwidth]{figures/failures.png}
 	\fi
-	\caption{Some notable failure cases: (1)The man's abdomen is unisometrically deformed (2)The cats  }
+	\caption{Some notable failure cases}
 \end{figure*}
 {\small
 \bibliographystyle{ieee}
@@ -524,19 +509,9 @@ We achieve results comparable to the state of the art \cite{litany2017fully} qua
 
 \begin{figure*}[htb]
 	\centering
-	\ifpdf
-	\includegraphics[width=1\textwidth]{figures/Holes.png}
-	\else
-	\includegraphics[width=1\textwidth]{figures/Holes.png}
-	\fi
-	\caption{SHREC 16 holes partial matching dataset.}
-\end{figure*}
-
-\begin{figure*}[htb]
-	\centering
 
 	\includegraphics[width=1\textwidth]{figures/success_1}
-	\caption{Good correspondences obtained by our DDIS measure}
+	\caption{Good correspondences obtained by our method}
 \end{figure*}
 
 \begin{figure*}[htb]

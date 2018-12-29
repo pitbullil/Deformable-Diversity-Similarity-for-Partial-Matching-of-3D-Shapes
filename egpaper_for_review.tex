@@ -28,7 +28,7 @@
 % maybe requires 
 \usepackage[usenames]{color}
 \definecolor{darkred}{rgb}{0.7,0.1,0.1}
-\definecolor{darkgreen}{rgb}{0.1,0.7,0.1}
+\definecolor{darkmagenta}{rgb}{0.1,0.7,0.1}
 \definecolor{cyan}{rgb}{0.7,0.0,0.7}
 \definecolor{dblue}{rgb}{0.2,0.2,0.8}
 \definecolor{maroon}{rgb}{0.76,.13,.28}
@@ -114,7 +114,7 @@ In summary, our contributions are:
 	\item A non trivial extension of Deformable Diversity from 2 to 3 Dimensions.
 	\item A modified DDIS similarity measure which is more well suited to handle matching of templates with a different number of points.
 	\item An empirical analysis of DDIS behavior in different scales, leading to an improved multi-scale framework.
-	\item A novel multi-template approach to partial matching of deformable shapes which can both produce state of the art sparse correspondences, and be used as an input to functional correspondence algorithms, significantly improving the results obtained by these.
+	\item A multi-template approach to partial matching of deformable shapes which can both produce state of the art sparse correspondences, and be used as an input to functional correspondence algorithms, significantly improving the results obtained by these.
 \end{itemize}
 
 The rest of the work is organized as follows: in section 2 we go over related works in the field of shape analysis. Section 3 introduces our Deformable Diversity framework for 3D shape matching. Experiments and results are given in section 4, and the conclusions are in section 5.
@@ -205,9 +205,15 @@ In particular, we aim at defining a sparse set of point correspondences between 
 Our approach is based on three key ideas, which we describe hereafter.
 
 %%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : diversity
-First, \ayellet{copy from Lihi - 2-3 sentences that are clear and concise}.
-\nadav{here}
+First, \ayellet{copy from Lihi - 2-3 sentences that are clear and concise}
+
+\nadav{From lihi: Our key idea is that the similarity between the target and the template is captured by two properties of the implied NN field ... when the target and template correspond, most target patches have a unique NN match in the template. This implies that the NN field is highly diverse, pointing to many different patches in the template ... Second, we note that arbitrary matches typically imply a large deformation ... \cite{talmi2017template}p.1}.
+
 \ayellet{Similarity should be based both on the diversity... and the consistency of the distances between the points.}
+
+\nadav{proposed text: {\color{magenta}
+Similarity between a template and a target should be based both on the diversity of the matches from the template to the target, as most matches should be unique leading to a highly diverse mapping, and the consistency of distances between pairs of matches.}}
+
 % One key to our method is the assumption that while non rigid deformations and partiality leads to changes in the data, the underlying shape distributions from which the shapes on the surfaces are drawn should remain highly overlapping, and thus the data points drawn from these should be spread approximately uniformly, one inside the other, leading to a high diversity of nearest neighbors.
 % %%%%%%%%%%%%%%%%%%%%%The idea underlying our improvement%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % However, since unlike in\cite{talmi2017template} we don't have the benefit of having a template and a query of the same size in the absence of a grid, and the space of geometric shapes is more constrained then that of RGBXY, one should not expect a near bijection. 
@@ -218,42 +224,57 @@ First, \ayellet{copy from Lihi - 2-3 sentences that are clear and concise}.
 % It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them, either due to a non isometric deformation, partiality removing a piece of the geodesic path or topological noise introducing a shortcut.
 % It follows from this that the smaller the pieces we are trying to match will be, the higher the likelihood of pairwise distances to be preserved should be.
 Second, rather the performing the above on $\mathcal{N}$, it is preferable to perform it on segments of it.
-This is so since \ayellet{in one sentence explain why it is better}.
+This is so since \ayellet{in one sentence explain why it is better}
+
+\nadav{proposed text: {\color{magenta}
+the smaller the compared segments are, the more likely it is for both distances and matches to remain consistent, and the less likely it is for repeating patterns which lead to lower diversity of the mapping}}.
+
 Third, multi-scale approach is beneficial, since \ayellet{in one sentence why}
+
+\nadav{proposed text: {\color{magenta}
+coarser scales obtain results which are globally consistent, but inexact , while finer scales lead to better localization, but alone might lead to mappings to a similar point which lies in a different region.}}
 
 Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists of the following steps.
 \begin{enumerate}
     \item 
     \textbf{Pre-processing}.
-    In this step, shapes descriptor are calculated for both meshes and an approximate nearest neighbor field is computed for the shape descriptors.
+    In this step, shapes descriptors are calculated for both meshes and an approximate nearest neighbor field is computed for the shape descriptors.
     Many descriptors have been proposed in the literature.
     We are using the \ayellet{ FPFH~\cite{} due to its benefits....}
+    
+    \nadav{proposed text: {\color{magenta}
+    FPFH due to its benefits of being robust to small deformations and partiality of data, while sensitive to symmetrical flips. }}
     \item
     {\bf Sampling \& segmentation of the subsurface.} 
     Inline with the second key idea, we aim at extracting a meaningful set of points, which also provide a good coverage of the surface. 
     The key idea here is to start from extremities, which are often highly representative of the surface and iteratively refine, adding more samples and covering more of the surface.
     This is done by iteratively choosing a sample, and choosing the closest unmarked whose geodesic distance is larger than a pre-defined threshold.
     Finally, a segment is extracted around each sample point, which is a geodesic disc of radius $R_T$ around it.
-    \ayellet{Is this the segmentation??}
+    \ayellet{Is this the segmentation??} \nadav{Yes. I do not call it segmentation because there isn't necessarily semantic significance. overlapping patches is more accurate...}
     \item
-    {\bf Computing the dissimilarity function.} 
+    {\bf Computing the similarity function.} 
     This is the core step of the algorithm.
-    For every sample point of  $\mathcal{N}$, 
+    For every sample point of $\mathcal{N}$, 
     % we define a geodesic disc around it and 
     compute a similarity score between it to all the points of  $\mathcal{M}$.
-    \ayellet{is that correct or the opposite?}
+    \ayellet{is that correct or the opposite?}\nadav{reply: Yes - if we have N samples on the part and M vertices on the full model we will have M similarity scores for each of the N samples}
+    \nadav{proposed text:{{\color{magenta}
+    We use a modified version of the Deformable Diversity Similarity\cite{talmi2017template}, which rewards a NN field which is both high in diversity and low in deformation. Unlike\cite{talmi2017template}, we have found it beneficial not to penalize points which share the same nearest neighbor, but rather only use the one which has the lowest deformation.}}}
     The point that maximizes the similarity function is considered the corresponding point.
-    \ayelet{we are missing some "meat" here}
+    \ayellet{we are missing some "meat" here} 
+    \nadav{added above}
     % \textbf{Refinement.} The goal of this stage is to achieve better correspondences based on simple global tests and constraints
     % \begin{itemize}
     % \item Correspondences which exhibit high distortion are determined are marked as not trusted.
     % \item For Correspondences which are deemed not trusted we search among the local maximas of the DDIS score a point which minimizes their distortion w.r.t to trusted point.
     % \end{itemize}
     \item
-    \ayellet{Is there a stage that takes the point correspondences and creates surface correspondences?}
+    \ayellet{Is there a stage that takes the point correspondences and creates surface correspondences?}\nadav{It is currently defined as optional - and it is the use of these sparse correspondences as an input to the algorithm of \cite{litany2017fully} to produce a dense set of correspondences- it is not a part of our core algorithm and I am not sure if it should be mentioned here your opinion?}
 \end{enumerate}
-The latter two steps are performed in a multi-scale approach.
-\ayellet{missing a couple of sentences here}
+The latter two steps are performed in a multi-scale approach. 
+\ayellet{missing a couple of sentences here} 
+\nadav{proposed text:{\color{magenta}
+We define a set of $N$ scales characterized by their geodesic radii $R_{T_1}>...>R_{T_N}$ and calculate the similarity scores for geodsic discs at each scale. We then move from a coarse to fine scale by iteratively finding the maxima of similarity at scale $R_{T_k}$, and use to define a feasible set of point on which the maxima at scale $R_{T{k+1}}$ by constraining them to lie in a geodesic disc of radius $R_{T_k}$ around it. We repeat this process and determine the final correspondence at scale $N$}} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% section: Similarity
@@ -272,6 +293,69 @@ Fourth paragraph: outline of similarity computation
 Then, paragraphs/subsections explaining the different stages
 }
 
+%First paragraph: problem definition
+\nadav{proposed text:{\color{magenta}
+Given a pair of surfaces with a source vertex in 3 dimensions, we would like to have a way to measure the similarity between them, which will be as invariant as possible to both complex, possibly non rigid transformation, and to the challenges induced by partiality of data and topological noise.}}
+
+%Second paragraph: Key idea, first in laymen language.
+\nadav{proposed text: {\color{magenta}
+We are inspired by the principles introduced in\cite{talmi2017template}, which rely on the observation that NN field mapping points from a matching target to a template should have a high diversity of unique matches, and a preservation of distances between said matches, but had found that the method there is insufficient for our task due to the following reasons.
+
+First, the way in which 3D data is organized forces a comparison between shapes with an asymmetrical size of data, which introduces different biases, such as penalizing pieces with repeating patterns, which occur more frequently when the search window contains more data points than the template, a problem which is escalated even further by partiality.
+
+In addition the absence of a simple grid makes the relation between locations of two points on different shapes to become not well defined.
+
+%first idea
+We address the former issue first, by adopting an elitist strategy: we count only the contribution of the nearest neighbor for which distances are preserved the best and effectively ignoring the rest.
+
+%2nd idea
+In addition, we compare small segments of the part, instead of the whole, as this decreases the chance for pieces to be of a vastly asymmetrical area.
+
+%3rd idea
+In order to measure deformation we choose a reference point and measure all distances in relation to it.}}
+
+%Third paragraph: the mathematical definition that realizes the key idea
+\nadav{proposed text: {\color{magenta} 
+Let points $n_i,m_j$ represent surface regions of the template and target respectively, with $n^l_i,m^l_j$ denoting their location, and $n^S_i,m^S_j$ denoting their shape, described by some given vector.
+Our goal is to measure the similarity between two sets of points, the template points $\mathcal{N}_{c,R_T}=\{n_k\}\in\mathcal{N},d(n^l_k,n^l_c)<R_T$ ,and the target points $\mathcal{M}_{c',R_T}=\{m_k'\}\in\mathcal{N},d(m^l_k,m^l_c')<R_T$, where $d$ is a given spatial distance function and $n^l_c,m^l_c'$ are given reference locations on $\mathcal{N},\mathcal{M}$ respectively. 
+We require finding the NN in $\mathcal{N}$ for every point $m\in\mathcal{M} s.t. NN(m,\mathcal{N})=argmin_{n\in\mathcal{N}}d(n^S,m^S)$ for some given distance function defined on their shape function space. The property of diversity can be measured intuitively by counting the number of unique NNs. 
+Thus, same as in \cite{talmi2017template} we define Diversity as:
+\begin{equation}
+\underset{\mathcal{M}_{c',R_T}\rightarrow\mathcal{N}_{c,R_T}}{DIS}=|\{n_i\in\mathcal{N}_{c,R_T}:\exists m_j\in\mathcal{M}_{c',R_T},NN(m_j,\mathcal{N})=n_i\}|
+\end{equation}
+where $|\{.\}|$ denotes group size.
+
+In order to take into account our second desired property of pairwise distance consistency, for each point $n\in\mathcal{N}_{c,R_T}$ we search for a point $m\in\mathcal{M}_{c',R_T}$ such that $NN(m,\mathcal{N})=n$ and whose distance to the source $d(m^l,m^l_c')$ is the most similar to $d(n^l,n^l_c)$. 
+We define the deformation induced by $n_i$ as 
+\begin{equation}
+r_i = min(|d(m_j,c')-d(n_i,c)|),\\
+\end{equation}
+where $m_j\in \mathcal{M}_{c,R_T}, NN^S(m_j,\mathcal{N})=n_i$. If $n_i$ has no point who points to it as its nearest neighbor in $\mathcal{M}_{c,R_T}$ then $r_i=\infty$.
+
+We then use this induced deformation weigh it's contribution, and finally we define our Deformable Diversity Similarity by the equation:
+\begin{equation}
+DDIS(\mathcal{N}_{c,R_T},\mathcal{M}_{c',R_T},\gamma)=\sum_{n_i'\in \mathcal{N}_{c,R_T}}\frac{1}{1+r_i'}
+\end{equation}
+
+}} 
+%Fourth paragraph: outline of similarity computation
+\nadav{proposed text: {\color{magenta}
+%preprocessing
+To calculate our similarity we first compute shape descriptors for all the point on $\mathcal{N},\mathcal{M}$ and use Approximate Nearest Neighbor in the descriptor space to infer the Nearest Neighbor Field.
+%template construction
+We then collect a neighborhood $\mathcal{N}_{c,R_T}$ of a given Radius $R_T$ around a desired source point $n_c$ and compute the distance of all points which lie within this neighborhood to the source $n_c$.
+%similarity calculation
+We repeat the same process for a candidate point $m_c\in\mathcal{M}$ to create $\mathcal{M}_{c',R_T}$.
+We traverse all the points in $\mathcal{M}_{c',R_T}$ and check for each one if it's distance to its center is the most similar to the distance of its nearest neighbor in $\mathcal{N}_{c,R_T}$ and update the contribution of $n_i$ to the similarity score accordingly.
+Finally we go over all points $n\in\mathcal{N}_{c,R_T}$ and sum their contribution to obtain a similarity score.
+}}
+%paragraphs/subsections explaining the different stages
+\nadav{proposed text: {\color{magenta}
+\subsection{Shapes Preprocessing}
+Before we can calculate similarity between our shapes some preprocessing of the shapes is necessary. 
+We calculate a characteristic length on the full part denoted $R_\mathcal{M}=\sqrt{Area(\mathcal{M})}$. We also compute vertex-wise normals using the face normal weighting scheme introduced in\cite{max1999weights}. 
+\subsection{Nearest Neighbor Field calculation}
+To infer our nearest neighbor field we first calculate FPFH\cite{rusu2009fast} point descriptors for every point on the template $\mathcal{N}$ and the query shape $\mathcal{M}$. We set a neighborhood of $r_F=\alpha\cdot R_\mathcal{M}$ and around every point, where $\alpha$ is a tunable parameter for the calculation of FPFH. We then calculate approximate nearest neighbors in FPFH space using FLANN with a $\chi^2$ distance measure to obtain a nearest neighbor mapping $\underset{\mathcal{M}\rightarrow\mathcal{N}}{NNF}=\{NN(m_i,\mathcal{N})\}_{i=1}^{|\mathcal{M}}$}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% section: Deformable Diversity Similarity in 3D
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -279,14 +363,14 @@ Then, paragraphs/subsections explaining the different stages
 \begin{figure}[htb]
 	
 	\includegraphics[width=0.5\textwidth]{figures/DDIS2.png}
-	\caption{Illustration of Diversity Similarity between different shapes. 
-		Geodesic Distances are color coded by the jet scheme. 
+	\caption{Illustration of the Nearest Neighbor Field between different shapes. 
+		Geodesic distances are color coded by the jet scheme, with on surface color denoting distance from source, and line colors the deviation. 
 		You can notice that on identical pieces, and even on deformed matching pieces there are multiple diverse matches, most of which are colored in blue to indicated very similar distances from the source point, whereas on different pieces most lines map to very few points and a lot of yellow lines (high deformation) exist}
 \end{figure}
 
-The nature of 3D data gives rise to unique problems which do not occur in the 2D scenario. Data is distributed in space both sparsely and with varying densities - the amount of data points occupying a given volume can vary drastically.
+\nadav{Old text:The nature of 3D data gives rise to unique problems which do not occur in the 2D scenario. Data is distributed in space both sparsely and with varying densities - the amount of data points occupying a given volume can vary drastically.
 A second problem arises from the absence of a regular grid. These problems require different definitions for key components to the 2D deformable diversity formulation. For this work we chose the image patch to be replaced by a neighborhood which is required to calculate a selected shape descriptor, usually a small sphere in euclidean space or a surface patch with a radius $r_F$. 
-The search window  of a template is defined as a geodesic disc around the query point, with a radius denoted by $R_T$. The pixel grid distance is replaced by either a euclidean distance $d_{Euc}(x^l,y^l)$(in the case of point clouds) or geodesic distance $d_{Geo}(x^l,y^l)$(for surface meshes).
+The search window of a template is defined as a geodesic disc around the query point, with a radius denoted by $R_T$. The pixel grid distance is replaced by either a euclidean distance $d_{Euc}(x^l,y^l)$(in the case of point clouds) or geodesic distance $d_{Geo}(x^l,y^l)$(for surface meshes).
 Given these DDIS  between shape parts $\mathcal{M}_{x,R_T}$ and $\mathcal{N}_{y,R_T}$ can be naively formulated as:
 \begin{equation}
 DDIS=c\cdot\sum_{m_j\in\mathcal{M}_{x,R_T}}\frac{exp(1-\kappa(NN^S(m_j,\mathcal{N}_{y,R_T}))}{1+r_j}
@@ -305,11 +389,11 @@ To account for this the following formulation has been found to work better: giv
 $\mathcal{M}_{n_i}=\{m_j\in\mathcal{M}_{j,R_T}:NN^S(m_j,N_{y,R_T})=n_i\}$ 
 , we define 
 $m_i' = \underset{m_j\in\mathcal{M}_{n_i}}{argmin}\space (r_j)$
-and $r_i'$ the minimal distortion distance, we add only the contribution of this point to the similarity score which then becomes
+and $r_i'$ the minimal distortion distance, we add only the contribution of this point to the similarity score which then becomes}
 \begin{equation}
 DDIS(N_{y,R_T},\mathcal{M}_{x,R_T},\gamma)=\sum_{m_i'}\frac{1}{1+r_i'}
 \end{equation}
-{\color{red} explain why -- can we see it visually on the same example?}{\color{green} added both qualitative(visual, and quantitative example}\\
+{\color{red} explain why -- can we see it visually on the same example?}{\color{magenta} added both qualitative(visual, and quantitative example}\\
 \begin{figure}[htb]
 	\includegraphics[width=0.5\textwidth]{figures/DDISvsWDIS.png}
 	\caption{Qualitative and quantitative illustration of the improvement introduces by our formulation. On the top left the Nearest neighbor mapping between the part and its corresponding ground truth geodesic disc. As can be seen low distortion is occurring between the true corresponding points, but the symmetrical part which is not included on the partial model maps to the same points - thus attenuating the score originating from these. One the bottom left we see the piece chosen by the original DDIS formulation. The arrows with low distortion seldom have other points which are their nearest neighbors and thus achieves a better score without our modification. The cumulative error curves show an improvement of ~5 percent on the training set using our formulation.}
@@ -410,7 +494,7 @@ Each landmark template is compared to all surface parts of a similar $R_T$ on $\
 The observation of the effects of the choice of $\beta$ and the trade-off between finer localization and avoidance of global errors naturally leads to the adoption of a multi scale framework. We calculate $DDIS$ score for multiple $beta$ values, and use the location obtained with a large beta to select a narrow environment in which we look for the maximum of DDIS with a smaller value $beta$, thus using the larger scale to get a rough global location, and the smaller scale to fit it into a more exact location. While this might be done at multiple custom scales we have found that the triplet $\beta ,2\cdot beta/3\beta/3$ works well.
 \begin{figure}[htb]
 	\includegraphics[width=0.5\textwidth]{figures/MultiScaleDis.png}
-	\caption{Illustration of the multi scale framework. The green grid marks the area chosen by the previous scale to be valid. It can be seen that wrong maxima in lower scales are ignored due to this process}
+	\caption{Illustration of the multi scale framework. The magenta grid marks the area chosen by the previous scale to be valid. It can be seen that wrong maxima in lower scales are ignored due to this process}
 \end{figure}
 
 \begin{figure*}

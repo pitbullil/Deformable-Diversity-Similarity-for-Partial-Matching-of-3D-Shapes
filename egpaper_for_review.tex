@@ -205,15 +205,12 @@ In particular, we aim at defining a sparse set of point correspondences between 
 Our approach is based on three key ideas, which we describe hereafter.
 
 %%%%%%%%%%%%%%%%%%%%Key Idea underlying the original DDIS : diversity
-First, \ayellet{copy from Lihi - 2-3 sentences that are clear and concise}
-
-\nadav{From lihi: Our key idea is that the similarity between the target and the template is captured by two properties of the implied NN field ... when the target and template correspond, most target patches have a unique NN match in the template. This implies that the NN field is highly diverse, pointing to many different patches in the template ... Second, we note that arbitrary matches typically imply a large deformation ... \cite{talmi2017template}p.1}.
-
-\ayellet{Similarity should be based both on the diversity... and the consistency of the distances between the points.}
-
-\nadav{proposed text: {\color{magenta}
-
-Similarity between a template and a target should be based both on the diversity of the matches from the template to the target, as most matches should be unique leading to a highly diverse mapping, and the consistency of distances between pairs of matches.}}
+First, inspired by \cite{talmi2017template}, similarity is captured by two properties of the Nearest Neighbor field. 
+(1) When the target and the template match, most target points have a unique NN-match in the template. 
+This implies that the NN field should be highly diverse, in the sense that many different points in the template are being matched.
+(2) Arbitrary matches typically imply a large deformation, whereas
+\ayellet{finish this claim}
+Therefore, Similarity should be based both on the diversity... and the consistency of the distances between the points.
 
 % One key to our method is the assumption that while non rigid deformations and partiality leads to changes in the data, the underlying shape distributions from which the shapes on the surfaces are drawn should remain highly overlapping, and thus the data points drawn from these should be spread approximately uniformly, one inside the other, leading to a high diversity of nearest neighbors.
 % %%%%%%%%%%%%%%%%%%%%%The idea underlying our improvement%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -224,66 +221,65 @@ Similarity between a template and a target should be based both on the diversity
 % However, the preservation of distances holds only approximately even for full template matching, and even less so in the presence of partiality and topological noise.
 % It holds that the longer a distance between 2 points is, the more likely it is that a distortion had occurred on the geodesic path between them, either due to a non isometric deformation, partiality removing a piece of the geodesic path or topological noise introducing a shortcut.
 % It follows from this that the smaller the pieces we are trying to match will be, the higher the likelihood of pairwise distances to be preserved should be.
-Second, rather the performing the above on $\mathcal{N}$, it is preferable to perform it on segments of it.
-This is so since \ayellet{in one sentence explain why it is better}
+Second, rather the performing the above similarity test on $\mathcal{N}$ as a whole, it is preferable to perform it on smaller set of sub-surfaces of it.
+This is so not only since smaller sub-surfaces are more likely to exhibit consistent distances, but also since they are less likely to be matched to repeating patterns that lead to lower diversity.
 
-\nadav{proposed text: {\color{magenta}
-the smaller the compared segments are, the more likely it is for both distances and matches to remain consistent, and the less likely it is for repeating patterns which lead to lower diversity of the mapping to occur}}.
-
-Third, multi-scale approach is beneficial, since \ayellet{in one sentence why}
-
-\nadav{proposed text: {\color{magenta}
-coarser scales obtain results which are globally consistent, but inexact , while finer scales lead to better localization, but alone might lead to mappings to a similar point which lie in a different region.}}
+Third, a multi-scale approach is beneficial, since matches of coarser scales are globally consistent but less accurate, whereas finer scales lead to better localization, \ayellet{NOT clear: but alone might lead to mappings to a similar point which lie in a different region.}
 
 Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists of the following steps.
 \begin{enumerate}
     \item 
     \textbf{Pre-processing}.
-    In this step, shapes descriptors are calculated for both meshes and an approximate nearest neighbor field is computed for the shape descriptors.
-    Many descriptors have been proposed in the literature.
-    We are using the \ayellet{ FPFH~\cite{} due to its benefits....}
+    Shapes descriptors are calculated for both meshes and an approximate nearest neighbor field is computed for them.
     
-    \nadav{proposed text: {\color{magenta}
-    
-    FPFH due to its benefits of being robust to small deformations and partiality of data, while sensitive to symmetrical flips. }}
+    Many descriptors have been proposed in the literature \ayellet{citations for three major ones}.
+    We are using the \ayellet{ FPFH~\cite{}}  due to being robust to small deformations and partiality of data, yet sensitive to symmetrical flips. \ayellet{why is this sensitivity important?}
     \item
-    {\bf Sampling \& segmentation of the subsurface.} 
-    Inline with the second key idea, we aim at extracting a meaningful set of points, which also provide a good coverage of the surface. 
-    The key idea here is to start from extremities, which are often highly representative of the surface and iteratively refine, adding more samples and covering more of the surface.
-    This is done by iteratively choosing a sample, and choosing the closest unmarked whose geodesic distance is larger than a pre-defined threshold.
-    Finally, a segment is extracted around each sample point, which is a geodesic disc of radius $R_T$ around it.
-    \ayellet{Is this the segmentation??} \nadav{Yes. I do not call it segmentation because there isn't necessarily semantic significance. overlapping patches is more accurate...}
+    {\bf Sampling \& corresponding subsurface.} 
+    Inline with the second key idea, we aim at extracting a meaningful set of points, whose neighborhoods provide a good coverage of the surface. 
+    To extract them, we start from the extremities, which are silent points.
+    Then, we iteratively refine the set, adding more samples, which together cover more of the surface.
+    
+    \ayellet{will we define extremities later? if not, this is the place - copy from our old paper}
+    
+    Then, in an iterative manner, we choose a sample point \ayellet{how?}, and extract the closest unmarked vertex whose geodesic distance to this sample is larger than a pre-defined threshold. \ayellet{and what if it is close to another sample?}
+    
+    Once the set of representing samples is constructed, a sub-surfaces is extracted around each point, defined to be the geodesic disc of radius $R_T$ around it.
+    \ayellet{do we guarantee that they are non-overlapping or we do not care?}
+    
     \item
     {\bf Computing the similarity function.} 
-    This is the core step of the algorithm.
-    For every sample point of $\mathcal{N}$, 
+    This is the core of our algorithm.
+    For every sample point of $\mathcal{N}$, we
     % we define a geodesic disc around it and 
     compute a similarity score between it to all the points of  $\mathcal{M}$.
-    \ayellet{is that correct or the opposite?}\nadav{reply: Yes - if we have N samples on the part and M vertices on the full model we will have M similarity scores for each of the N samples}
-    \nadav{proposed text:{{\color{magenta}
+    \ayellet{is that correct or the opposite? - your answer is irrelevant. Look at the problem definition,  $\mathcal{N}$  $\mathcal{M}$ are surfaces.}
+    %\nadav{reply: Yes - if we have N samples on the part and M vertices on the full model we will have M similarity scores for each of the N samples}
     
-    We use a modified version of the Deformable Diversity Similarity\cite{talmi2017template}, which rewards a NN field which is both high in diversity and low in deformation. Unlike\cite{talmi2017template}, we have found it beneficial not to penalize points which share the same nearest neighbor, but rather only use the one which has the lowest deformation.}}}
-    The point that maximizes the similarity function is considered the corresponding point.
-    \ayellet{we are missing some "meat" here} 
-    \nadav{added above}
+    The idea is to reward a NN field with high diversity and low deformation. %Unlike\cite{talmi2017template}, we have found it beneficial not to penalize points which share the same nearest neighbor, but rather only use the one which has the lowest deformation.
+    A point that maximizes the similarity function that realizes tthis idea is considered the corresponding point.
+    We will elaborate on how this is performed in Section~\ref{sec:similarity}
     % \textbf{Refinement.} The goal of this stage is to achieve better correspondences based on simple global tests and constraints
     % \begin{itemize}
     % \item Correspondences which exhibit high distortion are determined are marked as not trusted.
     % \item For Correspondences which are deemed not trusted we search among the local maximas of the DDIS score a point which minimizes their distortion w.r.t to trusted point.
     % \end{itemize}
     \item
-    \ayellet{Is there a stage that takes the point correspondences and creates surface correspondences?}\nadav{It is currently defined as optional - and it is the use of these sparse correspondences as an input to the algorithm of \cite{litany2017fully} to produce a dense set of correspondences- it is not a part of our core algorithm and I am not sure if it should be mentioned here your opinion?}
+    \ayellet{Is there a stage that takes the point correspondences and creates surface correspondences?}
+    \nadav{It is currently defined as optional - and it is the use of these sparse correspondences as an input to the algorithm of \cite{litany2017fully} to produce a dense set of correspondences.}
+    \ayellet{I do not understand: You never extract a sub-surface??}
 \end{enumerate}
 The latter two steps are performed in a multi-scale approach. 
-\ayellet{missing a couple of sentences here} 
-\nadav{proposed text:{\color{magenta}
-
-We define a set of $N$ scales characterized by their geodesic radii $R_{T_1}>...>R_{T_N}$ and calculate the similarity scores for geodsic discs at each scale. We then move from a coarse to fine scale by iteratively finding the maxima of similarity at scale $R_{T_k}$, and use to define a valid set of points from which we pick the maxima at scale $R_{T{k+1}}$ by constraining them to lie in a geodesic disc of radius $R_{T_k}$ around it. We repeat this process and determine the final correspondence at scale $N$}} 
+To do it, we define a set of $N$ scales, which define geodesic radii $R_{T_1}>...>R_{T_N}$, \ayellet{which are the pre-defined thresholds of Step 2}.
+The larger the radius, \ayellet{the ....}
+\ayellet{ I do not understand anything you say below. Do you use the results in one scale to calculate the other. How is Step 3 influenced?}
+\nadav{We then move from a coarse to fine scale by iteratively finding the maxima of similarity at scale $R_{T_k}$, and use to define a valid set of points from which we pick the maxima at scale $R_{T{k+1}}$ by constraining them to lie in a geodesic disc of radius $R_{T_k}$ around it. We repeat this process and determine the final correspondence at scale $N$}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% section: Similarity
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Similarity}
+\label{sec:similarity}
 \ayellet{
 First paragraph: problem definition
 

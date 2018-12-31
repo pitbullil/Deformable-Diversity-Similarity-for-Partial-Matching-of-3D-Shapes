@@ -193,14 +193,14 @@ An additional observation made has been that while non isometric deformations do
 %%%%%%%%%%%%%%%%%%%%%%%% section: 3D Deformable Diversity Similarity
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{General Approach}
-\label{sec:algorithm}
+\label{sec:approach}
 \begin{figure*}[htb]
 	\centering
 	\includegraphics[width=1\textwidth]{figures/Birds_Flight.png}
 	\caption{High level illustration of the DDIS Partial Correspondence pipe.}
 \end{figure*}
 
-Given two surfaces $\mathcal{M}$ and $\mathcal{N}$,the goal is to find the best match of  $\mathcal{N}$ within  $\mathcal{M}$.
+Given two surfaces $\mathcal{M}$ and $\mathcal{N}$, the goal is to find the best match of  $\mathcal{N}$ within  $\mathcal{M}$.
 In particular, we aim at defining a sparse set of point correspondences between the models. 
 Our approach is based on three key ideas, which we describe hereafter.
 
@@ -232,20 +232,21 @@ Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists
     \textbf{Pre-processing}.
     Shapes descriptors are calculated for both meshes and an approximate nearest neighbor field is computed for them.
     
-    Many descriptors have been proposed in the literature \ayellet{citations for three major ones}.
-    We are using the \ayellet{ FPFH~\cite{}}  due to being robust to small deformations and partiality of data, yet sensitive to symmetrical flips. \ayellet{why is this sensitivity important?}
+    Many descriptors have been proposed in the literature\cite{rusu2008towards,tombari2010unique,Sun:2009:CPI:1735603.1735621} \ayellet{citations for three major ones}.
+    We are using the \ayellet{ FPFH~\cite{rusu2009fast}}  due to being robust to small deformations and partiality of data, yet sensitive to symmetrical flips. \ayellet{why is this sensitivity important?}\nadav{I believe this is the reason we don't have as many symmetrical limbs assignments as competing methods.}
     \item
     {\bf Sampling \& corresponding subsurface.} 
     Inline with the second key idea, we aim at extracting a meaningful set of points, whose neighborhoods provide a good coverage of the surface. 
-    To extract them, we start from the extremities, which are silent points.
+    To extract them, we start from the extremities, which are salient points.
     Then, we iteratively refine the set, adding more samples, which together cover more of the surface.
     
-    \ayellet{will we define extremities later? if not, this is the place - copy from our old paper}
+    \ayellet{will we define extremities later? if not, this is the place - copy from our old paper}\nadav{my current plan is to give a paragraph to the sampling scheme which will include this}
     
-    Then, in an iterative manner, we choose a sample point \ayellet{how?}, and extract the closest unmarked vertex whose geodesic distance to this sample is larger than a pre-defined threshold. \ayellet{and what if it is close to another sample?}
+    Then, in an iterative manner, we choose a sample point \ayellet{how?}, and extract the closest unmarked vertex whose geodesic distance to this sample is larger than a pre-defined threshold. \ayellet{and what if it is close to another sample?}\nadav{It is guaranteed because of the marking process that we will not choose a sample close to one already in the set}
+    \nadav{proposed rewrite of the above:{\color{magenta} Then, in an iterative manner, we choose the sample point whose distance to the set is the minimal for the set of points whose distance to the set is at least $R_{Sample}$}}
     
     Once the set of representing samples is constructed, a sub-surfaces is extracted around each point, defined to be the geodesic disc of radius $R_T$ around it.
-    \ayellet{do we guarantee that they are non-overlapping or we do not care?}
+    \ayellet{do we guarantee that they are non-overlapping or we do not care?}\nadav{We indeed do not care. They are overlapping.We only put a constraint on the minimal distance between samples}
     
     \item
     {\bf Computing the similarity function.} 
@@ -257,8 +258,8 @@ Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists
     %\nadav{reply: Yes - if we have N samples on the part and M vertices on the full model we will have M similarity scores for each of the N samples}
     
     The idea is to reward a NN field with high diversity and low deformation. %Unlike\cite{talmi2017template}, we have found it beneficial not to penalize points which share the same nearest neighbor, but rather only use the one which has the lowest deformation.
-    A point that maximizes the similarity function that realizes tthis idea is considered the corresponding point.
-    We will elaborate on how this is performed in Section~\ref{sec:similarity}
+    A point that maximizes the similarity function that realizes this idea is considered the corresponding point.
+    We will elaborate on how this is performed in Section~\ref{sec:similarity}.
     % \textbf{Refinement.} The goal of this stage is to achieve better correspondences based on simple global tests and constraints
     % \begin{itemize}
     % \item Correspondences which exhibit high distortion are determined are marked as not trusted.
@@ -267,12 +268,12 @@ Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists
     \item
     \ayellet{Is there a stage that takes the point correspondences and creates surface correspondences?}
     \nadav{It is currently defined as optional - and it is the use of these sparse correspondences as an input to the algorithm of \cite{litany2017fully} to produce a dense set of correspondences.}
-    \ayellet{I do not understand: You never extract a sub-surface??}
+    \ayellet{I do not understand: You never extract a sub-surface??}\nadav{no. in the end the result of our algorithms are point wise correspondences. Either sparse, or dense.}
 \end{enumerate}
 The latter two steps are performed in a multi-scale approach. 
-To do it, we define a set of $N$ scales, which define geodesic radii $R_{T_1}>...>R_{T_N}$, \ayellet{which are the pre-defined thresholds of Step 2}.
+To do it, we define a set of $N$ scales, which define geodesic radii $R_{T_1}>...>R_{T_N}$, \ayellet{which are the pre-defined thresholds of Step 2}\nadav{No, they are not. The density of sampling radius used for step 2 is not the same as the radius we use to construct our geodesic discs}.
 The larger the radius, \ayellet{the ....}
-\ayellet{ I do not understand anything you say below. Do you use the results in one scale to calculate the other. How is Step 3 influenced?}
+\ayellet{ I do not understand anything you say below. Do you use the results in one scale to calculate the other. How is Step 3 influenced?}\nadav{At step 3 we calculate k similarity scores for each pair of points - one for each geodesic disc radius $R_{T_k}$}
 \nadav{We then move from a coarse to fine scale by iteratively finding the maxima of similarity at scale $R_{T_k}$, and use to define a valid set of points from which we pick the maxima at scale $R_{T{k+1}}$ by constraining them to lie in a geodesic disc of radius $R_{T_k}$ around it. We repeat this process and determine the final correspondence at scale $N$}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -280,8 +281,12 @@ The larger the radius, \ayellet{the ....}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Similarity}
 \label{sec:similarity}
+
+%First paragraph: problem definition
+Given $\mathcal{M}$ and $\mathcal{N}$ (Section~\ref{sec:approach}) and a vertex $v \in  \mathcal{N}$ \ayellet{yes?, not the opposite?}, the goal is to find the most similar vertex on $\mathcal{N}$.
+We would like the similarity to be oblivious to non-rigid transformation, to the resolutions of the meshes, to noise, and to the partiality of the data.
+
 \ayellet{
-First paragraph: problem definition
 
 Second paragraph: Key idea, first in laymen language.
 We are inspired by...., but found that the method there is insufficient due to the following reasons.
@@ -293,9 +298,6 @@ Fourth paragraph: outline of similarity computation
 Then, paragraphs/subsections explaining the different stages
 }
 
-%First paragraph: problem definition
-\nadav{proposed text:{\color{magenta}
-Given a pair of surfaces with a source vertex in 3 dimensions, we would like to have a way to measure the similarity between them, which will be as invariant as possible to both complex, possibly non rigid transformation, and to the challenges induced by partiality of data and topological noise.}}
 
 %Second paragraph: Key idea, first in laymen language.
 \nadav{proposed text: {\color{magenta}

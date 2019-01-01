@@ -243,7 +243,7 @@ Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists
     \ayellet{will we define extremities later? if not, this is the place - copy from our old paper}\nadav{my current plan is to give a paragraph to the sampling scheme which will include this}
     
     Then, in an iterative manner, we choose a sample point \ayellet{how?}, and extract the closest unmarked vertex whose geodesic distance to this sample is larger than a pre-defined threshold. \ayellet{and what if it is close to another sample?}\nadav{It is guaranteed because of the marking process that we will not choose a sample close to one already in the set}
-    \nadav{proposed rewrite of the above:{\color{magenta} Then, in an iterative manner, we choose the sample point whose distance to the set is the minimal for the set of points whose distance to the set is at least $R_{Sample}$}}
+    \nadav{proposed rewrite of the above: Then, in an iterative manner, we choose the sample point whose distance to the set is the minimal for the set of points whose distance to the set is at least $R_{Sample}$}
     
     Once the set of representing samples is constructed, a sub-surfaces is extracted around each point, defined to be the geodesic disc of radius $R_T$ around it.
     \ayellet{do we guarantee that they are non-overlapping or we do not care?}\nadav{We indeed do not care. They are overlapping.We only put a constraint on the minimal distance between samples}
@@ -254,7 +254,7 @@ Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists
     For every sample point of $\mathcal{N}$, we
     % we define a geodesic disc around it and 
     compute a similarity score between it to all the points of  $\mathcal{M}$.
-    \ayellet{is that correct or the opposite? - your answer is irrelevant. Look at the problem definition,  $\mathcal{N}$  $\mathcal{M}$ are surfaces.}
+    \ayellet{is that correct or the opposite? - your answer is irrelevant. Look at the problem definition,  $\mathcal{N}$  $\mathcal{M}$ are surfaces.}\nadav{This is probably something we should go over briefly tomorrow, as the difference here conuses me.}
     %\nadav{reply: Yes - if we have N samples on the part and M vertices on the full model we will have M similarity scores for each of the N samples}
     
     The idea is to reward a NN field with high diversity and low deformation. %Unlike\cite{talmi2017template}, we have found it beneficial not to penalize points which share the same nearest neighbor, but rather only use the one which has the lowest deformation.
@@ -283,7 +283,7 @@ The larger the radius, \ayellet{the ....}
 \label{sec:similarity}
 
 %First paragraph: problem definition
-Given $\mathcal{M}$ and $\mathcal{N}$ (Section~\ref{sec:approach}) and a vertex $v \in  \mathcal{N}$ \ayellet{yes?, not the opposite?}, the goal is to find the most similar vertex on $\mathcal{N}$.
+Given $\mathcal{M}$ and $\mathcal{N}$ (Section~\ref{sec:approach}) and a vertex $v \in  \mathcal{N}$ \ayellet{yes?, not the opposite?}, the goal is to find the most similar vertex on $\mathcal{M}$.
 We would like the similarity to be oblivious to non-rigid transformation, to the resolutions of the meshes, to noise, and to the partiality of the data.
 
 \ayellet{
@@ -300,7 +300,8 @@ Then, paragraphs/subsections explaining the different stages
 
 
 %Second paragraph: Key idea, first in laymen language.
-\nadav{proposed text: {\color{magenta}
+\nadav{proposed text: 
+
 We are inspired by the principles introduced in\cite{talmi2017template}, which rely on the observation that NN field mapping points from a matching target to a template should have a high diversity of unique matches, and a preservation of distances between said matches, but had found that the method there is insufficient for our task due to the following reasons.
 
 First, the way in which 3D data is organized forces a comparison between shapes with an asymmetrical size of data. This introduces different biases, such as penalizing pieces with repeating patterns, which occur more frequently when the search window contains more data points than the template. This problem is escalated even further by partiality as symmetrically flipped shapes on a full model will be mapped to the same points.
@@ -314,12 +315,13 @@ We address the former issue first, by adopting an elitist strategy: we count onl
 In addition, we compare small segments of the part, instead of the whole, as this decreases the chance for pieces to be of a vastly asymmetrical area.
 
 %3rd idea
-In order to measure deformation we choose a reference point and measure all distances in relation to it.}}
+In order to measure deformation we choose a reference point and measure all distances in relation to it.}
 
 %Third paragraph: the mathematical definition that realizes the key idea
-\nadav{proposed text: {\color{magenta} 
+\nadav{proposed text:
+
 Let points $n_i,m_j$ represent surface regions of the template and target respectively, with ${n^l}_i,{m^l}_j$ denoting their location, and ${n^S}_i,{m^S}_j$ denoting their shape, described by some given vector.
-Our goal is to measure the similarity between two sets of points, the template points ${\mathcal{N}_c}^{R_T}=\{n_k\}\in\mathcal{N},d({n^l}_k,{n^l}_c)<R_T$ ,and the target points ${\mathcal{M}^{R_T}_{c'}}=\{m_k'\}\in\mathcal{N},d({m^l}_k,{m^l}_c')<R_T$, where $d$ is a given spatial distance function and ${n^l}_c,{m^l}_c'$ are given reference locations on $\mathcal{N},\mathcal{M}$ respectively. 
+Our goal is to measure the similarity between two sets of points, the template points $\mathcal{N}^{R_T}_{c}=\{n_k\}\in\mathcal{N},d({n^l}_k,{n^l}_c)<R_T$ ,and the target points ${\mathcal{M}^{R_T}_{c'}}=\{m_k'\}\in\mathcal{N},d({m^l}_k,{m^l}_c')<R_T$, where $d$ is a given spatial distance function and ${n^l}_c,{m^l}_c'$ are given reference locations on $\mathcal{N},\mathcal{M}$ respectively. 
 We require finding the NN in $\mathcal{N}$ for every point $m\in\mathcal{M}$ s.t. $NN(m,\mathcal{N})={\underset{n\in\mathcal{N}}{\arg\min\ }} d(n^S,m^S)$ for some given distance function defined on their shape function space. The property of diversity can be measured intuitively by counting the number of unique NNs. 
 Thus, same as in \cite{talmi2017template} we define Diversity as:
 \begin{equation}
@@ -336,35 +338,35 @@ where $m_j\in {\mathcal{M}^{R_T}_{c'}}, NN^S(m_j,\mathcal{N})=n_i$. If $n_i$ has
 
 We then use this induced deformation weigh it's contribution, and finally we define our Deformable Diversity Similarity by the equation:
 \begin{equation}
-DDIS({\mathcal{N}_c}^{R_T},{\mathcal{M}^{R_T}_{c'}},\gamma)=\sum_{n_i\in {\mathcal{N}^{R_T}_{c}}}\frac{1}{1+r_i}
+DDIS({\mathcal{N}^{R_T}_{c}},{\mathcal{M}^{R_T}_{c'}},\gamma)=\sum_{n_i\in {\mathcal{N}^{R_T}_{c}}}\frac{1}{1+r_i}
 \end{equation}
 Note that when the deformation is 0, that is $r_i=0 \forall n_i$ DDIS becomes identical to the diversity score, while when $r_i\rightarrow\infty$, the contribution of a point having a nearest neighbor to the similarity score will become 0, irrespective to if it has multiple nearest neighbors. Thus this formulation indeed captures the properties we have defined above, while disregarding distractors altogether.
-}} 
+} 
 
 %Fourth paragraph: outline of similarity computation
-\nadav{outline of similarity computation: proposed text: {\color{magenta}
+\nadav{outline of similarity computation: proposed text: 
 %preprocessing
 To calculate our similarity we first compute shape descriptors for all the point on $\mathcal{N},\mathcal{M}$ and use Approximate Nearest Neighbor in the descriptor space to infer the Nearest Neighbor Field.
 %template construction
-We then collect a neighborhood ${\mathcal{N}_c}^{R_T}$ of a given Radius $R_T$ around a desired source point $n_c$ and compute the distance of all points which lie within this neighborhood to the source $n_c$.
+We then collect a neighborhood $\mathcal{N}^{R_T}_{c}$ of a given Radius $R_T$ around a desired source point $n_c$ and compute the distance of all points which lie within this neighborhood to the source $n_c$.
 %similarity calculation
 We repeat the same process for a candidate point $m_c\in\mathcal{M}$ to create ${\mathcal{M}^{R_T}_{c'}}$.
 We traverse all the points in ${\mathcal{M}^{R_T}_{c'}}$ and check for each one if it's distance to its center is the most similar to the distance of its nearest neighbor in ${\mathcal{N}_c}^{R_T}$ and update the contribution of $n_i$ to the similarity score accordingly.
-Finally we go over all points $n\in{\mathcal{N}_c}^{R_T}$ and sum their contribution to obtain a similarity score.
-}}
+Finally we go over all points $n\in\mathcal{N}^{R_T}_{c}$ and sum their contribution to obtain a similarity score.
+}
 
 %paragraphs/subsections explaining the different stages
-\nadav{subsections explaining the different stages, proposed text: {\color{magenta}
+\nadav{subsections explaining the different stages, proposed text: 
 \subsection{Shapes Preprocessing}
 Before we can calculate similarity between our shapes some preprocessing of the shapes is necessary. 
 We calculate a characteristic length on the full part denoted $R_\mathcal{M}=\sqrt{Area(\mathcal{M})}$. We also compute vertex-wise normals using the face normal weighting scheme introduced in\cite{max1999weights}. 
 \subsection{Nearest Neighbor Field calculation}
 To infer our nearest neighbor field we first calculate FPFH\cite{rusu2009fast} point descriptors for every point on the template $\mathcal{N}$ and the query shape $\mathcal{M}$. We set a neighborhood of $r_F=\alpha\cdot R_\mathcal{M}$ and around every point, where $\alpha$ is a tunable parameter for the calculation of FPFH. We then calculate approximate nearest neighbors in FPFH space using FLANN with a $\chi^2$ distance measure to obtain a nearest neighbor mapping $\underset{\mathcal{M}\rightarrow\mathcal{N}}{NNF}=\{NN(m_i,\mathcal{N})\}_{i=1}^{|\mathcal{M}|}$
 \subsection{Template construction}
-In order to calculate our similarity measure, another necessary step is to have 2 pieces of roughly the same volume, and a way to compare the locations of points on them. In the absence of a simple grid, this is done by picking a reference point $x$ as the center and collecting all the points in a surrounding neighborhood of a defined radius $R_T=\beta R_\mathcal{M}$, where beta is a tunable parameter. We calculate the distance from the reference point to every point on the selected piece. This is done once for a chosen point $n_c\in\mathcal{N}$ to construct ${\mathcal{N}_c}^{R_T}$.
+In order to calculate our similarity measure, another necessary step is to have 2 pieces of roughly the same volume, and a way to compare the locations of points on them. In the absence of a simple grid, this is done by picking a reference point $x$ as the center and collecting all the points in a surrounding neighborhood of a defined radius $R_T=\beta R_\mathcal{M}$, where beta is a tunable parameter. We calculate the distance from the reference point to every point on the selected piece. This is done once for a chosen point $n_c\in\mathcal{N}$ to construct $\mathcal{N}^{R_T}_{c}$.
 \subsection{Similarity Calculation}
 We iterate over all points $m_{c'}\in\mathcal{M}$ and construct ${\mathcal{M}^{R_T}_{c'}}$. Inside the piece we iterate over every point $m_j\in{\mathcal{M}^{R_T}_{c'}}$ and calculate $r_i=\frac{|(d({m^l}_i,{m^l}_c')-(NN(m_i,\mathcal{N})^l,{n^l}_c|}{\gamma\cdot R_\mathcal{M}}$, where if $NN(m_j,\mathcal{N})$ is outside ${\mathcal{N}_c}^{R_T}$ this distance is disregarded. Notice the normalization by $\gamma R_\mathcal{M}$ here which is done to make the distances scale invariant, while $\gamma$ is a tunable parameter which should correlate to the expected distortion. We find for each $n_i\in{\mathcal{N}_c}^{R_T}$ the distance of the point who is pointing to it as a nearest neighbor and has the most similar distance to its reference point. If $n_i$ has no point who point to it as its nearest neighbor then $r_i=\infty$. Finally we calculate The similarity between the pieces by our similarity function in Eq. XX.
-}}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% section: Deformable Diversity Similarity in 3D

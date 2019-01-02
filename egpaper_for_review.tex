@@ -208,9 +208,9 @@ Our approach is based on three key ideas, which we describe hereafter.
 First, inspired by \cite{talmi2017template}, similarity is captured by two properties of the Nearest Neighbor field. 
 (1) When the target and the template match, most target points have a unique NN-match in the template. 
 This implies that the NN field should be highly diverse, in the sense that many different points in the template are being matched.
-(2) Arbitrary matches typically imply a large deformation, whereas
-\ayellet{finish this claim}
-Therefore, Similarity should be based both on the diversity... and the consistency of the distances between the points.
+(2) Arbitrary matches typically imply a large deformation, whereas 
+\ayellet{finish this claim} \nadav{correct matches should result in small, limited deformations.}
+Therefore, Similarity should be based both on the diversity...\nadav{of the NN field} and the consistency of the distances between the points.
 
 % One key to our method is the assumption that while non rigid deformations and partiality leads to changes in the data, the underlying shape distributions from which the shapes on the surfaces are drawn should remain highly overlapping, and thus the data points drawn from these should be spread approximately uniformly, one inside the other, leading to a high diversity of nearest neighbors.
 % %%%%%%%%%%%%%%%%%%%%%The idea underlying our improvement%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,35 +226,48 @@ This is so not only since smaller sub-surfaces are more likely to exhibit consis
 
 Third, a multi-scale approach is beneficial, since matches of coarser scales are globally consistent but less accurate, whereas finer scales lead to better localization, \ayellet{NOT clear: but alone might lead to mappings to a similar point which lie in a different region.}
 
-Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists of the following steps.
+Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}\nadav{Figure 1}, consists of the following steps.
 \begin{enumerate}
     \item 
     \textbf{Pre-processing}.
-    Shapes descriptors are calculated for both meshes and an approximate nearest neighbor field is computed for them.
+    Shapes descriptors are calculated for \nadav{every vertex on} both meshes and an approximate nearest neighbor field is computed for them.
     
-    Many descriptors have been proposed in the literature\cite{rusu2008towards,tombari2010unique,Sun:2009:CPI:1735603.1735621} \ayellet{citations for three major ones}.
-    We are using the \ayellet{ FPFH~\cite{rusu2009fast}}  due to being robust to small deformations and partiality of data, yet sensitive to symmetrical flips. \ayellet{why is this sensitivity important?}\nadav{I believe this is the reason we don't have as many symmetrical limbs assignments as competing methods.}
+    Many descriptors have been proposed in the literature\cite{rusu2008towards,tombari2010unique,Sun:2009:CPI:1735603.1735621}.
+    We are using the FPFH~\cite{rusu2009fast}  due to being robust to small deformations and partiality of data, yet sensitive to symmetrical flips.
+    Symmetry is one of the major failures in other algorithms, where a right arm, for example, might be mapped to the left one.
+    
+    \ayellet{compute the nearest neighbor field on from  M to N.}
+    \nadav{We then compute a nearest neighbor field mapping every vertex on $\mathcal{M}$ to a vertex on $\mathcal{N}$ by assigning to each vertex in $\mathcal{M}$ its FPFH nearest neighbor in $\mathcal{N}$.}
     \item
-    {\bf Sampling \& corresponding subsurface.} 
+    {\bf Sampling .} 
     Inline with the second key idea, we aim at extracting a meaningful set of points, whose neighborhoods provide a good coverage of the surface. 
     To extract them, we start from the extremities, which are salient points.
     Then, we iteratively refine the set, adding more samples, which together cover more of the surface.
     
-    \ayellet{will we define extremities later? if not, this is the place - copy from our old paper}\nadav{my current plan is to give a paragraph to the sampling scheme which will include this}
-    
-    Then, in an iterative manner, we choose a sample point \ayellet{how?}, and extract the closest unmarked vertex whose geodesic distance to this sample is larger than a pre-defined threshold. \ayellet{and what if it is close to another sample?}\nadav{It is guaranteed because of the marking process that we will not choose a sample close to one already in the set}
-    \nadav{proposed rewrite of the above: Then, in an iterative manner, we choose the sample point whose distance to the set is the minimal for the set of points whose distance to the set is at least $R_{Sample}$}
-    
-    Once the set of representing samples is constructed, a sub-surfaces is extracted around each point, defined to be the geodesic disc of radius $R_T$ around it.
-    \ayellet{do we guarantee that they are non-overlapping or we do not care?}\nadav{We indeed do not care. They are overlapping.We only put a constraint on the minimal distance between samples}
+    \ayellet{Define extremities (you can copy from later).}
+    \nadav{We construct an initial set by finding the extremities of $\mathcal{N}$. Following the definition given in \cite{katz2005mesh}, these are the vertices which satisfy
+    \begin{equation}
+        \sum_{n_i\in \mathcal{N}}d(n,n_i)>\sum_{n_i\in \mathcal{N}}d(n_a,n_i), \forall (n_a,n_i)\in E(\mathcal{N})
+    \end{equation}
+    }
+    Then, in an iterative manner, we choose the next sample point as follows.
+    First, for each sample point in the set, we build a "forbidden" geodesic region of a pre-defined radius around it \nadav{according to our desired density of matches}. \ayellet{how do we select this radius?}
+    The next point cannot fall in any of these regions.
+    Then, we choose the next sample as the vertex whose geodesic distance to any sample point in the set is minimal.
+
+    \item
+    {\bf Patch extraction.} 
+    Once the set of representing samples of \ayellet{M} is constructed, a sub-surface is extracted around each point, defined to be the geodesic disc of radius $R_T$ around it.
+    \ayellet{how do we select $R_T$?}
+    Note that these sub-surface may overlap.
     
     \item
-    {\bf Computing the similarity function.} 
+    {\bf Computing the similarity between all pairs of patches.} 
     This is the core of our algorithm.
     For every sample point of $\mathcal{N}$, we
     % we define a geodesic disc around it and 
-    compute a similarity score between it to all the points of  $\mathcal{M}$.
-    \ayellet{is that correct or the opposite? - your answer is irrelevant. Look at the problem definition,  $\mathcal{N}$  $\mathcal{M}$ are surfaces.}\nadav{This is probably something we should go over briefly tomorrow, as the difference here conuses me.}
+    compute a similarity score between $\mathcal{N}$ and the points in the window $\mathcal{M}$.
+    \ayellet{is that correct or the opposite?}
     %\nadav{reply: Yes - if we have N samples on the part and M vertices on the full model we will have M similarity scores for each of the N samples}
     
     The idea is to reward a NN field with high diversity and low deformation. %Unlike\cite{talmi2017template}, we have found it beneficial not to penalize points which share the same nearest neighbor, but rather only use the one which has the lowest deformation.
@@ -265,12 +278,15 @@ Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}, consists
     % \item Correspondences which exhibit high distortion are determined are marked as not trusted.
     % \item For Correspondences which are deemed not trusted we search among the local maximas of the DDIS score a point which minimizes their distortion w.r.t to trusted point.
     % \end{itemize}
-    \item
-    \ayellet{Is there a stage that takes the point correspondences and creates surface correspondences?}
-    \nadav{It is currently defined as optional - and it is the use of these sparse correspondences as an input to the algorithm of \cite{litany2017fully} to produce a dense set of correspondences.}
-    \ayellet{I do not understand: You never extract a sub-surface??}\nadav{no. in the end the result of our algorithms are point wise correspondences. Either sparse, or dense.}
+    
+    \item{Sparse correspondences.}
+    \ayellet{explain}
+    
+    \item{Post processing}
+    \ayellet{explain}
 \end{enumerate}
-The latter two steps are performed in a multi-scale approach. 
+
+The latter \ayellet{two steps} are performed in a multi-scale approach. 
 To do it, we define a set of $N$ scales, which define geodesic radii $R_{T_1}>...>R_{T_N}$, \ayellet{which are the pre-defined thresholds of Step 2}\nadav{No, they are not. The density of sampling radius used for step 2 is not the same as the radius we use to construct our geodesic discs}.
 The larger the radius, \ayellet{the ....}
 \ayellet{ I do not understand anything you say below. Do you use the results in one scale to calculate the other. How is Step 3 influenced?}\nadav{At step 3 we calculate k similarity scores for each pair of points - one for each geodesic disc radius $R_{T_k}$}

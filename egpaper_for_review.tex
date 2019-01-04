@@ -197,7 +197,7 @@ An additional observation made has been that while non isometric deformations do
 \begin{figure*}[htb]
 	\centering
 	\includegraphics[width=1\textwidth]{figures/Birds_Flight.png}
-	\caption{High level illustration of the DDIS Partial Correspondence pipe.}
+	\caption{High level illustration of the DDIS Partial Correspondence pipe with a single disc radius. Descriptors are extracted for every point on both surfaces. A mapping from every point on M to its NN in N is calculated. We obtain a quasi uniform sample of N. We then extract geodesic discs with a distance field for every sample point in N, and for every vertex on M. We calculate the simalrity from every vertex of M to every sample of N. Then for every sample of N we set the vertex on M which achieves the maximal score as its match. }
 \end{figure*}
 
 Given two surfaces $\mathcal{M}$ and $\mathcal{N}$, the goal is to find the best match of  $\mathcal{N}$ within  $\mathcal{M}$.
@@ -294,8 +294,13 @@ Therefore, our algorithm, which is illustrated in \ayellet{Figure XXX}\nadav{Fig
     
     \item{Sparse correspondences.}
     \ayellet{explain}
-    \nadav{The location of $c$ on $\mathcal{M}$ is determined in the following way. We begin with the similarity obtained for $R_{T_1}$ and find the vertex $\hat{m}_{R_{T_1}}$ on $\mathcal{M}$ whose associated patch score is maximal. Then we move sequentially from $R_{T_2}$ to $R_{T_N}$. For each $i$ we construct a geodesic disc of $R_{T_i}$ around $\hat{m}_{R_{T_i-1}}$. We then set $\hat{m}_{R_{T_i}}$ as the vertex on this disc which maximizes $DDIS_{\mathcal{N}^{R_{T_i}}_{c}}(\mathcal{M})$. Finally the location of $c$ is determined to be $\hat{m}_{R_{T_N}}$. We repeat this process for every sample point to obtain our initial set of sparse correspondences.}
+    \nadav{The location of $c$ on $\mathcal{M}$ is determined in the following way. We begin with the similarity obtained for $R_{T_1}$ and find the vertex $\hat{m}_{R_{T_1}}$ on $\mathcal{M}$ whose associated patch score is maximal. Then we move sequentially from $R_{T_2}$ to $R_{T_N}$. For each $i$ we construct a geodesic disc of $R_{T_i}$ around $\hat{m}_{R_{T_i-1}}$. We then set $\hat{m}_{R_{T_i}}$ as the vertex on this disc which maximizes $DDIS_{\mathcal{N}^{R_{T_i}}_{c}}(\mathcal{M})$. Finally the location of $c$ is determined to be $\hat{m}_{R_{T_N}}$. We repeat this process for every sample point to obtain our initial set of sparse correspondences. This is illustrated in Figure XXX}
     
+    \begin{figure}[htb]
+	\includegraphics[width=0.5\textwidth]{figures/MultiScaleDis.png}
+	\caption{Illustration of the multi disc radius refinement framework. The left column contains the original part with the sample point marked with a circle. The middle upper row contains the geodesic discs of $\beta = 0.6,0.4,0.2$ along with and their similarity heat maps on $\mathcal{M}$. The middle bottom row contains the regions on which from which we take the maximas, with the maxima marked with a circle on each. The rightmost column shows the final corresponding point.}
+    \end{figure}
+
     \item{Post processing}
     \ayellet{explain}\nadav{After obtaining an initial set of sparse correspondences, we employ a simple greedy optimization method which replaces correspondences whose mean absolute distances from other correspondences is higher than some threshold. For each such correspondence $(c,\hat{c})\in\mathcal{N}\times\mathcal{M}$ we construct a set of alternative candidates by finding the top 12 local maximas of the similarity function of $c$, and choose from among them the correspondence whose mean absolute distances from other correspondences is the lowest. We repeat this process until convergence.}
     
@@ -314,6 +319,13 @@ The larger the radius, \ayellet{the ....}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Similarity}
 \label{sec:similarity}
+\begin{figure}[htb]
+	
+	\includegraphics[width=0.5\textwidth]{figures/DDIS2.png}
+	\caption{Illustration of the Nearest Neighbor Field between different shapes. 
+		Geodesic distances are color coded by the jet scheme, with on surface color denoting distance from source, and line colors the deviation. 
+		You can notice that on identical pieces, and even on deformed matching pieces there are multiple diverse matches, most of which are colored in blue to indicated very similar distances from the source point, whereas on different pieces most lines map to very few points and a lot of yellow lines (high deformation) exist}
+\end{figure}
 
 %First paragraph: problem definition
 Given a target $\mathcal{M}$  and $\mathcal{N}$ (Section~\ref{sec:approach}) and a vertex $v \in  \mathcal{N}$ \ayellet{yes?, not the opposite?}, the goal is to find the most similar vertex on $\mathcal{M}$.
@@ -333,7 +345,7 @@ Then, paragraphs/subsections explaining the different stages
 
 
 %Second paragraph: Key idea, first in laymen language.
-\nadav{proposed text: 
+\nadav{Second paragraph: Key idea, first in laymen language. proposed text: 
 
 We are inspired by the principles introduced in\cite{talmi2017template}: the idea that the similarity between the target and the template is captured by two properties of the nearest neighbor field between points of a target and a template patch. The first is that the diversity of NN matches forms a strong cue for template matching. The second key idea is to explicitly consider the deformation implied by the nearest neighbor field by rewarding the preservation of distances. 
 
@@ -347,7 +359,8 @@ Chief of which is an inequality between both the area and number of points betwe
 This suggests that while we should still expect a diverse nearest neighbor field, correct matches have a higher probability to share a nearest neighbor with an incorrect one, albeit one with a bigger deformation, thus our similarity measure should not penalize a shared nearest neighbor, and instead count only the match whose implied deformation is the lowest.}
 
 %Third paragraph: the mathematical definition that realizes the key idea
-\nadav{proposed text:
+\nadav{Third paragraph: the mathematical definition that realizes the key idea, proposed text:
+
 Given a target candidate patch ${\mathcal{M}^{R_T}_{c'}}$ and a template patch ${\mathcal{N}^{R_T}_{c}}$, defined by a geodesic disc of radius $R_T$ around  the vertex $c'\in\mathcal{M}$ and $c\in\mathcal{N}$ respectively, a nearest neighbor field mapping each vertex on $\mathcal{M}$ to its nearest neighbor on $\mathcal{N}$ in some shape descriptor space, and the geodesic distances $\{g(c',m_j)\}_{m_j\in\mathcal{M}^{R_T}_{c'}},g(c,n_i)_{n_i\in\mathcal{N}^{R_T}_{c}}$ , the similarity of ${\mathcal{M}^{R_T}_{c'}}$ to ${\mathcal{N}^{R_T}_{c}}$ is calculated by the formula:
 \begin{equation}
 DDIS({\mathcal{M}^{R_T}_{c'},{\mathcal{N}^{R_T}_{c}}},\gamma)=\sum_{n_i\in {\mathcal{N}^{R_T}_{c}}}\frac{1}{1+r_i}
@@ -355,32 +368,18 @@ DDIS({\mathcal{M}^{R_T}_{c'},{\mathcal{N}^{R_T}_{c}}},\gamma)=\sum_{n_i\in {\mat
 
 Where 
 \begin{equation}
-r_i = \underset{NN(m_j,\mathcal{N})=n_i}{min}|g(m_j,c')-g(n_i,c)| 
+r_i = 
+\begin{cases}
+\underset{NN(m_j,\mathcal{N})=n_i}{min}\frac{|g(m_j,c')-g(n_i,c)|}{\gamma\cdot R_\mathcal{M}} & m_j\in\mathcal{M}^{R_T}_{c'}\\
+          \infty,&              else
+\end{cases}
 \end{equation}
-
-We notice that in the case 
-Thus, same as in \cite{talmi2017template} we define Diversity as:
-\begin{equation}
-\underset{{\mathcal{M}^{R_T}_{c'}}\rightarrow{\mathcal{N}^{R_T}_{c}}}{DIS}=|\{n_i\in{\mathcal{N}^{R_T}_{c}}:\exists m_j\in{\mathcal{M}^{R_T}_{c'}},NN(m_j,\mathcal{N})=n_i\}|
-\end{equation}
-where $|\{.\}|$ denotes group size. 
-
-In order to take into account our second desired property of pairwise distance consistency, for each point $n\in{\mathcal{N}^{R_T}_{c}}$ we search for a point $m\in{\mathcal{M}^{R_T}_{c'}}$ such that $NN(m,\mathcal{N})=n$ and whose distance to the source $d(m^l,m^l_c')$ is the most similar to $d(n^l,{n^l}_c)$. 
-We define the deformation induced by $n_i$ as 
-\begin{equation}
-r_i = min(|d(m_j,c')-d(n_i,c)|),\\
-\end{equation}
-where $m_j\in {\mathcal{M}^{R_T}_{c'}}, NN^S(m_j,\mathcal{N})=n_i$. If $n_i$ has no point who points to it as its nearest neighbor in ${\mathcal{M}^{R_T}_{c'}}$ then $r_i=\infty$.
-
-We then use this induced deformation weigh it's contribution, and finally we define our Deformable Diversity Similarity by the equation:
-\begin{equation}
-DDIS({\mathcal{N}^{R_T}_{c}},{\mathcal{M}^{R_T}_{c'}},\gamma)=\sum_{n_i\in {\mathcal{N}^{R_T}_{c}}}\frac{1}{1+r_i}
-\end{equation}
-Note that when the deformation is 0, that is $r_i=0 \forall n_i$ DDIS becomes identical to the diversity score, while when $r_i\rightarrow\infty$, the contribution of a point having a nearest neighbor to the similarity score will become 0, irrespective to if it has multiple nearest neighbors. Thus this formulation indeed captures the properties we have defined above, while disregarding distractors altogether.
-} 
+where $\gamma\cdot R_\mathcal{M}$ is a regularizer on the error length and should ideally be set according to the expected distortion. 
+We notice that in the case that $r_i\in\{0,\infty\}\forall n_i$, then $1/r_i\in\{1,0\}$ and DDIS simply counts the number of points in ${\mathcal{N}^{R_T}_{c}}$ which are a nearest neighbor of some point in ${\mathcal{M}^{R_T}_{c'}}$. This is exactly the diversity of the nearest neighbor field.} 
 
 %Fourth paragraph: outline of similarity computation
-\nadav{outline of similarity computation: proposed text: 
+\nadav{Fourth paragraph: outline of similarity computation: proposed text: 
+
 %preprocessing
 To calculate our similarity we first compute shape descriptors for all the point on $\mathcal{N},\mathcal{M}$ and use Approximate Nearest Neighbor in the descriptor space to infer the Nearest Neighbor Field.
 %template construction
@@ -404,17 +403,33 @@ In order to calculate our similarity measure, another necessary step is to have 
 We iterate over all points $m_{c'}\in\mathcal{M}$ and construct ${\mathcal{M}^{R_T}_{c'}}$. Inside the piece we iterate over every point $m_j\in{\mathcal{M}^{R_T}_{c'}}$ and calculate $r_i=\frac{|(d({m^l}_i,{m^l}_c')-(NN(m_i,\mathcal{N})^l,{n^l}_c|}{\gamma\cdot R_\mathcal{M}}$, where if $NN(m_j,\mathcal{N})$ is outside ${\mathcal{N}_c}^{R_T}$ this distance is disregarded. Notice the normalization by $\gamma R_\mathcal{M}$ here which is done to make the distances scale invariant, while $\gamma$ is a tunable parameter which should correlate to the expected distortion. We find for each $n_i\in{\mathcal{N}_c}^{R_T}$ the distance of the point who is pointing to it as a nearest neighbor and has the most similar distance to its reference point. If $n_i$ has no point who point to it as its nearest neighbor then $r_i=\infty$. Finally we calculate The similarity between the pieces by our similarity function in Eq. XX.
 }
 
+
+\\
+\nadav{old text:
+Thus, same as in \cite{talmi2017template} we define Diversity as:
+\begin{equation}
+\underset{{\mathcal{M}^{R_T}_{c'}}\rightarrow{\mathcal{N}^{R_T}_{c}}}{DIS}=|\{n_i\in{\mathcal{N}^{R_T}_{c}}:\exists m_j\in{\mathcal{M}^{R_T}_{c'}},NN(m_j,\mathcal{N})=n_i\}|
+\end{equation}
+where $|\{.\}|$ denotes group size. 
+
+In order to take into account our second desired property of pairwise distance consistency, for each point $n\in{\mathcal{N}^{R_T}_{c}}$ we search for a point $m\in{\mathcal{M}^{R_T}_{c'}}$ such that $NN(m,\mathcal{N})=n$ and whose distance to the source $d(m^l,m^l_c')$ is the most similar to $d(n^l,{n^l}_c)$. 
+We define the deformation induced by $n_i$ as 
+\begin{equation}
+r_i = min(|d(m_j,c')-d(n_i,c)|),\\
+\end{equation}
+where $m_j\in {\mathcal{M}^{R_T}_{c'}}, NN^S(m_j,\mathcal{N})=n_i$. If $n_i$ has no point who points to it as its nearest neighbor in ${\mathcal{M}^{R_T}_{c'}}$ then $r_i=\infty$.
+
+We then use this induced deformation weigh it's contribution, and finally we define our Deformable Diversity Similarity by the equation:
+\begin{equation}
+DDIS({\mathcal{N}^{R_T}_{c}},{\mathcal{M}^{R_T}_{c'}},\gamma)=\sum_{n_i\in {\mathcal{N}^{R_T}_{c}}}\frac{1}{1+r_i}
+\end{equation}
+Note that when the deformation is 0, that is $r_i=0 \forall n_i$ DDIS becomes identical to the diversity score, while when $r_i\rightarrow\infty$, the contribution of a point having a nearest neighbor to the similarity score will become 0, irrespective to if it has multiple nearest neighbors. Thus this formulation indeed captures the properties we have defined above, while disregarding distractors altogether.
+} 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% section: Deformable Diversity Similarity in 3D
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Deformable Diversity Similarity in 3D}
-\begin{figure}[htb]
-	
-	\includegraphics[width=0.5\textwidth]{figures/DDIS2.png}
-	\caption{Illustration of the Nearest Neighbor Field between different shapes. 
-		Geodesic distances are color coded by the jet scheme, with on surface color denoting distance from source, and line colors the deviation. 
-		You can notice that on identical pieces, and even on deformed matching pieces there are multiple diverse matches, most of which are colored in blue to indicated very similar distances from the source point, whereas on different pieces most lines map to very few points and a lot of yellow lines (high deformation) exist}
-\end{figure}
 
 \nadav{Old text:The nature of 3D data gives rise to unique problems which do not occur in the 2D scenario. Data is distributed in space both sparsely and with varying densities - the amount of data points occupying a given volume can vary drastically.
 A second problem arises from the absence of a regular grid. These problems require different definitions for key components to the 2D deformable diversity formulation. For this work we chose the image patch to be replaced by a neighborhood which is required to calculate a selected shape descriptor, usually a small sphere in euclidean space or a surface patch with a radius $r_F$. 
@@ -540,10 +555,6 @@ Each landmark template is compared to all surface parts of a similar $R_T$ on $\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Cascaded Multi-Scale DDIS}
 The observation of the effects of the choice of $\beta$ and the trade-off between finer localization and avoidance of global errors naturally leads to the adoption of a multi scale framework. We calculate $DDIS$ score for multiple $beta$ values, and use the location obtained with a large beta to select a narrow environment in which we look for the maximum of DDIS with a smaller value $beta$, thus using the larger scale to get a rough global location, and the smaller scale to fit it into a more exact location. While this might be done at multiple custom scales we have found that the triplet $\beta ,2\cdot beta/3\beta/3$ works well.
-\begin{figure}[htb]
-	\includegraphics[width=0.5\textwidth]{figures/MultiScaleDis.png}
-	\caption{Illustration of the multi scale framework. The magenta grid marks the area chosen by the previous scale to be valid. It can be seen that wrong maxima in lower scales are ignored due to this process}
-\end{figure}
 
 \begin{figure*}
 	\centering

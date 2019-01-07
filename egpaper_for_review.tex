@@ -198,9 +198,12 @@ An additional observation made has been that while non isometric deformations do
 	\centering
 	\includegraphics[width=1\textwidth]{figures/Birds_Flight.png}
 	\caption{{\bf Algorithm outline.}
-    After computing the nearest-neighbor field (Step 1), $\mathcal{N}$ is being sampled (Step 2).
-    Based on the sampling, patches of  $\mathcal{N}$ are extracted for every sample point in $\mathcal{N}$ and for every vertex on $\mathcal{M}$  (Step 3). 
-    We calculate the similarity from every vertex of M to every sample of N. Then for every sample of N we set the vertex on M which achieves the maximal score as its match.
+    In the first step, we compute the nearest-neighbor field for $\mathcal{N}$ and $\mathcal{N}$.
+    Then, patches of the surfaces are extracted for every sample point in $\mathcal{N}$ and for every vertex on $\mathcal{M}$.
+    These patches cover the surface (i.e., may overlap) and represent semantic regions. 
+    Note that exact segmentation is not needed.
+    Step 3 is the core of the algorithm, in which the similarity between the patches is computed.
+    Finally, in Step 4, for every sample of $\mathcal{N}$ we set the vertex of $\mathcal{M}$ that achieves the maximal score as its corresponding point.
 	\ayellet{This figure should be re-done}
 	}
 	\label{fig:overview}
@@ -263,41 +266,32 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
     \end{equation}
 
     Then, we iteratively add more samples, choosing the next sample point as follows.
-    ======
-    First, for each sample point in the set, we build a "forbidden" geodesic region of a pre-defined radius around it \nadav{of 5\% of the surface characteristic length $R_\mathcal{M}=\sqrt{Area(\mathcal{M})}$. }. \ayellet{how do we select this radius?}
-    The next point cannot fall in any of these regions.
-    Then, we choose the next sample as the vertex whose geodesic distance to any sample point in the set is minimal. \nadav{This process is repeated until the entire surface is marked as a forbidden region. The resulting set of samples is denoted as  $\S_{\mathcal{N}}\in\mathcal{N}$ }.
+    We construct a "forbidden" region around every point in the set.
+    This region is a geodesic disc of radius $ 0.05\sqrt{Area(\mathcal{S})}$.
+    The next point to be added to the set is a vertex whose geodesic distance to any sample point in the set is minimal and does not fall in any of the forbidden regions.
+    This process stops when the entire surface is marked forbidden. 
+    % The resulting set of samples is denoted as  $\S_{\mathcal{N}}\in\mathcal{N}$.
 
-    \item
-    {\bf Patch extraction.} 
-    Once the set of representing samples of \ayellet{M}\nadav{$\mathcal{N}$} is constructed, a sub-surface is extracted around each point 
-    \ayellet{how do we select $R_T$?}\nadav{ $c\in\S_{\mathcal{N}}$}, defined to be the geodesic disc of radius $R_T$ around it, \nadav{ denoted ${\mathcal{N}^{R_T}_{c}}$, where $R_T=\beta\cdot R_\mathcal{M}$ and $\beta$ is a hyper parameter tuned on a training set.}.
-    Note that these sub-surfaces may overlap.
-    \nadav{We repeat this process for every $m\in\mathcal{M}$ to create a set of geodesic discs $\{{\mathcal{M}_{m_j}^{R_T}}\}_{j=1}^{|\mathcal{M}|}$}
+    Once the set of representing sample set is defined, a disc (sub-surface) of geodesic distance $R_T$ is extracted around each sample point, which is the sought-after set of patches.
+    Specifically, $R_T=\beta\cdot R_\mathcal{M}$ and $\beta$ is a hyper parameter tuned on a training set. \ayellet{What is $R_M$? How exactly do we get $beta$?}
+ %   \nadav{We repeat this process for every $m\in\mathcal{M}$ to create a set of geodesic discs $\{{\mathcal{M}_{m_j}^{R_T}}\}_{j=1}^{|\mathcal{M}|}$}
     
     \item
     {\bf Computing the similarity between all pairs of patches.} 
-    This is the core of our algorithm.
-    For every sample point of $\mathcal{N}$\nadav{$c\in\S_\mathcal{N}$}, we
-    % we define a geodesic disc around it and 
-    compute a similarity score between $\mathcal{N}$ and the points in the window $\mathcal{M}$.
-    \ayellet{is that correct or the opposite?}\nadav{comment: opposite - we measure similarity of patches to a patch c on N and then choose the center of patch achieving the maximal similarity score as the corresponding point to the center of c. This is also the way it is defined in Lihi's paper, the rewrite is blow} 
+    This step is the core of our algorithm, which realizes the first key idea.
+    %\nadav{ we measure similarity of patches to a patch c on N and then choose the center of patch achieving the maximal similarity score as the corresponding point to the center of c. This is also the way it is defined in Lihi's paper, the rewrite is blow} 
     
-    \nadav{proposed rewrite of the above paragraph,Computing the similarity between all pairs of patches:
-    
-    This is the core of our algorithm.
-    Given a sample $c\in\S_\mathcal{N}$ , we compute for each vertex on the target surface $m\in\mathcal{M}$  the similarity score between its associated surface patch ${\mathcal{M}^{R_T}_{m}}$, and the surface patch associated with the sample ${\mathcal{N}^{R_T}_{c}}$}.
+    \ayellet{rewrite this paragraph---do not use the mathematical notations $c\in\S_\mathcal{N}$, ${\mathcal{M}^{R_T}_{m}}$, ${\mathcal{N}^{R_T}_{c}}$.
+    Instead, remember that you already computed patches; say how you use them!!}
+    Given a sample $c\in\S_\mathcal{N}$ , we compute for each vertex on the target surface $m\in\mathcal{M}$  the similarity score between its associated surface patch ${\mathcal{M}^{R_T}_{m}}$, and the surface patch associated with the sample ${\mathcal{N}^{R_T}_{c}}$.
 
-    The idea is to reward a NN field with high diversity and low deformation. \nadav{We denote the similarity function realizing this as $DDIS_{\mathcal{N}^{R_T}_{c}}(\mathcal{M}_{m}^{R_T})$.} %Unlike\cite{talmi2017template}, we have found it beneficial not to penalize points which share the same nearest neighbor, but rather only use the one which has the lowest deformation.
+    Recall that our goal is to reward a nearest-neighbor field with high diversity and low deformation. 
+    We will define the similarity function $DDIS$ that achieves it  in Section~\ref{sec:similarity}.
     
-    A point that maximizes the similarity function that realizes this idea is considered the corresponding point.
-    \nadav{proposing to move the rewrite of the above line to the sparse correspondences section}
-    
-    We will elaborate on how this is performed in Section~\ref{sec:similarity}.
-    
-    \nadav{proposed text for 'multi-scale' approach - seems more natural here and in the sparse correspondence section:
-    
-    Steps 3,4 are performed for $N$ different values of $R_T$, $R_{T_1}>...>R_{T_N}$, and thus we obtain for a pair of sample point and vertex, a set N different similarity scores $\{DDIS_{\mathcal{N}^{R_{T_i}}_{c}}(\mathcal{M}_{m_j}^{R_{T_i}})\}_{i=1}^N$.}
+    To implement the multi-scale idea, Steps 2 \& 3 are performed for $N$ different values of $R_T$, obtaining a set of $N$ similarity scores for every pair of sample point and vertex.
+    \ayellet{what? so why did you extract patches if they are never used?}
+    \ayellet{What is N?}
+    We will describe how to put these together in Section~\ref{sec:similarity}.
 
     % \textbf{Refinement.} The goal of this stage is to achieve better correspondences based on simple global tests and constraints
     % \begin{itemize}
@@ -305,31 +299,44 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
     % \item For Correspondences which are deemed not trusted we search among the local maximas of the DDIS score a point which minimizes their distortion w.r.t to trusted point.
     % \end{itemize}
     
-    \item{Sparse correspondences.}
-    \ayellet{explain}
+    \item{Extracting corresponding points.}
+    \ayellet{first paragraph: write one sentence of the goal of this step, i.e., given .... (results of Steps...), our goal is to.... When you write it recall that we computed similarity between patches, not points.}
+    
+    The key idea is
+    \ayellet{second paragraph: write the key idea, i.e., a point that maximizes the similarity function is considered the corresponding point, again recalling that we considered patches before.}
+
+    In practice, we...
+    \ayellet{third paragraph: how this is done. re-write the following, without using any of  mathematical notations, most of them do not exist any more.}
     \nadav{The location of $c\in\S_\mathcal{N}$ on $\mathcal{M}$ is determined in the following way, given in Figure ~\ref{fig:multiscale}. We begin with the similarity obtained for $R_{T_1}$ and find the vertex whose associated patch similarity score $DDIS_{\mathcal{N}_c^R_{T_1}}$ is maximal. We denote it $\hat{m}_{R_{T_1}}$ on $\mathcal{M}$. Then we move sequentially from $R_{T_2}$ to $R_{T_N}$. For each $i$ we construct a geodesic disc of $R_{T_i}$ around $\hat{m}_{R_{T_{i-1}}}$. We then set $\hat{m}_{R_{T_i}}$ as the vertex on this disc which maximizes $DDIS_{\mathcal{N}^{R_{T_i}}_{c}}(\mathcal{M}_{m_j}^{R_{T_i}})$. Finally the location of $c$ is determined at the smallest radius,  $\hat{m}_{R_{T_N}}$. We repeat this process for every sample point to obtain our sparse correspondences.}
     
     \begin{figure}[htb]
 	\includegraphics[width=0.5\textwidth]{figures/MultiScaleDis.png}
-	\caption{Illustration of the multi disc radius refinement framework. The left column contains the original part with the sample point marked with a circle. The middle upper row contains the geodesic discs of $\beta = 0.6,0.4,0.2$ along with and their similarity heat maps on $\mathcal{M}$. The middle bottom row contains the geodesic disc surrounding the maxima obtained from the previous level, with the new maxima marked with a circle in a different color. The rightmost column shows the final corresponding point. Notice that while alone, similarity on each size of disc leads to incorrect results, with $beta=0.4,0.2$ mapping to the hind leg and $\beta=0.6$ resulting in a drift towards the head due to the deformation leading to the head, the final result is correct.}
+	\caption{{\bf Multi-scale similarity.} 
+	Given the sample point on the left (in magenta), the corresponding point on  $\mathcal{M}$ is shown on the right. 
+	\ayellet{starting at this point, I do not understand what you want to show. Rewrite}
+	The middle upper row contains the geodesic discs of $\beta = 0.6,0.4,0.2$ along with and their similarity heat maps on $\mathcal{M}$. 
+	The middle bottom row contains the geodesic disc surrounding the maxima obtained from the previous level, with the new maxima marked with a circle in a different color. The rightmost column shows the final corresponding point. Notice that while alone, similarity on each size of disc leads to incorrect results, with $beta=0.4,0.2$ mapping to the hind leg and $\beta=0.6$ resulting in a drift towards the head due to the deformation leading to the head, the final result is correct.
+	\ayellet{this image is a mess. should be re-done + move it to the next section.}
+	}
 	\label{fig:multiscale}
 
     \end{figure}
 
     \item{Post processing}
-    \ayellet{explain}\nadav{We employ a simple greedy optimization method which replaces correspondences whose mean absolute (MAD) from other correspondences is above a threshold. For each correspondence $(c,\hat{c})\in\mathcal{N}\times\mathcal{M}$ we construct a set of alternative candidates by finding the top $k$ local maximas of the similarity function of $c$, selecting the one whose MAD from other correspondences is the lowest.}
+    \ayellet{I do not understand what you do and why. As always: first sentence- goal of the step and why it is needed. second sentence - key idea of how to do that. the rest of the sentences - explanation of how you do that WITHOUT unnecessary mathematical notations. Rewrite}
+    \nadav{We employ a simple greedy optimization method which replaces correspondences whose mean absolute (MAD) from other correspondences is above a threshold. 
+    For each correspondence $(c,\hat{c})\in\mathcal{N}\times\mathcal{M}$ we construct a set of alternative candidates by finding the top $k$ local maximas of the similarity function of $c$, selecting the one whose MAD from other correspondences is the lowest.}
     
 \end{enumerate}
 
-\nadav{proposed end of section}
-
-\nadav{comment: This should not be in the final version .
-I had embedded this into the Similarity calculation and sparse correspondences section. hopefully it makes more sense there}
-The latter \ayellet{two steps} are performed in a multi-scale approach. 
-To do it, we define a set of $N$ scales, which define geodesic radii $R_{T_1}>...>R_{T_N}$, \ayellet{which are the pre-defined thresholds of Step 2}\nadav{No, they are not. The density of sampling radius used for step 2 is not the same as the radius we use to construct our geodesic discs}.
-The larger the radius, \ayellet{the ....}
-\ayellet{ I do not understand anything you say below. Do you use the results in one scale to calculate the other. How is Step 3 influenced?}\nadav{At step 3 we calculate k similarity scores for each pair of points - one for each geodesic disc radius $R_{T_k}$}
-\nadav{We then move from a coarse to fine scale by iteratively finding the maxima of similarity at scale $R_{T_k}$, and use to define a valid set of points from which we pick the maxima at scale $R_{T{k+1}}$ by constraining them to lie in a geodesic disc of radius $R_{T_k}$ around it. We repeat this process and determine the final correspondence at scale $N$}
+% \nadav{proposed end of section}
+% \nadav{comment: This should not be in the final version .
+% I had embedded this into the Similarity calculation and sparse correspondences section. hopefully it makes more sense there}
+% The latter \ayellet{two steps} are performed in a multi-scale approach. 
+% To do it, we define a set of $N$ scales, which define geodesic radii $R_{T_1}>...>R_{T_N}$, \ayellet{which are the pre-defined thresholds of Step 2}\nadav{No, they are not. The density of sampling radius used for step 2 is not the same as the radius we use to construct our geodesic discs}.
+% The larger the radius, \ayellet{the ....}
+% \ayellet{ I do not understand anything you say below. Do you use the results in one scale to calculate the other. How is Step 3 influenced?}\nadav{At step 3 we calculate k similarity scores for each pair of points - one for each geodesic disc radius $R_{T_k}$}
+% \nadav{We then move from a coarse to fine scale by iteratively finding the maxima of similarity at scale $R_{T_k}$, and use to define a valid set of points from which we pick the maxima at scale $R_{T{k+1}}$ by constraining them to lie in a geodesic disc of radius $R_{T_k}$ around it. We repeat this process and determine the final correspondence at scale $N$}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% section: Similarity
@@ -337,11 +344,13 @@ The larger the radius, \ayellet{the ....}
 \section{Similarity}
 \label{sec:similarity}
 \begin{figure}[htb]
-	
 	\includegraphics[width=0.5\textwidth]{figures/DDIS2.png}
-	\caption{Illustration of the Nearest Neighbor Field between different shapes. 
-		Geodesic distances are color coded by the jet scheme, with on surface color denoting distance from source, and line colors the deviation. 
-		You can notice that on identical pieces, and even on deformed matching pieces there are multiple diverse matches, most of which are colored in blue to indicated very similar distances from the source point, whereas on different pieces most lines map to very few points and a lot of yellow lines (high deformation) exist}% A- identical,B - deformed,C - shifted,D - non related
+	\caption{{\bf Nearest Neighbor Field.} 
+		The surfaces are colored by the geodesic distances from the magenta point; the lines are colored by the amount of deviation. \ayellet{deviation of what?} 
+		Clearly, similar surfaces on the top (even when deformed) exhibit diversity in matching (i.e. different points on one surface are matched to different points on the other).
+		Furthermore, in this case, most lines are blue, which indicates similar distances from the source point.
+		This is not the case at he bottom, where th e surfaces are highly different from one another.
+		}
 		\label{fig:NNF}
 \end{figure}
 

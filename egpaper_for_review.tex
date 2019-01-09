@@ -277,9 +277,11 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
     
     \nadav{proposed text: In order to consider deformation ,for every such patch we also calculate the geodesic distance from the source point for every vertex on it.}
 
-    \nadav{proposed text for multiscale: To implement the multi-scale idea, 3 such patches are extracted for every sample - at radiuses $R_{T_1}=0.6\sqrt{Area(\mathcal{M})},R_{T_2}=0.4\sqrt{Area(\mathcal{M})},R_{T_1}=0.2\sqrt{Area(\mathcal{M})}$(These values were obtained by minimizing the geodesic error on the SHREC16 Training set.)
+    We extract surrounding patches of the same radius around every vertex in $\mathcal{M}$ (densely, without sampling).
+
+    %Text regarding the multiscale idea
+    \nadav{proposed text for multiscale: To implement the multi-scale idea, 3 such patches are extracted for every point - at radiuses $R_{T_1}=0.6\sqrt{Area(\mathcal{M})},R_{T_2}=0.4\sqrt{Area(\mathcal{M})},R_{T_3}=0.2\sqrt{Area(\mathcal{M})}$(These values were obtained by minimizing the geodesic error on the SHREC16 Training set.)
     
-    We extract surrounding patches of the same radiuses around every vertex in \mathcal{M}(densely, without sampling).
     }
  %   \nadav{We repeat this process for every $m\in\mathcal{M}$ to create a set of geodesic discs $\{{\mathcal{M}_{m_j}^{R_T}}\}_{j=1}^{|\mathcal{M}|}$}
     
@@ -323,7 +325,7 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
     
     %this is the multiscale addition
     In order to implement our multi scale idea, we first use the larger patch similarity to obtain a rough estimation of the correspondence. 
-    We then use this rough estimation to constrain the region on \mathcal{M} in which we consider the similarity score of smaller patches to be valid, to a smaller disc surrounding the rough correspondence. This is repeated until we reach our smallest patch resolution. The final correspondence is the one that maximizes the patch similarity score, subject to lying in on the region defined by the preceding coarser scale.
+    We then use this rough estimation to constrain the region on $\mathcal{M}$ in which we consider the similarity score of smaller patches to be valid, to a smaller disc surrounding the rough correspondence. This is repeated until we reach our smallest patch resolution. The final correspondence is the one that maximizes the patch similarity score, subject to lying in on the region defined by the preceding coarser scale.
     }
     
     

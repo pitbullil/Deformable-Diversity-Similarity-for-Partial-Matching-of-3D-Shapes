@@ -238,6 +238,7 @@ On the other hand, matching smaller surfaces lead to results which are better lo
 
 Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, consists of the following steps.
 \begin{enumerate}
+    %%%%%%%%%%%%% Step 1
     \item 
     \textbf{Pre-processing}.
     Shape descriptors are calculated for every vertex of both meshes and an approximate nearest neighbor field is computed for the vertices, as described hereafter.
@@ -248,14 +249,17 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
     Therefore, it addresses a major drawback of matching a right arm, for example, to the left one.
     %
     We then compute a nearest neighbor field mapping, by assigning each vertex of $\mathcal{M}$ its nearest neighbor in $\mathcal{N}$, FPFH-wise.
+
+    %%%%%%%%%%%%% Step 2
     \item
     {\bf Patch extraction.} 
     Inline with the second key idea, we aim at extracting a meaningful set of sub-surfaces, which cover (rather than partition) the surface.
     This is done in two steps:
     First, we extract a meaningful set of points, whose neighborhoods provide a good cover of the surface. 
     We then extract the patches using this sample.
+    We elaborate hereafter.
     
-    To extract the sample, we start from the extremities of the surface, which are considered salient points.
+    To extract the sample point set, we start from the extremities of the surface, which are considered salient points.
     A vertex is considered to be an extremity if it  resides on a tip of the surface (e.g.,  tips of limbs)~\cite{katz2005mesh},
     In practice, we define them to be vertices that are local maxima of the sum of the geodesic distance functional.
     Formally, $\forall v \in S$,  let $N_v$ be the set of neighboring vertices of vertex $v$. 
@@ -267,41 +271,28 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
 
     Then, we iteratively add more samples, choosing the next sample point as follows.
     We construct a "forbidden" region around every point in the set.
-    This region is a geodesic disc of radius $ 0.05\sqrt{Area(\mathcal{S})}$.
+    This region is a geodesic disc of radius $ 0.05\sqrt{Area(\mathcal{M})}$.
     The next point to be added to the set is a vertex whose geodesic distance to any sample point in the set is minimal and does not fall in any of the forbidden regions.
     This process stops when the entire surface is marked forbidden. 
     % The resulting set of samples is denoted as  $\S_{\mathcal{N}}\in\mathcal{N}$.
 
     Once the set of representing sample set is defined, a disc (sub-surface) of geodesic distance $R_T$ is extracted around each sample point, which is the sought-after set of patches.
-    Specifically, $R_T=\beta\cdot \sqrt{Area(\mathcal{M})}$ and $\beta$ is a hyper parameter obtained by minimizing the geodesic error of correspondences on a training set. \ayellet{What is $R_M$? How exactly do we get $beta$?}
-    
-    \nadav{proposed text: In order to consider deformation ,for every such patch we also calculate the geodesic distance from the source point for every vertex on it.}
-
-    We extract surrounding patches of the same radius around every vertex in $\mathcal{M}$ (densely, without sampling).
-
-    %Text regarding the multiscale idea
-    \nadav{proposed text for multiscale: To implement the multi-scale idea, 3 such patches are extracted for every point - at radiuses $R_{T_1}=0.6\sqrt{Area(\mathcal{M})},R_{T_2}=0.4\sqrt{Area(\mathcal{M})},R_{T_3}=0.2\sqrt{Area(\mathcal{M})}$(These values were obtained by minimizing the geodesic error on the SHREC16 Training set.)
-    
-    }
+    Specifically, $R_T=\beta\cdot \sqrt{Area(\mathcal{M})}$.
+    As our approach is multiscale, $\beta$, which was found empirically by minimizing the error of correspondences on a training set, varies. 
+    In practice we use $\beta=\{0.6,0.4,0.2\}$.
+ 
  %   \nadav{We repeat this process for every $m\in\mathcal{M}$ to create a set of geodesic discs $\{{\mathcal{M}_{m_j}^{R_T}}\}_{j=1}^{|\mathcal{M}|}$}
     
+    %%%%%%%%%%%%% Step 3
     \item
-    {\bf Computing the similarity between all pairs of patches.} 
+    {\bf Computing similarities between pairs of patches.} 
     This step is the core of our algorithm, which realizes the first key idea.
-    %\nadav{ we measure similarity of patches to a patch c on N and then choose the center of patch achieving the maximal similarity score as the corresponding point to the center of c. This is also the way it is defined in Lihi's paper, the rewrite is blow} 
-    
-    \ayellet{rewrite this paragraph---do not use the mathematical notations $c\in\S_\mathcal{N}$, ${\mathcal{M}^{R_T}_{m}}$, ${\mathcal{N}^{R_T}_{c}}$.
-    Instead, remember that you already computed patches; say how you use them!!}
-    \nadav{proposed text:
-    We now calculate a similarity score for each patch from $\mathcal{M}$ to all sample patches of the same radius on $\mathcal{N}$. }
-
+ 
+    For each pair of patches of the same scale, $Q_i \subset \mathcal{M}$ and $P_i \subset \mathcal{N}$, we compute a similarity value.
+    %
     Recall that our goal is to reward a nearest-neighbor field with high diversity and low deformation. 
     We will define the similarity function $DDIS$ that achieves it  in Section~\ref{sec:similarity}.
-    
-    We calculate it, obtaining a set of $N$ similarity scores for every pair of \nadav{patches surrounding} a sample point and a vertex.
-    \ayellet{what? so why did you extract patches if they are never used?}\nadav{the similarity is always calculated between the patches surrounding a point, with the point serving as a reference for geodesic distance}
-    \ayellet{What is N?}\nadav{N was set to 3 - i only tested 2 and 3 scales}
-    We will describe how to put these together in. Section~\ref{sec:similarity}.
+    This is done in a multi-scale manner.
 
     % \textbf{Refinement.} The goal of this stage is to achieve better correspondences based on simple global tests and constraints
     % \begin{itemize}
@@ -309,47 +300,38 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
     % \item For Correspondences which are deemed not trusted we search among the local maximas of the DDIS score a point which minimizes their distortion w.r.t to trusted point.
     % \end{itemize}
     
-    \item{Extracting corresponding points.}
-    \ayellet{first paragraph: write one sentence of the goal of this step, i.e., given .... (results of Steps...), our goal is to.... When you write it recall that we computed similarity between patches, not points.}
-    \nadav{We now use the similarity calculated between patches to obtain a mapping from our sample set of $\mathcal{N}$ to $\mathcal{M}$}.
-    \ayellet{second paragraph: write the key idea, i.e., a point that maximizes the similarity function is considered the corresponding point, again recalling that we considered patches before.}
-    \nadav{proposed text:
-    
-    The corresponding point of a sample from $\mathcal{N}$ on $\mathcal{M}$ should maximize the similarity score between their corresponding patches}.
+     %%%%%%%%%%%%% Step 4
+   \item{\bf Extracting a sparse set of corresponding points.}
+    Given the similarity values between the patches, our goal now is to extract a set of corresponding points between  $\mathcal{N}$ to $\mathcal{M}$.
+    If we had a single scale, then for each sample point (the center of a patch) of $\mathcal{N}$, we would choose the vertex of $\mathcal{M}$ that maximizes the similarity function.
 
-    In practice, we...
-    \ayellet{third paragraph: how this is done. re-write the following, without using any of  mathematical notations, most of them do not exist any more.}
-    
-    %this would be the process if we only used a single size of geodesic disc
-    \nadav{proposed text: When using a single radius size, this can be done simply by finding for each patch surrounding a sample point, the patch in $\mathcal{M}$ whose similarity to it is maximal, and setting its origin point as the correspondence.
-    
-    %this is the multiscale addition
-    In order to implement our multi scale idea, we first use the larger patch similarity to obtain a rough estimation of the correspondence. 
-    We then use this rough estimation to constrain the region on $\mathcal{M}$ in which we consider the similarity score of smaller patches to be valid, to a smaller disc surrounding the rough correspondence. This is repeated until we reach our smallest patch resolution. The final correspondence is the one that maximizes the patch similarity score, subject to lying in on the region defined by the preceding coarser scale.
-    }
-    
-    
-    \nadav{older text:
-    The location of $c\in\S_\mathcal{N}$ on $\mathcal{M}$ is determined in the following way, given in Figure ~\ref{fig:multiscale}. We begin with the similarity obtained for $R_{T_1}$ and find the vertex whose associated patch similarity score $DDIS_{\mathcal{N}_c^R_{T_1}}$ is maximal. We denote it $\hat{m}_{R_{T_1}}$ on $\mathcal{M}$. Then we move sequentially from $R_{T_2}$ to $R_{T_N}$. For each $i$ we construct a geodesic disc of $R_{T_i}$ around $\hat{m}_{R_{T_{i-1}}}$. We then set $\hat{m}_{R_{T_i}}$ as the vertex on this disc which maximizes $DDIS_{\mathcal{N}^{R_{T_i}}_{c}}(\mathcal{M}_{m_j}^{R_{T_i}})$. Finally the location of $c$ is determined at the smallest radius,  $\hat{m}_{R_{T_N}}$. We repeat this process for every sample point to obtain our sparse correspondences.}
+    In our multi-scale approach, we proceed from coarse to fine.
+    Suppose that $P_i \subset \mathcal{N}$ and $Q_j\subset \mathcal{M}$ were found to have the highest similarity in a coarsest scale (i.e. $Q_j$ is the largest).
+    The coarsest match is then set between $v_i \in P_i$ and $w_j \in Q_j$, where $v_i, w_j$ are the {\em geodesic centers} of  $P_i, Q_j$, respectively (i.e. the sample points that define the patches in Step 2).
+    When moving to the finer scale, we replace  $Q_j$ with a smaller (finer) patch in which $w_j$ is the center and set the new $w_j$ to be the vertex on this patch that  maximizes the similarity function $DDIS$ on this patch.
+    The finest $w_j$ is the corresponding point of $v_i$; see Figure~\ref{fig:multiscale}.
     
     \begin{figure}[htb]
 	\includegraphics[width=0.5\textwidth]{figures/MultiScaleDis.png}
 	\caption{{\bf Multi-scale similarity.} 
-	Given the sample point on the left (in magenta), the corresponding point on  $\mathcal{M}$ is shown on the right. 
-	\ayellet{starting at this point, I do not understand what you want to show. Rewrite}
-	The middle upper row contains the geodesic discs of $\beta = 0.6,0.4,0.2$ along with and their similarity heat maps on $\mathcal{M}$. 
-	The middle bottom row contains the geodesic disc surrounding the maxima obtained from the previous level, with the new maxima marked with a circle in a different color. The rightmost column shows the final corresponding point. Notice that while alone, similarity on each size of disc leads to incorrect results, with $beta=0.4,0.2$ mapping to the hind leg and $\beta=0.6$ resulting in a drift towards the head due to the deformation leading to the head, the final result is correct.
-	\ayellet{this image is a mess. should be re-done + move it to the next section.}
+	Given the sample point on the left (in magenta), the corresponding points on  $\mathcal{M}$ are shown on the right. 
+	In the coarsest level, the general region of the matching point is found, but the point is imprecise.
+	In subsequent levels, the general region is not found.
+	Our multi-scale approach manages to find the precise point.
+	\ayellet{Replace the image.}
 	}
 	\label{fig:multiscale}
 
     \end{figure}
 
-    \item{Post processing}
+    \item{\bf Coherency-based Post processing}
     \ayellet{I do not understand what you do and why. As always: first sentence- goal of the step and why it is needed. second sentence - key idea of how to do that. the rest of the sentences - explanation of how you do that WITHOUT unnecessary mathematical notations. Rewrite}
-    \nadav{We employ a simple greedy optimization method which replaces correspondences whose mean absolute (MAD) from other correspondences is above a threshold. 
-    For each correspondence $(c,\hat{c})\in\mathcal{N}\times\mathcal{M}$ we construct a set of alternative candidates by finding the top $k$ local maximas of the similarity function of $c$, selecting the one whose MAD from other correspondences is the lowest.}
-    
+\nadav{proposed text:
+Given the set of sparse correspondences obtained in step 4, in the last step we aim at identifying incorrect ones and replace them with more fit correspondences. 
+We first detect ill fitted Correspondences. Assuming most of our correspondence from step 4 are correct ones, bad matches would have to be outliers. We use the deformation(deviation of distance between other corresponding pairs) as a way to detect these. We calculate for each pair, the mean of distance differences between other correspondences. We then mark correspondences whose mean distance difference to other correspondences is larger by more than 15\% then the mean distance difference.
+For each such suspect correspondence, we employ a greedy search for a local maxima of DDIS which minimizes the deformation w.r.t. good correspondences and set it as the final correspondence. 
+}
+
 \end{enumerate}
 
 % \nadav{proposed end of section}

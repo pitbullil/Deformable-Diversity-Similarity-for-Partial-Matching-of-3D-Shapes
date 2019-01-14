@@ -58,11 +58,22 @@ T.~Dekel, S.~Oron, M.~Rubinstein, S.~Avidan, and W.~T. Freeman.
 \newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
   Pattern Recognition}, pages 2021--2029, 2015.
 
+\bibitem{guo2013rotational}
+Y.~Guo, F.~Sohel, M.~Bennamoun, M.~Lu, and J.~Wan.
+\newblock Rotational projection statistics for 3d local surface description and
+  object recognition.
+\newblock {\em International journal of computer vision}, 105(1):63--86, 2013.
+
 \bibitem{holz2015registration}
 D.~Holz, A.~E. Ichim, F.~Tombari, R.~B. Rusu, and S.~Behnke.
 \newblock Registration with the point cloud library: A modular framework for
   aligning in 3-d.
 \newblock {\em IEEE Robotics \& Automation Magazine}, 22(4):110--124, 2015.
+
+\bibitem{katz2005mesh}
+S.~Katz, G.~Leifman, and A.~Tal.
+\newblock Mesh segmentation using feature point and core extraction.
+\newblock {\em The Visual Computer}, 21(8-10):649--658, 2005.
 
 \bibitem{kim2011blended}
 V.~G. Kim, Y.~Lipman, and T.~Funkhouser.
@@ -91,6 +102,11 @@ O.~Litany, E.~Rodol{\`a}, A.~M. Bronstein, and M.~M. Bronstein.
 J.~Masci, E.~Rodol{\`a}, D.~Boscaini, M.~M. Bronstein, and H.~Li.
 \newblock Geometric deep learning.
 \newblock In {\em SIGGRAPH ASIA 2016 Courses}, page~1. ACM, 2016.
+
+\bibitem{max1999weights}
+N.~Max.
+\newblock Weights for computing vertex normals from facet normals.
+\newblock {\em Journal of Graphics Tools}, 4(2):1--6, 1999.
 
 \bibitem{monti2017geometric}
 F.~Monti, D.~Boscaini, and J.~Masci.
@@ -163,7 +179,7 @@ Y.~Sahillio{\u{g}}lu and Y.~Yemez.
 \newblock In {\em Computer Graphics Forum}, volume~31, pages 2233--2240. Wiley
   Online Library, 2012.
 
-\bibitem{sahillioǧlu2011coarse}
+\bibitem{sahillioglu2011coarse}
 Y.~Sahillioǧlu and Y.~Yemez.
 \newblock Coarse-to-fine combinatorial matching for dense isometric shape
   correspondence.
@@ -175,6 +191,14 @@ A.~Shtern and R.~Kimmel.
 \newblock Matching the lbo eigenspace of non-rigid shapes via high order
   statistics.
 \newblock {\em Axioms}, 3(3):300--319, 2014.
+
+\bibitem{Sun:2009:CPI:1735603.1735621}
+J.~Sun, M.~Ovsjanikov, and L.~Guibas.
+\newblock A concise and provably informative multi-scale signature based on
+  heat diffusion.
+\newblock In {\em Proceedings of the Symposium on Geometry Processing}, SGP
+  '09, pages 1383--1392, Aire-la-Ville, Switzerland, Switzerland, 2009.
+  Eurographics Association.
 
 \bibitem{talmi2017template}
 I.~Talmi, R.~Mechrez, and L.~Zelnik-Manor.

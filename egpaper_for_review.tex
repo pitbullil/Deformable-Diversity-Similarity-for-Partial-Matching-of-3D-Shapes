@@ -136,7 +136,7 @@ Extrinsic ones, such as PFH\cite{rusu2008learning}, SHOT\cite{tombari2010unique}
 On the other hand intrinsic features such as Heat\cite{bronstein2010scale} and Wave Kernel signatures\cite{aubry2011wave} are invariant under isometric transformations, but are very sensitive to partiality and are unable to discern between symmetric parts.
 These have been commonly used to generate rough correspondences between surfaces and point clouds based on their similarity, but are noisy and offer little in terms of bijectivity and continuity of the solution. a measure of global consistency using these can be achieved by solving an energy minimization of the disimilarity matrices steming from an assignment, and the auction algorithm has been commonly employed for this purpose.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Distortion minimization%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Other methods use pairwise relations between points such as geodesic distances\cite{sahilliouglu2012minimum,sahilliouglu2012scale,sahillioǧlu2011coarse}, and search for a configuration which minimizes the distortions of these. These methods usually carry a high complexity, both due to calculating the pairwise relations, and the combinatorial configuration search, and are thus either obtain sparse matches\cite{sahilliouglu2012minimum,sahilliouglu2012scale,sahillioǧlu2011coarse} to alleviate this complexity, or used strategies such as coarse to fine solutions.
+Other methods use pairwise relations between points such as geodesic distances\cite{sahilliouglu2012minimum,sahilliouglu2012scale,sahillioglu2011coarse}, and search for a configuration which minimizes the distortions of these. These methods usually carry a high complexity, both due to calculating the pairwise relations, and the combinatorial configuration search, and are thus either obtain sparse matches\cite{sahilliouglu2012minimum,sahilliouglu2012scale,sahillioglu2011coarse} to alleviate this complexity, or used strategies such as coarse to fine solutions.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Embedding Space%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Another common approach has been to embed the shapes into a different lower dimension "canonical"  space, this has been done by generalized MDS\cite{bronstein2006generalized}, an embedding into the mobius group\cite{lipman2009mobius}, or by representation in the LBO basis\cite{shtern2014matching}
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Functional Correspondences%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -363,7 +363,7 @@ For each such suspect correspondence, we employ a greedy search for a local maxi
 Given a target $\mathcal{M}$  and $\mathcal{N}$ (Section~\ref{sec:approach}) and a vertex $v \in  \mathcal{N}$ \ayellet{yes?, not the opposite?}, the goal is to find the most similar vertex on $\mathcal{M}$.
 We would like the similarity to be oblivious to non-rigid transformation, to the resolutions of the meshes, to noise, and to the partiality of the data.
 
- \nadav{proposed rewrite: We would like to measure the similarity between a target candidate patch ${\mathcal{M}^{R_T}_{c'}}$ and a template patch ${\mathcal{N}^{R_T}_{c}}$, defined by  geodesic discs of a radius $R_T$ around the points $c'$ and $c$ respectively. We would like the similarity to be oblivious to non-rigid transformation, to the resolutions of the meshes, to noise, and to the partiality of the data.}
+ \nadav{proposed rewrite: We would like to measure the similarity between two surface patches, a target patch $\mathcal{Q}$ and a template patch $\mathcal{P}$, defined by geodesic discs of a radius $R_T$ around the points $c'$ and $c$ respectively. We would like the similarity to be oblivious to non-rigid transformation, the resolutions of the meshes, noise, and partiality of the data.}
 \ayellet{
 
 Second paragraph: Key idea, first in laymen language.
@@ -399,7 +399,9 @@ Given a target candidate patch ${\mathcal{M}^{R_T}_{c'}}$ and a template patch $
 DDIS_{\mathcal{N}^{R_T}_{c}}({\mathcal{M}^{R_T}_{c'}},\gamma)=\sum_{n_i\in {\mathcal{N}^{R_T}_{c}}}\frac{1}{1+r_i}
 \label{eq:DDIS}
 \end{equation}
+}
 
+\nadav{
 Where $r_i$ is the deformation implied by the NNF for $n_i$ as defined by Eq.~\ref{eq:deformation}
 \begin{equation}
 r_i = 
@@ -408,10 +410,13 @@ r_i =
           \infty,&              else
 \end{cases}
 \label{eq:deformation}
-
 \end{equation}
+
 where $\gamma\cdot R_\mathcal{M}$ is a regularizer on the error length and should ideally be set according to the expected distortion. 
-We notice the case where $r_i\in\{0,\infty\}\forall n_i$. When this occurs $1/r_i\in\{1,0\}$ and DDIS counts the number of points in ${\mathcal{N}^{R_T}_{c}}$ which are a NN of any point in ${\mathcal{M}^{R_T}_{c'}}$. This is exactly the diversity of the NN field.} 
+We notice the case where $r_i\in\{0,\infty\}\forall n_i$. When this occurs $1/r_i\in\{1,0\}$ 
+and DDIS counts the number of points in $\mathcal{Q}$ which are a NN of any point in
+$\mathcal{P}$.
+  This is exactly the diversity of the NN field.} 
 
 %Fourth paragraph: outline of similarity computation
 \nadav{Fourth paragraph: outline of similarity computation: proposed text: 
@@ -437,29 +442,6 @@ In order to calculate our similarity measure, another necessary step is to have 
 \subsection{Similarity Calculation}
 We iterate over all points $m_{c'}\in\mathcal{M}$ and construct ${\mathcal{M}^{R_T}_{c'}}$. Inside the piece we iterate over every point $m_j\in{\mathcal{M}^{R_T}_{c'}}$ and calculate $r_i=\frac{|(d({m^l}_i,{m^l}_c')-(NN(m_i,\mathcal{N})^l,{n^l}_c|}{\gamma\cdot R_\mathcal{M}}$, where if $NN(m_j,\mathcal{N})$ is outside ${\mathcal{N}_c}^{R_T}$ this distance is disregarded. Notice the normalization by $\gamma R_\mathcal{M}$ here which is done to make the distances scale invariant, while $\gamma$ is a tunable parameter which should correlate to the expected distortion. We find for each $n_i\in{\mathcal{N}_c}^{R_T}$ the distance of the point who is pointing to it as a nearest neighbor and has the most similar distance to its reference point. If $n_i$ has no point who point to it as its nearest neighbor then $r_i=\infty$. Finally we calculate The similarity between the pieces by our similarity function in Eq. XX.
 }
-
-
-\\
-\nadav{old text:
-Thus, same as in \cite{talmi2017template} we define Diversity as:
-\begin{equation}
-\underset{{\mathcal{M}^{R_T}_{c'}}\rightarrow{\mathcal{N}^{R_T}_{c}}}{DIS}=|\{n_i\in{\mathcal{N}^{R_T}_{c}}:\exists m_j\in{\mathcal{M}^{R_T}_{c'}},NN(m_j,\mathcal{N})=n_i\}|
-\end{equation}
-where $|\{.\}|$ denotes group size. 
-
-In order to take into account our second desired property of pairwise distance consistency, for each point $n\in{\mathcal{N}^{R_T}_{c}}$ we search for a point $m\in{\mathcal{M}^{R_T}_{c'}}$ such that $NN(m,\mathcal{N})=n$ and whose distance to the source $d(m^l,m^l_c')$ is the most similar to $d(n^l,{n^l}_c)$. 
-We define the deformation induced by $n_i$ as 
-\begin{equation}
-r_i = min(|d(m_j,c')-d(n_i,c)|),\\
-\end{equation}
-where $m_j\in {\mathcal{M}^{R_T}_{c'}}, NN^S(m_j,\mathcal{N})=n_i$. If $n_i$ has no point who points to it as its nearest neighbor in ${\mathcal{M}^{R_T}_{c'}}$ then $r_i=\infty$.
-
-We then use this induced deformation weigh it's contribution, and finally we define our Deformable Diversity Similarity by the equation:
-\begin{equation}
-DDIS({\mathcal{N}^{R_T}_{c}},{\mathcal{M}^{R_T}_{c'}},\gamma)=\sum_{n_i\in {\mathcal{N}^{R_T}_{c}}}\frac{1}{1+r_i}
-\end{equation}
-Note that when the deformation is 0, that is $r_i=0 \forall n_i$ DDIS becomes identical to the diversity score, while when $r_i\rightarrow\infty$, the contribution of a point having a nearest neighbor to the similarity score will become 0, irrespective to if it has multiple nearest neighbors. Thus this formulation indeed captures the properties we have defined above, while disregarding distractors altogether.
-} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% section: Deformable Diversity Similarity in 3D
@@ -553,7 +535,7 @@ We follow the work of\cite{katz2005mesh} to obtain mesh extremities. Given a sha
 An additional requirement for it to be an extremities is for it to lie on the convex hull of the shape's MDS. In this work we have dropped the last condition, but chose $N_v*$ - a neighborhood of $0.03\cdot \sqrt{Area(S)}$. This stage gives us the initial set of sample denoted $S_0$
 
 \textbf{Mesh sampling}
-We employ a sampling scheme very reminiscent of the one employed in\cite{sahillioǧlu2011coarse}. In each stage $k$, we take the set of samples $S_{k-1}$ and mark all the points in a radius $R_S$ around them. From the set of remaining point we choose the one whose distance to the set $S_{k-1}$ is minimal to create the set $S_k$. We repeat this process until all the points are marked.
+We employ a sampling scheme very reminiscent of the one employed in\cite{sahillioglu2011coarse}. In each stage $k$, we take the set of samples $S_{k-1}$ and mark all the points in a radius $R_S$ around them. From the set of remaining point we choose the one whose distance to the set $S_{k-1}$ is minimal to create the set $S_k$. We repeat this process until all the points are marked.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%% subsection: Landmark Template Matching
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -602,7 +584,7 @@ The observation of the effects of the choice of $\beta$ and the trade-off betwee
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Greedy Outlier Fix}
 The results obtained by the pipeline, while empirically already producing matches of superior quality to state of the art algorithms in the field nevertheless have no explicit requirement on generating a coherent set of matches. We thus as a post processing step identify outliers and replace them with more suitable correspondences. 
-Inspired by distortion minimization methods such as\cite{sahillioǧlu2011coarse} we pick the distortion of a correspondence as a measure of its coherency to the set. For a correspondence $(y,x)\in \mathcal{N}\times\mathcal{M}$ the distortion as the mean of it deviation of relative distance to all other points in the set. Given a set of correspondences $P={p_i=(y_i,x_i)\in \mathcal{N}\times\mathcal{M}}$ the distortion is defined by the equation
+Inspired by distortion minimization methods such as\cite{sahillioglu2011coarse} we pick the distortion of a correspondence as a measure of its coherency to the set. For a correspondence $(y,x)\in \mathcal{N}\times\mathcal{M}$ the distortion as the mean of it deviation of relative distance to all other points in the set. Given a set of correspondences $P={p_i=(y_i,x_i)\in \mathcal{N}\times\mathcal{M}}$ the distortion is defined by the equation
 \begin{equation}
 	D(p_i) = \frac{1}{|P|-1}\sum_{j \neq i}{\rho(p_i,p_j)}
 \end{equation}

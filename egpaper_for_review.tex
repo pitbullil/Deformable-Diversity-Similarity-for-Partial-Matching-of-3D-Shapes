@@ -327,8 +327,8 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
     \item{\bf Coherency-based Post processing}
     \ayellet{I do not understand what you do and why. As always: first sentence- goal of the step and why it is needed. second sentence - key idea of how to do that. the rest of the sentences - explanation of how you do that WITHOUT unnecessary mathematical notations. Rewrite}
 \nadav{proposed text:
-Given the set of sparse correspondences obtained in step 4, in the last step we aim at identifying incorrect ones and replace them with more fit correspondences. 
-We first detect ill fitted Correspondences. Assuming most of our correspondence from step 4 are correct ones, bad matches would have to be outliers. We use the deformation(deviation of distance between other corresponding pairs) as a way to detect these. We calculate for each pair, the mean of distance differences between other correspondences. We then mark correspondences whose mean distance difference to other correspondences is larger by more than 15\% then the mean distance difference.
+Given the set of sparse correspondences obtained in step 4, the majority of which are assumed to be correct, in the last step we aim at identifying incorrect ones and replace them with more fit correspondences. 
+We first detect ill fitted Correspondences. Assuming most of our correspondence from step 4 are correct, bad matches would have to be outliers. We use the deformation(deviation of distances between other corresponding pairs) as a way to detect these. We calculate for each pair, the mean of distance differences between other correspondences. We then mark correspondences whose mean distance difference to other correspondences is larger by more than 15\% then the mean distance difference.
 For each such suspect correspondence, we employ a greedy search for a local maxima of DDIS which minimizes the deformation w.r.t. good correspondences and set it as the final correspondence. 
 }
 
@@ -363,7 +363,7 @@ For each such suspect correspondence, we employ a greedy search for a local maxi
 Given a target $\mathcal{M}$  and $\mathcal{N}$ (Section~\ref{sec:approach}) and a vertex $v \in  \mathcal{N}$ \ayellet{yes?, not the opposite?}, the goal is to find the most similar vertex on $\mathcal{M}$.
 We would like the similarity to be oblivious to non-rigid transformation, to the resolutions of the meshes, to noise, and to the partiality of the data.
 
- \nadav{proposed rewrite: We would like to measure the similarity between two surface patches, a target patch $\mathcal{Q}$ and a template patch $\mathcal{P}$, defined by geodesic discs of a radius $R_T$ around the points $c'$ and $c$ respectively. We would like the similarity to be oblivious to non-rigid transformation, the resolutions of the meshes, noise, and partiality of the data.}
+ \nadav{proposed rewrite: We would like to measure the similarity between two surface patches, a target patch $\mathcal{Q}$ and a template patch $\mathcal{P}$. We would like the similarity to be oblivious to non-rigid transformation, different resolutions of the meshes, noise, and partiality of the data.}
 \ayellet{
 
 Second paragraph: Key idea, first in laymen language.
@@ -384,9 +384,9 @@ We are inspired by the principles introduced in\cite{talmi2017template}: the ide
 
 The movement from 2 to 3 dimensions introduces an additional challenge addressed by our modified similarity measure.
 
-The geodesic disc which is the simple replacement for a search window introduces a couple of problems. 
+Particularly, the absence of a simple grid makes the selection of a search window not well defined and complex. The geodesic disc which is a simple replacement for a search window introduces a couple of problems. 
 
-Chief of which is an inequality between both the area and number of points between the target and the patch. Especially in the partial setup, the geodesic disc on the target will commonly be of an area which is bigger or equal to that of the template. This leads to the  inclusion of repeating patterns or symmetrical parts which affect the diversity of the Nearest neighbor field.
+This often leads to an inequality between both the area and number of points between the target and the patch. Especially in the partial setup, the geodesic disc on the target will commonly be of an area which is bigger or equal to that of the template. This leads to the inclusion of repeating patterns or symmetrical parts which affect the diversity of the Nearest neighbor field.
 
 %Key to solution
 This suggests that while we should still expect a diverse nearest neighbor field, correct matches have a higher probability to share a nearest neighbor with an incorrect one. Thus our similarity measure should not penalize a shared nearest neighbor. Instead we should count only the match whose implied deformation is the lowest.}
@@ -394,29 +394,30 @@ This suggests that while we should still expect a diverse nearest neighbor field
 %Third paragraph: the mathematical definition that realizes the key idea
 \nadav{Third paragraph: the mathematical definition that realizes the key idea, proposed text:
 
-Given a target candidate patch ${\mathcal{M}^{R_T}_{c'}}$ and a template patch ${\mathcal{N}^{R_T}_{c}}$, defined by a geodesic disc of radius $R_T$ around  the vertex $c'\in\mathcal{M}$ and $c\in\mathcal{N}$ respectively, a nearest neighbor field mapping each vertex on $\mathcal{M}$ to its nearest neighbor on $\mathcal{N}$ in some shape descriptor space, and the geodesic distances $\{g(c',m_j)\}_{m_j\in\mathcal{M}^{R_T}_{c'}},\{g(c,n_i)\}_{n_i\in\mathcal{N}^{R_T}_{c}}$ , the similarity of ${\mathcal{M}^{R_T}_{c'}}$ to ${\mathcal{N}^{R_T}_{c}}$ is calculated by Eq.~\ref{eq:DDIS}:
+Given a target candidate patch $\mathcal{Q}$ and a template patch $\mathcal{P}$, defined by geodesic discs of radius $R_T$ around  the vertices $q\in\mathcal{M}$ and $p\in\mathcal{N}$ respectively, a nearest neighbor field mapping each vertex on $\mathcal{M}$ to its nearest neighbor on $\mathcal{N}$ in some shape descriptor space, and the geodesic distances $\{GeodDist(q,q_j)\}_{q_j\in\mathcal{Q}},\{GeodDist(p,p_i)\}_{p_i\in\mathcal{P}}$ , the similarity of $\mathcal{Q}$ to $\mathcal{P}$ is calculated by Eq.~\ref{eq:DDIS}:
 \begin{equation}
-DDIS_{\mathcal{N}^{R_T}_{c}}({\mathcal{M}^{R_T}_{c'}},\gamma)=\sum_{n_i\in {\mathcal{N}^{R_T}_{c}}}\frac{1}{1+r_i}
+DDIS_{\mathcal{P}}(\mathcal{Q},\gamma)=\sum_{p_i\in \mathcal{P}}\frac{1}{1+r_i}
 \label{eq:DDIS}
 \end{equation}
 }
 
 \nadav{
-Where $r_i$ is the deformation implied by the NNF for $n_i$ as defined by Eq.~\ref{eq:deformation}
+$r_i$ is the deformation implied by the NNF for $p_i$ and is defined by the following:
 \begin{equation}
 r_i = 
 \begin{cases}
-\underset{NN(m_j,\mathcal{N})=n_i}{min}\frac{|g(m_j,c')-g(n_i,c)|}{\gamma\cdot R_\mathcal{M}} & m_j\in\mathcal{M}^{R_T}_{c'}\\
+\underset{NN(q_j,\mathcal{N})=p_i}{min}\frac{|GeodDist(q_j,q)-GeodDist(p_i,p)|}{\gamma\cdot \sqrt{Area(\mathcal{M})}} & q_j\in\mathcal{Q}\\
           \infty,&              else
-\end{cases}
+\end{cases}.
 \label{eq:deformation}
 \end{equation}
 
-where $\gamma\cdot R_\mathcal{M}$ is a regularizer on the error length and should ideally be set according to the expected distortion. 
-We notice the case where $r_i\in\{0,\infty\}\forall n_i$. When this occurs $1/r_i\in\{1,0\}$ 
-and DDIS counts the number of points in $\mathcal{Q}$ which are a NN of any point in
+where $\gamma\cdot \sqrt{Area(\mathcal{M})}$ is a regularizer on the error length and should ideally be set according to the expected distortion.
+While the relationship between our similarity and preservation of distances is easy to see, the connection to diversity requires further explanation.
+Consider a case where $r_i\in\{0,\infty\}\forall p_i$. When this occurs $1/r_i\in\{1,0\}$ becomes the indicator for a point $p_i$ having a point in $\mathcal{Q}$ which considers it it's nearest neighbor.
+In such a scenario, DDIS counts the number of points in $\mathcal{Q}$ which are a NN of any point in
 $\mathcal{P}$.
-  This is exactly the diversity of the NN field.} 
+This is exactly the diversity of the NN field.} 
 
 %Fourth paragraph: outline of similarity computation
 \nadav{Fourth paragraph: outline of similarity computation: proposed text: 
@@ -424,23 +425,14 @@ $\mathcal{P}$.
 %preprocessing
 To calculate our similarity we first compute shape descriptors for all the points on $\mathcal{N},\mathcal{M}$ and use Approximate NN in descriptor space to infer the Nearest Neighbor Field.
 %template construction
-We then collect a neighborhood $\mathcal{N}^{R_T}_{c}$ of a given Radius $R_T$ around a desired source point $n_c$ and compute the distance of all points which lie within this neighborhood to the source $n_c$.
+We then collect a neighborhood $\mathcal{P}$ of a given Radius $R_T$ around a desired source point $p$ and compute the distance of all points which lie within this neighborhood to the source $p$.
 %similarity calculation
-We repeat the same process for a candidate point $m_c\in\mathcal{M}$ to create ${\mathcal{M}^{R_T}_{c'}}$.
-We traverse all the points in ${\mathcal{M}^{R_T}_{c'}}$ and check for each one if it's distance to its center is the most similar to the distance of its nearest neighbor in ${\mathcal{N}_c}^{R_T}$ and update $r_i$ accordingly. Finally we use 
+We repeat the same process for a candidate point $q\in\mathcal{M}$ to create $\mathcal{Q}$.
+We traverse all the points in $\mathcal{Q}$ and check for each one if it's distance to its center is the most similar to the distance of its nearest neighbor in $\mathcal{P}$ and update $r_i$ accordingly. We then use these($r_i$) to calculate the similarity of $\mathcal{Q}$ to $\mathcal{P}$ as defined above in Eq.~\ref{eq:DDIS}.
 }
 
 %paragraphs/subsections explaining the different stages
-\nadav{subsections explaining the different stages, proposed text: 
-\subsection{Shapes Preprocessing}
-Before we can calculate similarity between our shapes some preprocessing of the shapes is necessary. 
-We calculate a characteristic length on the full part denoted $R_\mathcal{M}=\sqrt{Area(\mathcal{M})}$. We also compute vertex-wise normals using the face normal weighting scheme introduced in\cite{max1999weights}. 
-\subsection{Nearest Neighbor Field calculation}
-To infer our nearest neighbor field we first calculate FPFH\cite{rusu2009fast} point descriptors for every point on the template $\mathcal{N}$ and the query shape $\mathcal{M}$. We set a neighborhood of $r_F=\alpha\cdot R_\mathcal{M}$ and around every point, where $\alpha$ is a tunable parameter for the calculation of FPFH. We then calculate approximate nearest neighbors in FPFH space using FLANN with a $\chi^2$ distance measure to obtain a nearest neighbor mapping $\underset{\mathcal{M}\rightarrow\mathcal{N}}{NNF}=\{NN(m_i,\mathcal{N})\}_{i=1}^{|\mathcal{M}|}$
-\subsection{Template construction}
-In order to calculate our similarity measure, another necessary step is to have 2 pieces of roughly the same volume, and a way to compare the locations of points on them. In the absence of a simple grid, this is done by picking a reference point $x$ as the center and collecting all the points in a surrounding neighborhood of a defined radius $R_T=\beta R_\mathcal{M}$, where beta is a tunable parameter. We calculate the distance from the reference point to every point on the selected piece. This is done once for a chosen point $n_c\in\mathcal{N}$ to construct $\mathcal{N}^{R_T}_{c}$.
-\subsection{Similarity Calculation}
-We iterate over all points $m_{c'}\in\mathcal{M}$ and construct ${\mathcal{M}^{R_T}_{c'}}$. Inside the piece we iterate over every point $m_j\in{\mathcal{M}^{R_T}_{c'}}$ and calculate $r_i=\frac{|(d({m^l}_i,{m^l}_c')-(NN(m_i,\mathcal{N})^l,{n^l}_c|}{\gamma\cdot R_\mathcal{M}}$, where if $NN(m_j,\mathcal{N})$ is outside ${\mathcal{N}_c}^{R_T}$ this distance is disregarded. Notice the normalization by $\gamma R_\mathcal{M}$ here which is done to make the distances scale invariant, while $\gamma$ is a tunable parameter which should correlate to the expected distortion. We find for each $n_i\in{\mathcal{N}_c}^{R_T}$ the distance of the point who is pointing to it as a nearest neighbor and has the most similar distance to its reference point. If $n_i$ has no point who point to it as its nearest neighbor then $r_i=\infty$. Finally we calculate The similarity between the pieces by our similarity function in Eq. XX.
+\nadav{I am not sure if we should add sections here or not...
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

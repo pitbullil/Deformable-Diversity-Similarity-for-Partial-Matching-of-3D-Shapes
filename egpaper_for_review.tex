@@ -204,7 +204,7 @@ An additional observation made has been that while non isometric deformations do
     Note that exact segmentation is not needed.
     Step 3 is the core of the algorithm, in which the similarity between the patches is computed.
     Finally, in Step 4, for every sample of $\mathcal{N}$ we set the vertex of $\mathcal{M}$ that achieves the maximal score as its corresponding point.
-	\ayellet{This figure should be re-done}
+	\ayellet{This figure should be re-done} 
 	}
 	\label{fig:overview}
 \end{figure*}
@@ -263,9 +263,9 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
     A vertex is considered to be an extremity if it  resides on a tip of the surface (e.g.,  tips of limbs)~\cite{katz2005mesh},
     In practice, we define them to be vertices that are local maxima of the sum of the geodesic distance functional.
     Formally, $\forall v \in S$,  let $N_v$ be the set of neighboring vertices of vertex $v$. 
-    Let $GeodDist(v_i, v_j)$ be the geodesic distance between vertices $v_i$ and $v_j$ of mesh S. Vertex $v$ is an extremity if it satisfies
+    Let $GeoDist(v_i, v_j)$ be the geodesic distance between vertices $v_i$ and $v_j$ of mesh S. Vertex $v$ is an extremity if it satisfies
      \begin{equation}
-        \sum_{v_i\in S} GeodDist(v,v_i)>\sum_{v_n\in S} GeodDist(v_n, v_i).
+        \sum_{v_i\in S} GeoDist(v,v_i)>\sum_{v_n\in S} GeoDist(v_n, v_i).
         \label{eq:extremities}
     \end{equation}
 
@@ -318,19 +318,28 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
 	In the coarsest level, the general region of the matching point is found, but the point is imprecise.
 	In subsequent levels, the general region is not found.
 	Our multi-scale approach manages to find the precise point.
-	\ayellet{Replace the image.}
+	\ayellet{Replace the image.} \nadav{done}
 	}
 	\label{fig:multiscale}
 
     \end{figure}
 
-    \item{\bf Coherency-based Post processing}
-    \ayellet{I do not understand what you do and why. As always: first sentence- goal of the step and why it is needed. second sentence - key idea of how to do that. the rest of the sentences - explanation of how you do that WITHOUT unnecessary mathematical notations. Rewrite}
-\nadav{proposed text:
-Given the set of sparse correspondences obtained in step 4, the majority of which are assumed to be correct, in the last step we aim at identifying incorrect ones and replace them with more fit correspondences. 
-We first detect ill fitted Correspondences. Assuming most of our correspondence from step 4 are correct, bad matches would have to be outliers. We use the deformation(deviation of distances between other corresponding pairs) as a way to detect these. We calculate for each pair, the mean of distance differences between other correspondences. We then mark correspondences whose mean distance difference to other correspondences is larger by more than 15\% then the mean distance difference.
-For each such suspect correspondence, we employ a greedy search for a local maxima of DDIS which minimizes the deformation w.r.t. good correspondences and set it as the final correspondence. 
-}
+    \item{\bf Coherency-based correspondence refinement}
+    The result of Step 4 is a set of corresponding pairs of points.
+    In most cases ($>92\%$ on all our examples), the correspondences are correct.
+    The goal of this step is to identify the incorrect ones and replace them by the correct correspondences. 
+    
+    The key idea is to utilize coherency, i.e., if all points in the neighborhood of point $v \in \mathcal{N}$ are mapped to points that reside on the same region on $\mathcal{M}$,  it is expected that the corresponding point of $v$,  $w \in \mathcal{M}$, will also reside in this region.
+    In other words, we are looking for outliers of the mapping.
+    
+    To detect these outliers, we check the sum of geodesic distances. 
+    For a pair of points $(v,w)$ to be considered correct, they should satisfy:
+    \begin{equation}
+    \label{eq:refinement}
+        \sum_{v_i\in \mathcal{M}}|{GeoDist(v,v_i)} - {GeoDist(w,w_i)}| < C
+    \end{equation}
+    where $w_i$ is the corresponding point of $v_i$ and $C$ is $0.15$ of the mean of Equation~\eqref{eq:refinement} on all points.
+    We replace the corresponding point of an outlier by a point that minimizes Equation~\eqref{eq:refinement} and is a local maximum of the similarity function of Step 3.
 
 \end{enumerate}
 
@@ -359,29 +368,55 @@ For each such suspect correspondence, we employ a greedy search for a local maxi
 		\label{fig:NNF}
 \end{figure}
 
-%First paragraph: problem definition
-Given a target $\mathcal{M}$  and $\mathcal{N}$ (Section~\ref{sec:approach}) and a vertex $v \in  \mathcal{N}$ \ayellet{yes?, not the opposite?}, the goal is to find the most similar vertex on $\mathcal{M}$.
-We would like the similarity to be oblivious to non-rigid transformation, to the resolutions of the meshes, to noise, and to the partiality of the data.
+%Problem definition
+This section elaborates on Step 3 of the approach, which is the core of the algorithm.
+Given pair of patches of the same scale, $Q \subset \mathcal{M}$ and $P \subset \mathcal{N}$, this section defines a similarity function $DDIS$ between them.
+This function should be oblivious to non-rigid transformation, different resolutions of the meshes, noise, and partiality of the data.
 
- \nadav{proposed rewrite: We would like to measure the similarity between two surface patches, a target patch $\mathcal{Q}$ and a template patch $\mathcal{P}$. We would like the similarity to be oblivious to non-rigid transformation, different resolutions of the meshes, noise, and partiality of the data.}
-\ayellet{
+%Key idea
+Recall that the key idea is to reward a point (center of the patch) whose nearest-neighbor field satisfied two properties: has high diversity and low deformation. 
+\ayellet{copy two sentences: 1. why high diversity is good. 2. why low deformation is good}
 
-Second paragraph: Key idea, first in laymen language.
-We are inspired by...., but found that the method there is insufficient due to the following reasons.
+Te realize these requirements, we start by formally defining diversity and  deformation and then show how to put them together into the similarity function.
 
-Third paragraph: the mathematical definition that realizes the key idea
+We first define $Div(Q,P)$, which measures the diversity from  $Q$ to $P$,
+\ayellet{paragraph: copy the definition of diversity:  one sentence of key idea of the equation that relates to the goal, and then put down the equation.}
 
-Fourth paragraph: outline of similarity computation
+Next, we define $Def(Q,P)$, which measures the deformation from  $Q$ to $P$.
+\ayellet{one sentence of key idea of the equation that relates to the goal}
+Let $p \in P$ be the center of $P$ and similarly, $q \in Q$ be the center of $Q$;
+let $p_j$ be the Nearest-neighbor of  $q_i \in Q$, previously computed for all $q_i \in Q$.
+\ayellet{re-write the equation correctly.}
+\nadav{
+$r_i$ is the deformation implied by the NNF for $p_i$ and is defined by the following:
+\begin{equation}
+Def(Q,P) = 
+\begin{cases}
+\underset{NN(q_j,\mathcal{N})=p_i}{min}\frac{|GeodDist(q_j,q)-GeodDist(p_i,p)|}{\gamma\cdot \sqrt{Area(\mathcal{M})}} & q_j\in\mathcal{Q}\\
+          \infty,&              else
+\end{cases}.
+\label{eq:deformation}
+\end{equation}
 
-Then, paragraphs/subsections explaining the different stages
+where $\gamma\cdot \sqrt{Area(\mathcal{M})}$ is a regularizer on the error length and should ideally be set according to the expected distortion.
 }
 
+Having defined diversity and deformation, the similarity as follows:
+\begin{equation}
+DDIS(P,Q)=\sum_{p_i\in \mathcal{P}}\frac{1}{1+r_i}
+\label{eq:DDIS}
+\end{equation}
 
-%Second paragraph: Key idea, first in laymen language.
-\nadav{Second paragraph: Key idea, first in laymen language. proposed text: 
+%Mathematical definition that realizes the key idea
+\nadav{
 
-We are inspired by the principles introduced in\cite{talmi2017template}: the idea that the similarity between the target and the template is captured by two properties of the nearest neighbor field between points of a target and a template patch. The first is that the diversity of NN matches forms a strong cue for template matching. The second key idea is to explicitly consider the deformation implied by the nearest neighbor field by rewarding the preservation of distances. 
+While the relationship between our similarity and preservation of distances is easy to see, the connection to diversity requires further explanation.
+Consider a case where $r_i\in\{0,\infty\}\forall p_i$. When this occurs $1/r_i\in\{1,0\}$ becomes the indicator for a point $p_i$ having a point in $\mathcal{Q}$ which considers it it's nearest neighbor.
+In such a scenario, DDIS counts the number of points in $\mathcal{Q}$ which are a NN of any point in
+$\mathcal{P}$.
+This is exactly the diversity of the NN field.} 
 
+\nadav{
 The movement from 2 to 3 dimensions introduces an additional challenge addressed by our modified similarity measure.
 
 Particularly, the absence of a simple grid makes the selection of a search window not well defined and complex. The geodesic disc which is a simple replacement for a search window introduces a couple of problems. 
@@ -391,33 +426,15 @@ This often leads to an inequality between both the area and number of points bet
 %Key to solution
 This suggests that while we should still expect a diverse nearest neighbor field, correct matches have a higher probability to share a nearest neighbor with an incorrect one. Thus our similarity measure should not penalize a shared nearest neighbor. Instead we should count only the match whose implied deformation is the lowest.}
 
-%Third paragraph: the mathematical definition that realizes the key idea
-\nadav{Third paragraph: the mathematical definition that realizes the key idea, proposed text:
 
-Given a target candidate patch $\mathcal{Q}$ and a template patch $\mathcal{P}$, defined by geodesic discs of radius $R_T$ around  the vertices $q\in\mathcal{M}$ and $p\in\mathcal{N}$ respectively, a nearest neighbor field mapping each vertex on $\mathcal{M}$ to its nearest neighbor on $\mathcal{N}$ in some shape descriptor space, and the geodesic distances $\{GeodDist(q,q_j)\}_{q_j\in\mathcal{Q}},\{GeodDist(p,p_i)\}_{p_i\in\mathcal{P}}$ , the similarity of $\mathcal{Q}$ to $\mathcal{P}$ is calculated by Eq.~\ref{eq:DDIS}:
-\begin{equation}
-DDIS_{\mathcal{P}}(\mathcal{Q},\gamma)=\sum_{p_i\in \mathcal{P}}\frac{1}{1+r_i}
-\label{eq:DDIS}
-\end{equation}
+\ayellet{
+
+Fourth paragraph: outline of similarity computation
+
+Then, paragraphs/subsections explaining the different stages
 }
 
-\nadav{
-$r_i$ is the deformation implied by the NNF for $p_i$ and is defined by the following:
-\begin{equation}
-r_i = 
-\begin{cases}
-\underset{NN(q_j,\mathcal{N})=p_i}{min}\frac{|GeodDist(q_j,q)-GeodDist(p_i,p)|}{\gamma\cdot \sqrt{Area(\mathcal{M})}} & q_j\in\mathcal{Q}\\
-          \infty,&              else
-\end{cases}.
-\label{eq:deformation}
-\end{equation}
 
-where $\gamma\cdot \sqrt{Area(\mathcal{M})}$ is a regularizer on the error length and should ideally be set according to the expected distortion.
-While the relationship between our similarity and preservation of distances is easy to see, the connection to diversity requires further explanation.
-Consider a case where $r_i\in\{0,\infty\}\forall p_i$. When this occurs $1/r_i\in\{1,0\}$ becomes the indicator for a point $p_i$ having a point in $\mathcal{Q}$ which considers it it's nearest neighbor.
-In such a scenario, DDIS counts the number of points in $\mathcal{Q}$ which are a NN of any point in
-$\mathcal{P}$.
-This is exactly the diversity of the NN field.} 
 
 %Fourth paragraph: outline of similarity computation
 \nadav{Fourth paragraph: outline of similarity computation: proposed text: 
@@ -435,162 +452,13 @@ We traverse all the points in $\mathcal{Q}$ and check for each one if it's dista
 \nadav{I am not sure if we should add sections here or not...
 }
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%% section: Deformable Diversity Similarity in 3D
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Deformable Diversity Similarity in 3D}
-
-\nadav{Old text:The nature of 3D data gives rise to unique problems which do not occur in the 2D scenario. Data is distributed in space both sparsely and with varying densities - the amount of data points occupying a given volume can vary drastically.
-A second problem arises from the absence of a regular grid. These problems require different definitions for key components to the 2D deformable diversity formulation. For this work we chose the image patch to be replaced by a neighborhood which is required to calculate a selected shape descriptor, usually a small sphere in euclidean space or a surface patch with a radius $r_F$. 
-The search window of a template is defined as a geodesic disc around the query point, with a radius denoted by $R_T$. The pixel grid distance is replaced by either a euclidean distance $d_{Euc}(x^l,y^l)$(in the case of point clouds) or geodesic distance $d_{Geo}(x^l,y^l)$(for surface meshes).
-Given these DDIS  between shape parts $\mathcal{M}_{x,R_T}$ and $\mathcal{N}_{y,R_T}$ can be naively formulated as:
-\begin{equation}
-DDIS=c\cdot\sum_{m_j\in\mathcal{M}_{x,R_T}}\frac{exp(1-\kappa(NN^S(m_j,\mathcal{N}_{y,R_T}))}{1+r_j}
-\end{equation}
-where $\mathcal{M}_{x,R_T}$ and $\mathcal{N}_{y,R_T}$ are the shape parts in a radius $R_T$ surrounding the points $x\in \mathcal{M}$ and $y \in \mathcal{N}$ respectively, $r_j$ is the induced deformation
-\begin{equation} 
-r_j=\frac{|d(m_j^l,m_x^l)-d(NN^S(m_j,\mathcal{N}_{y,R})^l,n_y^l)|}{\gamma\cdot R_T}
-\end{equation}
-,where $\gamma$ is a selected fraction and $c$ is a normalization coefficient $c=1/min{|\mathcal{N}_{y,R_T}|,|\mathcal{M}_{x,R_T}|}$.
-
-However, we wouldn't like to penalize our similarity score in case of repeating patterns or symmetrical shapes which have both symmetries in the template search window. Intuitively and empirically the exponent is too harsh and indeed unnecessary as both deformity and diversity will attenuate the score in case of multiple nearest neighbors. On the other hand, we wouldn't want to reward far correspondences at all because they are unlikely to originate from a corresponding patch. 
-
-
-
-To account for this the following formulation has been found to work better: given a point $n_i\subset \mathcal{N}_{y,R}$ has a set of nearest neighbors in descriptor space on a geodesic disc 
-$\mathcal{M}_{n_i}=\{m_j\in\mathcal{M}_{j,R_T}:NN^S(m_j,N_{y,R_T})=n_i\}$ 
-, we define 
-$m_i' = \underset{m_j\in\mathcal{M}_{n_i}}{argmin}\space (r_j)$
-and $r_i'$ the minimal distortion distance, we add only the contribution of this point to the similarity score which then becomes}
-\begin{equation}
-DDIS(N_{y,R_T},\mathcal{M}_{x,R_T},\gamma)=\sum_{m_i'}\frac{1}{1+r_i'}
-\end{equation}
-{\color{red} explain why -- can we see it visually on the same example?}{\color{magenta} added both qualitative(visual, and quantitative example}\\
 \begin{figure}[htb]
 	\includegraphics[width=0.5\textwidth]{figures/DDISvsWDIS.png}
 	\caption{Qualitative and quantitative illustration of the improvement introduces by our formulation. On the top left the Nearest neighbor mapping between the part and its corresponding ground truth geodesic disc. As can be seen low distortion is occurring between the true corresponding points, but the symmetrical part which is not included on the partial model maps to the same points - thus attenuating the score originating from these. One the bottom left we see the piece chosen by the original DDIS formulation. The arrows with low distortion seldom have other points which are their nearest neighbors and thus achieves a better score without our modification. The cumulative error curves show an improvement of ~5 percent on the training set using our formulation.}
 \end{figure}
-This equation still promotes both diversity and low deformations, but is less biased against surfaces which are either symmetrical, or exhibit repeating patterns and achieves a considerable improvement over the original formulation, as can be seen in Fig. XX.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% section: DDIS Correspondence between a Point and a Surface
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{DDIS Template Matching}
-{\color{red} Goal of the algorithm}
-In this section we go over the flow of template matching of 3D shapes using DDIS, the solution of which constitutes the core of our partial shape matching. Given a template $\mathcal{N}_{y,R_T}$ with a reference point $n_y$ as it's center and a maximal distance $R_T$, we aim to find on a model $\mathcal{M}$ which has a deformed version of it, the corresponding surface piece $\mathcal{M}_{y*,R_T}$ and it's center $m_y*$. The solution is obtained by finding the point on $\mathcal{M}$ whose surrounding geodesic disc maximizes the above mentioned DDIS measure.
-{\color{red}key ideas}
-
-{\color{red} Overview}
-We'll first give an overview, and then give an extended description of each of each stage. 
-
-We start by calculating the normals for $\mathcal{M}$ and $\mathcal{N}$.
-We than calculate local point descriptors for each patch of some neighborhood around the points in each mesh(For our purpose FPFH seemed to work the best of our tested descriptors). 
-Having calculated these, we calculate a nearest neighbor field by finding for each patch in $\mathcal{M}$ it's Nearest Neighbor in $\mathcal{N}$. 
-We now find the distance of every point $n\in \mathcal{N}$ to the desired point $y\in \mathcal{N}$ for a desired neighborhood $R_T$.
-We now go over every point $x\in mathcal{M}$. For each we extract the geodesic disc $\mathcal{M}_{x,R_T}$ around it.
-We take notice that while the above stages are done here in the context of template matching for one template, when matching multiple templates all of the above calculations have to be done only once between the shapes, with the exception of geodesic distance field extraction for the template itself. 
-Finally we calculate DDIS for this disc with $\mathcal{N}_{y,R}$ which has $y$ as it's center. Having done that for every point, the point $y*\in \mathcal{M}$  which gets the maximal DDIS Score is deemed the corresponding point to $y$.
-
-
-\textbf{Point Normal Estimation}
-There are various schemes for estimating point normals given a triangulated mesh surface. We have picked the one which is available in the standard PCL. Given a vertex $p_i$ on a triangulated mesh $\mathcal{X}$ and it's associated polygons $\{A_j\}_{j=1}^k$ and their normals $N_{A_j}$ the point normal $N_i = \sum_{j=1}^k{|A_j|\cdot N_{A_j}}$
-
-\textbf{Local Patch Descriptor}
-%%%%%%%%%%%%%Defining an equivalent to a 2D patch#########
-DDIS as defined by \cite{talmi2017template} uses patch descriptors as low level features for their similarity measure. While a patch in an image can by defined by the images grid no such grid exists on 3D point clouds and meshes, where density of data points can vary. Thus a patch has to be defined by some geometric measure. While the more robust way to define it would be using geodesic distance, since we are talking a small environment around a point on the mesh we have found that for practical purposes a patch in a defined euclidean radius $r_F$ around a point serves well enough. We pick this radius in the following way: given the full surface mesh $\mathcal{M}$ we find it's equivalent of a diameter $D_\mathcal{M} = \sqrt{Area(\mathcal{M})}$, and tune a parameter $\alpha$ to obtain $r_{F} = \frac{\alpha}*D_\mathcal{M}$
-%%%%%%%%%%%%%%Descriptor selection#######################
-A lot of local shape descriptors have been used successfully in 3D shape analysis. We have tested the following descriptors: PFH\cite{rusu2008learning} SHOT\cite{tombari2010unique},HKS\cite{Sun:2009:CPI:1735603.1735621},SIHKS\cite{bronstein2010scale},ROPS\cite{guo2013rotational} and FPFH\cite{rusu2009fast}. Out of these FPFH has achieved the best performance, and thus the descriptor for the local patch has been chosen to be FPFH. 
-
-\textbf{Nearest Neighbor Field}
-As an intermediate stage towards the calculation of Deformable Diversity Similarity measure, the calculation of the nearest neighbor field(will be abbreviated as $NNF$) needs to be calculated. Thus for every patch $m\in \mathcal{M}$ we have to find the patch on the template $n\in\mathcal{n}$ which resembles it the most. For $FPFH, NN^S(m_j,\mathcal{N})$ is defined $NN^S (m_j,\mathcal{N}) \equiv \underset{i}{argmin}\chi^2(FPFH(m_j],FPFH(n_i))$ and the Nearest Neighbor Field is the set of all these correspondences.
-
-\textbf{DDIS calculation}
-For every point in $m_x\in\mathcal{M}$ we then extract a geodesic disk $\mathcal{M}_{x,R}$ with a radius $R_T$ around it and calculate deformable diversity score for it. The point which maximizes the similarity score gives us a correspondence $(y,y*)\in \mathcal{N}\times\mathcal{M}$.
-%\\Since as we will show in the results section, imperfections in the isometry assumption lead to considerable localization errors, we move to a multiple template matching framework using DDIS, as will be described in the next section. 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%% section: DDIS Sparse Correspondence
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{DDIS Sparse Correspondences}
-A key takeaway from experimenting with DDIS as a template matching algorithm for partial matching has been that isometry does not hold, at least not globally.It does however, hold pretty well locally, especially at extremities. To this end we devise  multiple template matching framework for Partial correspondences of deformable shapes. We first obtain landmarks $F_init=\{f\}_i$ as described in[]. 
-We then employ a simple sampling scheme which ensures a good quasi uniform covering of the surface.
-Finally, we for each sample point we extract a geodesic disc, and find its counterpart on $\mathcal{M}$ which maximizes DDIS. 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%% subsection: Mesh Sampling
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\textbf{Landmark Extraction}
-We follow the work of\cite{katz2005mesh} to obtain mesh extremities. Given a shape the work employs the following framework to extract it's extremities. A point is detected as an extremity if it fulfills 2 conditions: - it's sum of geodesic distances is a local extrema, formally, for $v\in S$ ,where $S$ is a surface mesh, we define the set of points with a direct edge to it as $N_v$, the point is a critical point if :
-\begin{equation}
-\sum_{v_i\in S}d_{geo}(v,v_i)>\sum_{v_i\in S}d_{geo}(v_n,v_i), \forall v_n\in N_v
-\end{equation}
-An additional requirement for it to be an extremities is for it to lie on the convex hull of the shape's MDS. In this work we have dropped the last condition, but chose $N_v*$ - a neighborhood of $0.03\cdot \sqrt{Area(S)}$. This stage gives us the initial set of sample denoted $S_0$
-
-\textbf{Mesh sampling}
-We employ a sampling scheme very reminiscent of the one employed in\cite{sahillioglu2011coarse}. In each stage $k$, we take the set of samples $S_{k-1}$ and mark all the points in a radius $R_S$ around them. From the set of remaining point we choose the one whose distance to the set $S_{k-1}$ is minimal to create the set $S_k$. We repeat this process until all the points are marked.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%% subsection: Landmark Template Matching
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{algorithm}[h]
-	\caption{3DIS Sparse Correspondences}
-	\begin{algorithmic}
-		\Procedure{DDIS Correspondence}{$\mathcal{M},\mathcal{N},\alpha,\beta,\gamma$}\Comment{Returns point correspondence for critical points on $\mathcal{N}$}
-		\State{$r_F\leftarrow \alpha /100 \cdot \sqrt{Area(\mathcal{M})}$}
-		\State{$R_{thresh}\leftarrow \beta /100 \cdot \sqrt{Area(\mathcal{M})}$}
-		\State{$N_\mathcal{M}\leftarrow ComputeNormals(\mathcal{M})$}
-		\State{$N_\mathcal{N}\leftarrow ComputeNormals(\mathcal{N})$}
-		\State{$F_\mathcal{M}\leftarrow FPFH(\mathcal{M},N_\mathcal{M},r_F)$}
-		\State{$F_\mathcal{N}\leftarrow FPFH(\mathcal{N},N_\mathcal{N},r_F)$}
-		\State{$NNF_{\mathcal{M}\rightarrow \mathcal{N}}\leftarrow ANN(F_\mathcal{M},F_\mathcal{N})$}
-		\State{$\mathcal{N}_c=\{n:\sum_{n_i\in\mathcal{N}}d_{geo}(n,n_i) > \sum_{n_i\in\mathcal{N}}d_{geo}(n_N,n_i), \forall n_N:d_{geo}(n,n_N)<0.03\cdot \sqrt{Area(\mathcal{M})}\}$}
-		\For{$n_y\in \mathcal{N}_c$} \Comment{DDIS calculation Loop}
-		\State{$m_c*\leftarrow DDIS\_Correspondence(\mathcal{M},n_y,\mathcal{N},\alpha,\beta,\gamma)$} 
-		\EndFor
-		\State{return $\mathcal{M}_c\times\mathcal{N}_c=
-			\{m_c*,n_c\}$}
-		\EndProcedure
-	\end{algorithmic}
-\end{algorithm}
-
-\textbf{Landmark Template Matching}
-For this end, we create a template for each landmark point - we collect all surface point in a surrounding geodesic disc of radius $R_T=\beta\cdot\sqrt{area(\mathcal{M}}$. While it might seem natural to calculate a different nearest neighbor field for each landmark template it has been empirically found that using the global nearest neighbor field gives much better results. This is hypothesized to occur due to the fact that this nearest neighbor field encodes global information when obtained this way and might  eliminates local distractors.
-
-Each landmark template is compared to all surface parts of a similar $R_T$ on $\mathcal{M}$ to obtain correspondences.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%% section: Multi-Scale DDIS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Cascaded Multi-Scale DDIS}
-The observation of the effects of the choice of $\beta$ and the trade-off between finer localization and avoidance of global errors naturally leads to the adoption of a multi scale framework. We calculate $DDIS$ score for multiple $beta$ values, and use the location obtained with a large beta to select a narrow environment in which we look for the maximum of DDIS with a smaller value $beta$, thus using the larger scale to get a rough global location, and the smaller scale to fit it into a more exact location. While this might be done at multiple custom scales we have found that the triplet $\beta ,2\cdot beta/3\beta/3$ works well.
-
-\begin{figure*}
-	\centering
-	\includegraphics[width=1\textwidth]{figures/AblationStudyThreshold.png}
-	\caption{Effect of the $\beta$ parameter on the results: it can be seen that a smaller beta promotes better localization in a small neighborhood, while higher values of $\beta$ lead to more local errors but are more robust to global errors. It can be seen that the multi-scale cascade achieves better results both locally and globally.}
-\end{figure*}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%% section: Greedy outlier rejection
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Greedy Outlier Fix}
-The results obtained by the pipeline, while empirically already producing matches of superior quality to state of the art algorithms in the field nevertheless have no explicit requirement on generating a coherent set of matches. We thus as a post processing step identify outliers and replace them with more suitable correspondences. 
-Inspired by distortion minimization methods such as\cite{sahillioglu2011coarse} we pick the distortion of a correspondence as a measure of its coherency to the set. For a correspondence $(y,x)\in \mathcal{N}\times\mathcal{M}$ the distortion as the mean of it deviation of relative distance to all other points in the set. Given a set of correspondences $P={p_i=(y_i,x_i)\in \mathcal{N}\times\mathcal{M}}$ the distortion is defined by the equation
-\begin{equation}
-	D(p_i) = \frac{1}{|P|-1}\sum_{j \neq i}{\rho(p_i,p_j)}
-\end{equation}
-where $\rho$ is the individual relative distortion induced by 2 correspondences
-\begin{equation}
-\rho(p_i,p_j) = max(\frac{d(y_i,y_j)}{d(x_i,x_j)},\frac{d(x_i,x_j)}{d(y_i,y_j)})
-\end{equation}
-where $d$ is the geodesic distance between 2 points.
-We first filter out outliers by thresholding matches whose distortion is larger then 1.2 of the mean distortion, and then greedily add from the set of DDIS maximas the point which minimizes this distortion.
-\subsection{Densification}
-If necessary, the sparse correspondences produced by our algorithm can then be passed as an input for the method of \cite{litany2017fully} to produce dense matches. This is done in a manner identical to the refinement step which is already used in the method, and improves its results.
 
 \section{implementation}
-Our code which produces the sparse correspondences is implemented entirely in C++ using the Point Cloud Library. For geodesics we have used  Fast Marching Geodesics adapted from the code published by Ron Kimmel to run in parallel on multiple cores and in conjunction with PCL.
+Our code which produces the sparse correspondences is implemented entirely in C++ using the Point Cloud Library. For geodesics we have used  Fast Marching Geodesics adapted from the code published by Ron Kimmel to run in parallel on multiple cores. We calculate FPFH using $R_{FPFH}=0.03\cdot \sqrt{Area(\mathcal{M})}$, and NNF using FLANN. The average runtime on i7-4790 for 2 surfaces of ~12000 vertices is 150s.
 \section{Experiments and results}\label{section:results}
 
 In this section we will briefly go over the experiments performed and their results. We'll introduce the datasets, detail our experiments and their results
@@ -599,6 +467,13 @@ In this section we will briefly go over the available Datasets
 \textbf{SHREC 2016 Partial Correspondence}  
 The SHREC partial matching dataset\cite{cosmo2016shrec} consists of 8 base, neutral pose models: cat, centaur, dog, horse, wolf, and 3 humans – 2 males, and 1 female, each containing 10,000 vertices except for the wolf which contains only ~4,500 vertices. Each basic model has corresponding deformed partial shapes obtained either by cutting the shape with a plane or by adding holes on a deformed shape. The set has been divided into train and test sets. The train set is composed of 15 cuts for each base models totaling 120 models,and 10 holed shapes for each model for which ground truth point to polygon correspondences has been provided in barycentric coordinates. The test set is composed of additional 200 cuts and 200 holed shapes. We have tuned our parameters only on the 120 pairs of cuts.
 
+\begin{figure*}[htb]
+	\centering
+
+	\includegraphics[width=1\textwidth]{figures/ROCSHREC16.png}[htb]
+	\caption{comparison with other state of the art algorithms - it can be seen that although sparse in nature, the correspondence obtained by DDIS are much more accurate than the other methods. 
+		A separate analysis has been done for correspondences which include boundary points, which tend to be more noisy, and internal points which are more sparse}
+\end{figure*}
 
 \subsection{Error Metrics}
 The output of partial matching algorithms (as defined in\cite{cosmo2016shrec}) are sub-vertex point-to-point correspondences between partial shapes.
@@ -607,28 +482,11 @@ For all experiments we use the standard practice of not penalizing symmetric sol
 \varepsilon(x)=\frac{d_{\mathcal{M}}(y,y^*)}{\sqrt{area(\mathcal{M})}}
 \end{equation}
 where $d_{\mathcal{M}}(y,y^*)$ is the geodesic distance on $\mathcal{M}$, and has units of normalized length on $\mathcal{M}$. For dense correspondences over a dataset, $\varepsilon(x)$ is averaged over all matching instances.
-\subsubsection{Central Points Localization}
-In this experiment we have chosen for each Template mesh the center point $c_T$ and tried to match it to a point on the object using DDIS. Experiments have been done using FPFH, PFH and SHOT as patch descriptors with patch radiuses of $[2,3,4,5]$, the results of the opimal parameter for each descriptor are illustrated in fig. and visualizations of similarity maps of cuts are provided in fig. . It can be seen that good localization is obtained for points on a smooth surface, under high partiality conditions and strong deformations. Bad matches occur when a matched point resides on a heavily deformed patch, and when salient anchor points are deformed or cut.  Analysis of these results shows a drift in localization occurs when salient features are divided by strong unisometric deformations which serve as the motivation for the multiple template matching framework.
-
-\begin{figure*}[htb]
-	\centering
-
-	\includegraphics[width=1\textwidth]{figures/ROCfigure.png}
-	\caption{Comparison between descriptors: we show curves for the minimal distance of the top results. a noticeable addition occurs when adding the 2nd best match}
-\end{figure*}
 
 \subsection{Sparse Correspondences on the SHREC16 Test set}
-In this experiment we have tested the performance of DDIS in producing sparse correspondences on the SHREC16 Partial Matching of Deformable Shapes competition. 
-We had tuned our parameters on the SHREC16 training dataset using only the cuts part of it. The best results had been produced using FPFH with $r_F = 0.03\sqrt{Area(\mathcal{M}}$, and a piece size radii of $R_T=[0.6,0.4,0.2]\sqrt{Area(\mathcal{M})}$. For Geodesic distances we have found the fast marching algorithm to work the fastest, while giving the lowest error w.r.t. to exact geodesics. For a 10,000 vertices mesh it takes 60s to produce a full distance matrix, Though it should be noted this algorithm has a more efficient GPU implementation, and parallelization on a core brought the run time to ~12s with 6 threads. FPFH and Nearest Neighbor field takes 2s, and similarity between 2 pieces of ~10000 vertices each takes XXs on average, running on 6 threads of i7-2700k. Unlike optimization based algorithms this is highly parallelizable.
-We achieve results comparable to the state of the art \cite{litany2017fully} quality wise, even though sparser in nature on both the Cuts and the Holes datasets, Where a particularly impressive result is reported on the Holes dataset, which can then be expanded without a loss of quality by feeding these to the FSPM\cite{litany2017fully} as input instead of low level shape descriptors.
-
-\begin{figure*}[htb]
-	\centering
-
-	\includegraphics[width=1\textwidth]{figures/ROCSHREC16.png}
-	\caption{comparison with other state of the art algorithms - it can be seen that although sparse in nature, the correspondence obtained by DDIS are much more accurate than the other methods. 
-		A separate analysis has been done for correspondences which include boundary points, which tend to be more noisy, and internal points which are more sparse}
-\end{figure*}
+We have tested the performance of DDIS in producing sparse correspondences on the SHREC16 Partial Matching of Deformable Shapes competition. 
+We had tuned our parameters on the SHREC16 training dataset using only the cuts part of it. The best results had been produced using FPFH with $r_F = 0.03\sqrt{Area(\mathcal{M}}$, and a piece size radii of $R_T=[0.6,0.4,0.2]\sqrt{Area(\mathcal{M})}$. For Geodesic distances we have found the fast marching algorithm to work the fastest, while giving the lowest error w.r.t. to exact geodesics. For a 10,000 vertices mesh it takes 60s to produce a full distance matrix, Though it should be noted this algorithm has a more efficient GPU implementation, and parallelization on a core brought the run time to ~12s with 6 threads. FPFH and Nearest Neighbor field takes 2s, and similarity between 2 pieces of ~10000 vertices each takes 120s on average, running on 6 threads of i7-4790. Unlike optimization based algorithms this is highly parallelizable.
+We achieve results comparable to the state of the art \cite{litany2017fully} quality wise, even though sparser in nature on both the Cuts and the Holes datasets, Where a particularly impressive result is reported on the Holes dataset, which can then be expanded with a minimal loss of quality by feeding these to the FSPM\cite{litany2017fully} as input instead of low level shape descriptors.
 
 \begin{table}[h]
 	\centering

@@ -75,9 +75,7 @@ First line of institution2 address\\
 %%%%%%%%% ABSTRACT
 \begin{abstract}
 We propose a novel approach for the matching of partial deformable shapes in 3D. Inspired by recent advances in 2D template matching techniques, our method relies on the concept of deformable diversity similarity(DDIS), extends and adapts it from an image to the 3D shape domain, and leverages the distinct behavior of this framework in different scales to achieve shape correspondences. We evaluate this framework on the SHREC16 partial matching of deformable shapes and show state of the art performance in achieving sparse correspondences.
-\ayellet{order of work: 1. Section 3 (Approach), 2. Section 4 (Similarity), Section 5 (Results), Section 2 (Related work), Section 1 (Introduction).
-}
-{\color{cyan}{\bf Currently only Section 3 is sort of done}}
+{\color{cyan}{\bf Currently done Section 3 \& 4}}
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -369,99 +367,91 @@ Therefore, our algorithm, which is illustrated in Figure~\ref{fig:overview}, con
 \end{figure}
 
 %Problem definition
-This section elaborates on Step 3 of the approach, which is the core of the algorithm.
-Given pair of patches of the same scale, $Q \subset \mathcal{M}$ and $P \subset \mathcal{N}$, this section defines a similarity function $DDIS$ between them.
+This section elaborates on Step 3, which is the core of the algorithm.
+Given pair of patches of the same scale, $Q \subset \mathcal{M}$ and $P \subset \mathcal{N}$, this section defines a similarity function, termed {\em 3D Deformable Diversity Similarity (3D-DDIS)}, between them.
 This function should be oblivious to non-rigid transformation, different resolutions of the meshes, noise, and partiality of the data.
 
 %Key idea
-Recall that the key idea is to reward a point (center of the patch) whose nearest-neighbor field satisfied two properties: has high diversity and low deformation. 
-\ayellet{copy two sentences: 1. why high diversity is good. 2. why low deformation is good}
+Recall that the key idea is to reward a point (center of the patch) whose nearest-neighbor field satisfied two properties: it has both high diversity and low deformation. 
+As for diversity, when $Q$ and $P$ correspond, most of the points on $Q$ points have a unique NN-match on $P$. 
+Conversely, if $Q$ and $P$ do not correspond, most of the points on $Q$  do not have a good match on $P$, and therefore the nearest neighbors are likely to belong to a small set of points that happen to be somewhat similar to the points of $Q$.
+This implies that the NN-field is highly \textit{diverse}, pointing to many different points in $P$.
+In addition, if two patches correspond, pairs matching (nearest neighbors) points tend to have similar geodesic distances to the centers of the patches they reside on.
+Conversely, arbitrary matches typically do not maintain such distances.
+\ayellet{why is it called deformation?}
 
-Te realize these requirements, we start by formally defining diversity and  deformation and then show how to put them together into the similarity function.
-
-We first define $Div(Q,P)$, which measures the diversity from  $Q$ to $P$,
-\ayellet{paragraph: copy the definition of diversity:  one sentence of key idea of the equation that relates to the goal, and then put down the equation.}
-
-Next, we define $Def(Q,P)$, which measures the deformation from  $Q$ to $P$.
-\ayellet{one sentence of key idea of the equation that relates to the goal}
-Let $p \in P$ be the center of $P$ and similarly, $q \in Q$ be the center of $Q$;
-let $p_j$ be the Nearest-neighbor of  $q_i \in Q$, previously computed for all $q_i \in Q$.
-\ayellet{re-write the equation correctly.}
-\nadav{
-$r_i$ is the deformation implied by the NNF for $p_i$ and is defined by the following:
+To realize these requirements, we start by formally defining the diversity, $Div(Q,P)$, and  the deformation, $Def(Q,P)$, and then show how to put them together into a similarity function.
+An intuitive and efficient way to measure diversity is to count the number of unique NNs between the points of  $Q$ and $P$:
 \begin{equation}
-Def(Q,P) = 
-\begin{cases}
-\underset{NN(q_j,\mathcal{N})=p_i}{min}\frac{|GeodDist(q_j,q)-GeodDist(p_i,p)|}{\gamma\cdot \sqrt{Area(\mathcal{M})}} & q_j\in\mathcal{Q}\\
-          \infty,&              else
-\end{cases}.
-\label{eq:deformation}
+\label{eq:diversity}
+Div(Q,P)=|\{p_i\in P:\exists q_j\in Q,NN(q_j,P)=p_i\}|,
 \end{equation}
+where  $\{p_i\}_{i=1}^{|P|}$ and $\{q_j\}_{j=1}^{|Q|}$ are the set of points of $Q$ and $P$, respectively and the nearest neighbors is computed between the descriptors (FPFH) of the points.
+However, we will see below that the diversity can be calculated implicitly.
 
-where $\gamma\cdot \sqrt{Area(\mathcal{M})}$ is a regularizer on the error length and should ideally be set according to the expected distortion.
-}
-
-Having defined diversity and deformation, the similarity as follows:
+Next, we define $Def(Q,P)$, the deformation from  $Q$ to $P$.
+Let $p \in P$ and $q \in Q$ be the centers of $P$ and $Q$, respectively;
+furthermore, let $p_i= NN(q_j,P)$ be the nearest-neighbor of  $q_j \in Q$.
+The deformation implied by the NN-Field for ${p_i,q_j}$ is defined by:
 \begin{equation}
-DDIS(P,Q)=\sum_{p_i\in \mathcal{P}}\frac{1}{1+r_i}
+def(q_j,p_i,Q,P)= |{GeodDist(q_j,q)-GeodDist(p_i,p)}\epsilon|,
+\end{equation}
+where $0<\epsilon << Area(\mathcal{M})$ and is a used for numerical stability.
+
+For each $p_i \in P$, we find the minimal deformation $r_i^*=min_{q_j \in Q}def(q_j,p_i,Q,P)$ such that $p_i$ is the nearest neighbor of $q_j$.
+Note that some points in $P$ might not be associated with any point in $Q$ (since they are not the nearest neighbors of any point $q_j\in Q$);
+in this case $r_i^*=\infty$.
+
+Having defined diversity between patches and deformation between points on these patches, we define the similarity between patches $p$ and $Q$ as:
+\begin{equation}
+DDIS(P,Q)=\sum_{p_i\in \mathcal{P}}\frac{1}{1+r_i^*}.
 \label{eq:DDIS}
 \end{equation}
 
-%Mathematical definition that realizes the key idea
+It is easy to see how the 3D-DDIS rewards low deformation.
+However, we will explain hereafter why it also rewards high diversity.
+Consider a case where $r_i^*\in\{0,\infty\} \forall p_i$. 
+When this occurs $\frac{1}{(1+r_i^*)}\in\{1,0\}$ and it indicates that a point $p_i$ has a point in $Q$ that considers $p_i$ to be its nearest neighbor.
+In this scenario, 3D-DDIS simply counts the number of points in $Q$ that are nearest neighbors of some point in $P$.
+But, this is precisely the diversity function we seek-after.
+\ayellet{copy a convincing explanation for the general case}
 \nadav{
-
-While the relationship between our similarity and preservation of distances is easy to see, the connection to diversity requires further explanation.
-Consider a case where $r_i\in\{0,\infty\}\forall p_i$. When this occurs $1/r_i\in\{1,0\}$ becomes the indicator for a point $p_i$ having a point in $\mathcal{Q}$ which considers it it's nearest neighbor.
-In such a scenario, DDIS counts the number of points in $\mathcal{Q}$ which are a NN of any point in
-$\mathcal{P}$.
-This is exactly the diversity of the NN field.} 
-
-\nadav{
-The movement from 2 to 3 dimensions introduces an additional challenge addressed by our modified similarity measure.
-
-Particularly, the absence of a simple grid makes the selection of a search window not well defined and complex. The geodesic disc which is a simple replacement for a search window introduces a couple of problems. 
-
-This often leads to an inequality between both the area and number of points between the target and the patch. Especially in the partial setup, the geodesic disc on the target will commonly be of an area which is bigger or equal to that of the template. This leads to the inclusion of repeating patterns or symmetrical parts which affect the diversity of the Nearest neighbor field.
-
-%Key to solution
-This suggests that while we should still expect a diverse nearest neighbor field, correct matches have a higher probability to share a nearest neighbor with an incorrect one. Thus our similarity measure should not penalize a shared nearest neighbor. Instead we should count only the match whose implied deformation is the lowest.}
-
-
-\ayellet{
-
-Fourth paragraph: outline of similarity computation
-
-Then, paragraphs/subsections explaining the different stages
+Hence, since we regard the deformations of a point having no nearest neighbor as $\infty$, the diversity becomes an upper bound on the similarity score. 
 }
 
+%% In the thesis, in the results section add a paragraph where you explain this image
+% \begin{figure}[htb]
+% 	\includegraphics[width=0.5\textwidth]{figures/DDISvsWDIS.png}
+% 	\caption{Qualitative and quantitative illustration of the improvement introduces by our formulation. On the top left the Nearest neighbor mapping between the part and its corresponding ground truth geodesic disc. As can be seen low distortion is occurring between the true corresponding points, but the symmetrical part which is not included on the partial model maps to the same points - thus attenuating the score originating from these. One the bottom left we see the piece chosen by the original DDIS formulation. The arrows with low distortion seldom have other points which are their nearest neighbors and thus achieves a better score without our modification. The cumulative error curves show an improvement of ~5 percent on the training set using our formulation.}
+% \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% Section: Results
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+\label{section:results}
 
-%Fourth paragraph: outline of similarity computation
-\nadav{Fourth paragraph: outline of similarity computation: proposed text: 
+\ayellet{first paragraph: generally the datasets we ran on}
 
-%preprocessing
-To calculate our similarity we first compute shape descriptors for all the points on $\mathcal{N},\mathcal{M}$ and use Approximate NN in descriptor space to infer the Nearest Neighbor Field.
-%template construction
-We then collect a neighborhood $\mathcal{P}$ of a given Radius $R_T$ around a desired source point $p$ and compute the distance of all points which lie within this neighborhood to the source $p$.
-%similarity calculation
-We repeat the same process for a candidate point $q\in\mathcal{M}$ to create $\mathcal{Q}$.
-We traverse all the points in $\mathcal{Q}$ and check for each one if it's distance to its center is the most similar to the distance of its nearest neighbor in $\mathcal{P}$ and update $r_i$ accordingly. We then use these($r_i$) to calculate the similarity of $\mathcal{Q}$ to $\mathcal{P}$ as defined above in Eq.~\ref{eq:DDIS}.
-}
+\paragraph{Qualitative results:} xxx
 
-%paragraphs/subsections explaining the different stages
-\nadav{I am not sure if we should add sections here or not...
-}
+\ayellet{second paragraph: qualitative results - images + comparisons + explanation}
 
-\begin{figure}[htb]
-	\includegraphics[width=0.5\textwidth]{figures/DDISvsWDIS.png}
-	\caption{Qualitative and quantitative illustration of the improvement introduces by our formulation. On the top left the Nearest neighbor mapping between the part and its corresponding ground truth geodesic disc. As can be seen low distortion is occurring between the true corresponding points, but the symmetrical part which is not included on the partial model maps to the same points - thus attenuating the score originating from these. One the bottom left we see the piece chosen by the original DDIS formulation. The arrows with low distortion seldom have other points which are their nearest neighbors and thus achieves a better score without our modification. The cumulative error curves show an improvement of ~5 percent on the training set using our formulation.}
-\end{figure}
+\paragraph{Quantitative results:} xxx
+\ayellet{next paragraphs: quantitative results - explain the datasets in one paragraph, the error metrics in one paragraph, and explanations of the graphs+tables/results - one paragraph per graph}
 
-\section{implementation}
-Our code which produces the sparse correspondences is implemented entirely in C++ using the Point Cloud Library. For geodesics we have used  Fast Marching Geodesics adapted from the code published by Ron Kimmel to run in parallel on multiple cores. We calculate FPFH using $R_{FPFH}=0.03\cdot \sqrt{Area(\mathcal{M})}$, and NNF using FLANN. The average runtime on i7-4790 for 2 surfaces of ~12000 vertices is 150s.
-\section{Experiments and results}\label{section:results}
+\paragraph{Drawbacks:} xxx
+\ayellet{fifth paragraph: drawbacks with examples}
 
-In this section we will briefly go over the experiments performed and their results. We'll introduce the datasets, detail our experiments and their results
+\paragraph{Implementation details:} xxx
+\ayellet{sixth paragraph: implementation details, how do we move from sparse to dense}
+
+\paragraph{Alternatives:} xxx
+\ayellet{sixth paragraph: alternatives---comparison to Lihi's function, parameter tuning}
+
+\paragraph{Alternatives:} xxx
+\ayellet{seventh paragraph: uses in archaeology}
+
 \subsection{Experimental Results}
 In this section we will briefly go over the available Datasets
 \textbf{SHREC 2016 Partial Correspondence}  
@@ -514,6 +504,10 @@ We achieve results comparable to the state of the art \cite{litany2017fully} qua
 	\includegraphics[width=1\textwidth]{figures/fail2.png}
 	\caption{Some notable failure cases}
 \end{figure*}
+
+\paragraph{implementation}
+Our code which produces the sparse correspondences is implemented entirely in C++ using the Point Cloud Library. For geodesics we have used  Fast Marching Geodesics adapted from the code published by Ron Kimmel to run in parallel on multiple cores. We calculate FPFH using $R_{FPFH}=0.03\cdot \sqrt{Area(\mathcal{M})}$, and NNF using FLANN. The average runtime on i7-4790 for 2 surfaces of ~12000 vertices is 150s.
+
 {\small
 	\bibliographystyle{ieee}
 	\bibliography{egbib}

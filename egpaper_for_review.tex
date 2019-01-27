@@ -432,7 +432,7 @@ Hence, since we regard the deformations of a point having no nearest neighbor as
 \label{section:results}
 
 \ayellet{first paragraph: generally the datasets we ran on}
-
+\nadav{We have evaluated our method both qualitatively and quantitatively on the challenging benchmarks of SHREC 16 Partial Matching of Deformable Shapes\cite{cosmo2016shrec}and SHREC’16: Matching of deformable shapes with topological noise\cite{lahner2016shrec}, achieving results comparable or better to state of the art on both.}
 \paragraph{Qualitative results:} xxx
 
 \ayellet{second paragraph: qualitative results - images + comparisons + explanation}
@@ -442,7 +442,7 @@ Hence, since we regard the deformations of a point having no nearest neighbor as
 
 \paragraph{Drawbacks:} xxx
 \ayellet{fifth paragraph: drawbacks with examples}
-
+Our method exhibits a few drawbacks. First and foremost is the asymptotic runtime - generating geodesic distances has an asymptotic complexity of $O(n^2 logn)$ and computing 3D-DDIS similarity has an asymptotic runtime of $O(|S|n^2)$, which makes running on meshes with more than 15K vertices prohibitive. In addition the algorithm gives no theoretical guarantees on smoothness and bijectivity of the mapping. Finally, surface patches such as the cat's tail, which are low in distinct shapes are hard to match.
 \paragraph{Implementation details:} xxx
 \ayellet{sixth paragraph: implementation details, how do we move from sparse to dense}
 

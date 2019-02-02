@@ -470,7 +470,8 @@ We can see from the plot that we fall short of achieving state of the art result
 
 \paragraph{Drawbacks:} xxx
 \ayellet{fifth paragraph: drawbacks with examples}
-Our method exhibits a few drawbacks. First and foremost is the asymptotic runtime - generating geodesic distances has an asymptotic complexity of $O(n^2 logn)$ and computing 3D-DDIS similarity has an asymptotic runtime of $O(|S|n^2)$, which makes running on meshes with more than 15K vertices prohibitive. In addition the algorithm gives no theoretical guarantees on smoothness and bijectivity of the mapping. Finally, surface patches such as the cat's tail, which are low in distinct shapes are hard to match.
+Our method exhibits a few drawbacks. First and foremost is the asymptotic runtime - generating geodesic distances has an asymptotic complexity of $O(n^2 logn)$ and computing 3D-DDIS similarity has an asymptotic runtime of $O(|S|n^2)$, which makes running on meshes with more than 15K vertices prohibitive. In addition the algorithm gives no theoretical guarantees on smoothness and bijectivity of the mapping. Additionally, surface patches such as the cat's tail, which are low in distinct shapes are hard to match. Finally, the method exhibits real difficulty dealing with topological noise.
+
 \paragraph{Implementation details:} xxx
 \ayellet{sixth paragraph: implementation details, how do we move from sparse to dense}
 

@@ -443,7 +443,7 @@ The improvement is especially felt in the case of the holes dataset.}
 
 \paragraph{Quantitative results:} xxx
 \ayellet{next paragraphs: quantitative results - explain the datasets in one paragraph, the error metrics in one paragraph, and explanations of the graphs+tables/results - one paragraph per graph}
-We provide quantitative evaluation of our method on both datasets w.r.t previously reported results on the benchmarks.
+\nadav{We provide quantitative evaluation of our method on both datasets w.r.t previously reported results on the benchmarks.
 \subparagraph{Error Metrics}
 We evaluate correspondence quality according to the princeton benchmark protocol\cite{kim2011blended} detailed hereafter. 
 Given a correspondence points $(q,p)\in \mathcal{N}\times \mathcal{M}$ produced by an algorithm, when the ground truth correspondence is $(q,p*)$. The error of the said correspondence is measured by the normalized geodesic distance on $\mathcal{M}$:
@@ -452,7 +452,7 @@ Given a correspondence points $(q,p)\in \mathcal{N}\times \mathcal{M}$ produced 
 \end{equation}
 We plot cumulative curves showing the percentage of errors falling below a variable threshold. 
 Symmetric solutions are accepted with no penalty.
-We report results both for the sparse correspondences produced by our algorithm, and dense ones, produced by feeding the former to the method of \cite{litany2017fully}. 
+We report results both for the sparse correspondences produced by our algorithm, and dense ones, produced by feeding the former to the method of \cite{litany2017fully}.
 \paragraph{Part to Full}
 We have carried out a quantitative evaluation of the partial matching scenario on the SHREC'16 Partial Deformable Shapes benchmark. The benchmark contains 400 partial shapes, each a near isometrically deformed version of one of 8 base class.
 Each class is provided with a "null" shape in a neutral pose. The partial shapes are further divided into 2 subsets, determined by the type of partiality. 
@@ -466,18 +466,21 @@ On the cuts dataset an improvement of ~10\% is seen while an impressive 20\% is 
 \paragraph{Topological changes}
 We have also performed a quantitative evaluation on the SHREC 16 Topological noise benchmark\cite{lahner2016shrec}. The low resolution benchmark includes 10 shapes with ~10K vertices each, derived from the same base human shape which undergoes deformations and topolgical changes stemming from self intersection. Each shape is matched to all the others resulting in 90 matching problems. We compare our results with those reported in\cite{vestner2017efficient}.
 
-We can see from the plot that we fall short of achieving state of the art results on this benchmark. The additional paths between points introduced by topological noise causes significant problems in matching, especially around the noisy areas, a fact that\cite{vestner2017efficient} manages to tackle partially by optimizing over different distance kernels along with descriptor similarity. It might be worthwhile to find a way to incorporate these kernels into the 3D-DDIS framework.
+We can see from the plot that we fall short of achieving state of the art results on this benchmark. The additional paths between points introduced by topological noise causes significant problems in matching, especially around the noisy areas, a fact that\cite{vestner2017efficient} manages to tackle partially by optimizing over different distance kernels along with descriptor similarity. It might be worthwhile to find a way to incorporate these kernels into the 3D-DDIS framework.}
 
 \paragraph{Drawbacks:} xxx
 \ayellet{fifth paragraph: drawbacks with examples}
-Our method exhibits a few drawbacks. First and foremost is the asymptotic runtime - generating geodesic distances has an asymptotic complexity of $O(n^2 logn)$ and computing 3D-DDIS similarity has an asymptotic runtime of $O(|S|n^2)$, which makes running on meshes with more than 15K vertices prohibitive. In addition the algorithm gives no theoretical guarantees on smoothness and bijectivity of the mapping. Additionally, surface patches such as the cat's tail, which are low in distinct shapes are hard to match. Finally, the method exhibits real difficulty dealing with topological noise.
+\nadav{Our method exhibits a few drawbacks. First and foremost is the asymptotic runtime - generating geodesic distances has an asymptotic complexity of $O(n^2 logn)$ and computing 3D-DDIS similarity has an asymptotic runtime of $O(|S|n^2)$, which makes running on meshes with more than 15K vertices prohibitive. The algorithm  also has six parameters which should be tuned. Additionally, surface patches such as the cat's tail, which are low in distinct shapes are hard to match. Finally, the method exhibits real difficulty dealing with topological noise.}
 
 \paragraph{Implementation details:} xxx
 \ayellet{sixth paragraph: implementation details, how do we move from sparse to dense}
+\nadav{Our code which produces the sparse correspondences is implemented entirely in C++ . For geodesics we have used Fast Marching Geodesics adapted from the code published by Ron Kimmel.
+FPFH is calculated using the Point Cloud library\cite{} using a radius of $0.03\sqrt(M)$. Nearest Neighbor field is computed with FLANN\cite{} with $\chi^2$ distance. 
+The entire code is parallelized using OpenMP. Since computing similarity for a given patch is totally independent from similarity calculations of all other patches the speedup is nearly linear in the number of threads.
+To move from sparse to dense correspondence we employ the method of \cite{litany2017fully}, and replace the SHOT descriptors with localized smooth delta functions, effectively skipping straight to the refinement stage of that algorithm. It is also only necessary to run one iteration instead of 5 when using our correspondences to achieve superior quality of correspondences.}
 
 \paragraph{Alternatives:} xxx
 \ayellet{sixth paragraph: alternatives---comparison to Lihi's function, parameter tuning}
-
 \paragraph{Alternatives:} xxx
 \ayellet{seventh paragraph: uses in archaeology}
 

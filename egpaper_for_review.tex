@@ -443,10 +443,11 @@ In the general case, the contribution of every point is inversely weighted by it
 \paragraph{Qualitative results:} xxx
 
 \ayellet{second paragraph: qualitative results - images + comparisons + explanation}
-\nadav{We provide a qualitative visual evaluation of our method along with a comparison to the method with that of \cite{rodola2017partial} in the case of the Partial Matching of Deformable Shapes dataset. 
-It can be seen (in Fig ~\ref{Shrec16Qualitative}) that our method can obtain sparse correspondences of a high quality, which can be then turned into dense ones with negligent loss of quality by feeding them to the method of \cite{litany2017fully} as delta functions. 
+\nadav{We provide a qualitative visual evaluation of our method along with a comparison to the method with that of \cite{rodola2017partial} in the case of the Partial Matching of Deformable Shapes dataset in Fig~\ref{Shrec16Qualitative} and on the Topological Noise dataset in Fig~\ref{Shrec16TopImage}. 
+It can be seen  that our method can obtain sparse correspondences of a high quality, which can be then turned into dense ones with negligent loss of quality by feeding them to the method of \cite{litany2017fully} as delta functions. 
 Our methods explicit usage of distance preservation tends to result in more coherent solutions and mostly avoid symmetrical assignments, which plague \cite{rodola2017partial}. 
-The improvement is especially felt in the case of the holes dataset.}
+The improvement is especially felt in the case of the holes dataset.
+On the topological noise benchmark we can see bad matches are typically limited to the area of the topological noise, while PFM breaks completely on occassions.}
 
 \paragraph{Quantitative results:} xxx
 \begin{figure}[htb]
@@ -487,8 +488,15 @@ On the cuts dataset an improvement of ~10\% is seen while an impressive 20\% is 
 	\label{Shrec16Top}
 	\centering
 	\includegraphics[width=0.5\textwidth]{figures/SHREC16Top.png}
-	\caption{Error as a function of model partiality.}
+	\caption{Cumulative error curve on SHREC 16 Topology benchmark.}
 \end{figure}
+\begin{figure}[htb]
+	\label{Shrec16TopImage}
+	\centering
+	\includegraphics[width=0.5\textwidth]{figures/SHRECTopology.png}
+	\caption{Improvements achieved by our method on the SHREC Topological Noise benchmark.}
+\end{figure}
+
 We have also performed a quantitative evaluation on the SHREC 16 Topological noise benchmark\cite{lahner2016shrec}. The low resolution benchmark includes 10 shapes with ~10K vertices each, derived from the same base human shape which undergoes deformations and topolgical changes stemming from self intersection. Each shape is matched to all the others resulting in 90 matching problems. We compare our results with those reported in\cite{vestner2017efficient} in Figure ~\ref{Shrec16Top}.
 
 We can see from the plot that we fall short of achieving state of the art results on this benchmark. The additional paths between points introduced by topological noise causes significant problems in matching, especially around the noisy areas, a fact that\cite{vestner2017efficient} manages to tackle partially by optimizing over different distance kernels along with descriptor similarity. It might be worthwhile to find a way to incorporate these kernels into the 3D-DDIS framework.}

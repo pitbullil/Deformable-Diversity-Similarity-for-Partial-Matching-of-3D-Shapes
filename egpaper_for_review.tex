@@ -416,7 +416,7 @@ In this scenario, 3D-DDIS simply counts the number of points in $Q$ that are nea
 But, this is precisely the diversity function we seek-after.
 \ayellet{copy a convincing explanation for the general case}
 \nadav{
-Hence, since we regard the deformations of a point having no nearest neighbor as $\infty$, the diversity becomes an upper bound on the similarity score. 
+In the general case, the contribution of every point is inversely weighted by its deformation $r_i^*$, which gives preference to plausible deformations of real objects.
 }
 
 %% In the thesis, in the results section add a paragraph where you explain this image
@@ -430,6 +430,13 @@ Hence, since we regard the deformations of a point having no nearest neighbor as
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 \label{section:results}
+\begin{figure*}[htb]
+	\label{Shrec16Qualitative}
+	\centering
+	\includegraphics[width=1\textwidth]{figures/SHREC16Partial.png}
+	\caption{Results on Shrec'16 partial benchmark. in the right column we have the null shape. Each part triplet includes our sparse result, the dense correspondence extension, and the result obtained by PFM\cite{rodola2017partial}. Below each dense correspondence we illustrate the geodesic error.}
+\end{figure*}
+
 
 \ayellet{first paragraph: generally the datasets we ran on}
 \nadav{We have evaluated our method both qualitatively and quantitatively on the challenging benchmarks of SHREC 16 Partial Matching of Deformable Shapes\cite{cosmo2016shrec}and SHREC’16: Matching of deformable shapes with topological noise\cite{lahner2016shrec}, achieving results comparable or better to state of the art on both.}
@@ -437,11 +444,23 @@ Hence, since we regard the deformations of a point having no nearest neighbor as
 
 \ayellet{second paragraph: qualitative results - images + comparisons + explanation}
 \nadav{We provide a qualitative visual evaluation of our method along with a comparison to the method with that of \cite{rodola2017partial} in the case of the Partial Matching of Deformable Shapes dataset. 
-It can be seen that our method can obtain sparse correspondences of a high quality, which can be then turned into dense ones with negligent loss of quality by feeding them to the method of \cite{litany2017fully} as delta functions. 
+It can be seen (in Fig ~\ref{Shrec16Qualitative}) that our method can obtain sparse correspondences of a high quality, which can be then turned into dense ones with negligent loss of quality by feeding them to the method of \cite{litany2017fully} as delta functions. 
 Our methods explicit usage of distance preservation tends to result in more coherent solutions and mostly avoid symmetrical assignments, which plague \cite{rodola2017partial}. 
 The improvement is especially felt in the case of the holes dataset.}
 
 \paragraph{Quantitative results:} xxx
+\begin{figure}[htb]
+	\label{Shrec16Cumulative}
+	\centering
+	\includegraphics[width=0.5\textwidth]{figures/ROCSHRECCumulative16.png}
+	\caption{Cumulative geodesic error curves on Shrec16 Partial matching benchmark. Our method is illustrated in magenta}
+\end{figure}
+\begin{figure}[htb]
+	\label{Shrec16Part}
+	\centering
+	\includegraphics[width=0.5\textwidth]{figures/ROCSHREC16Part.png}
+	\caption{Error as a function of model partiality.}
+\end{figure}
 \ayellet{next paragraphs: quantitative results - explain the datasets in one paragraph, the error metrics in one paragraph, and explanations of the graphs+tables/results - one paragraph per graph}
 \nadav{We provide quantitative evaluation of our method on both datasets w.r.t previously reported results on the benchmarks.
 \subparagraph{Error Metrics}
@@ -457,14 +476,20 @@ We report results both for the sparse correspondences produced by our algorithm,
 We have carried out a quantitative evaluation of the partial matching scenario on the SHREC'16 Partial Deformable Shapes benchmark. The benchmark contains 400 partial shapes, each a near isometrically deformed version of one of 8 base class.
 Each class is provided with a "null" shape in a neutral pose. The partial shapes are further divided into 2 subsets, determined by the type of partiality. 
 \textit{cuts}, which is composed of shapes produced by dividing shapes by a plane, and \textit{holes}, obtained by eroding many areas around random vertices. The size of the parts ranges from ~800-9k vertices.
-We report our results in Figures X, Y. We compare them with the results reported in Fully Spectral Partial Matching(FSPM)\cite{litany2017fully}, which also compares results with partial functional maps(PFM)\cite{rodola2017partial}, random forests(RF), scale-invariant isometric matching(IM), game-theoretic matching(GT), elastic net matching(EN) and joint diagnolization. 
+We report our results in Figures ~\ref{Shrec16Cumulative}\ref{Shrec16Part}. We compare them with the results reported in Fully Spectral Partial Matching(FSPM)\cite{litany2017fully}, which also compares results with partial functional maps(PFM)\cite{rodola2017partial}, random forests(RF), scale-invariant isometric matching(IM), game-theoretic matching(GT), elastic net matching(EN) and joint diagnolization. 
 Methods producing sparse matches are marked in a dashed line, whereas full correspondences are marked with a full line. 
 We produced the graphs for our method using the code provided in the benchmark site.
 We can see from the plots that our method produces a considerable improvement over the previous state of the art method of FSPM. 
 On the cuts dataset an improvement of ~10\% is seen while an impressive 20\% is achieved over the holes dataset.
 
 \paragraph{Topological changes}
-We have also performed a quantitative evaluation on the SHREC 16 Topological noise benchmark\cite{lahner2016shrec}. The low resolution benchmark includes 10 shapes with ~10K vertices each, derived from the same base human shape which undergoes deformations and topolgical changes stemming from self intersection. Each shape is matched to all the others resulting in 90 matching problems. We compare our results with those reported in\cite{vestner2017efficient}.
+\begin{figure}[htb]
+	\label{Shrec16Top}
+	\centering
+	\includegraphics[width=0.5\textwidth]{figures/SHREC16Top.png}
+	\caption{Error as a function of model partiality.}
+\end{figure}
+We have also performed a quantitative evaluation on the SHREC 16 Topological noise benchmark\cite{lahner2016shrec}. The low resolution benchmark includes 10 shapes with ~10K vertices each, derived from the same base human shape which undergoes deformations and topolgical changes stemming from self intersection. Each shape is matched to all the others resulting in 90 matching problems. We compare our results with those reported in\cite{vestner2017efficient} in Figure ~\ref{Shrec16Top}.
 
 We can see from the plot that we fall short of achieving state of the art results on this benchmark. The additional paths between points introduced by topological noise causes significant problems in matching, especially around the noisy areas, a fact that\cite{vestner2017efficient} manages to tackle partially by optimizing over different distance kernels along with descriptor similarity. It might be worthwhile to find a way to incorporate these kernels into the 3D-DDIS framework.}
 

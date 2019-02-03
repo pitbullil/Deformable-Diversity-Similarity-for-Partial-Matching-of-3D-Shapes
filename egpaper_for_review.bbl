@@ -58,12 +58,6 @@ T.~Dekel, S.~Oron, M.~Rubinstein, S.~Avidan, and W.~T. Freeman.
 \newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
   Pattern Recognition}, pages 2021--2029, 2015.
 
-\bibitem{guo2013rotational}
-Y.~Guo, F.~Sohel, M.~Bennamoun, M.~Lu, and J.~Wan.
-\newblock Rotational projection statistics for 3d local surface description and
-  object recognition.
-\newblock {\em International journal of computer vision}, 105(1):63--86, 2013.
-
 \bibitem{holz2015registration}
 D.~Holz, A.~E. Ichim, F.~Tombari, R.~B. Rusu, and S.~Behnke.
 \newblock Registration with the point cloud library: A modular framework for
@@ -87,6 +81,12 @@ A.~Kovnatsky, M.~M. Bronstein, X.~Bresson, and P.~Vandergheynst.
 \newblock In {\em Proceedings of the IEEE conference on computer vision and
   pattern recognition}, pages 905--914, 2015.
 
+\bibitem{lahner2016shrec}
+Z.~L{\"a}hner, E.~Rodol{\`a}, M.~Bronstein, D.~Cremers, O.~Burghard, L.~Cosmo,
+  A.~Dieckmann, R.~Klein, and Y.~Sahillioglu.
+\newblock Shrec’16: Matching of deformable shapes with topological noise.
+\newblock {\em Proc. 3DOR}, 2:11, 2016.
+
 \bibitem{lipman2009mobius}
 Y.~Lipman and T.~Funkhouser.
 \newblock M{\"o}bius voting for surface correspondence.
@@ -102,11 +102,6 @@ O.~Litany, E.~Rodol{\`a}, A.~M. Bronstein, and M.~M. Bronstein.
 J.~Masci, E.~Rodol{\`a}, D.~Boscaini, M.~M. Bronstein, and H.~Li.
 \newblock Geometric deep learning.
 \newblock In {\em SIGGRAPH ASIA 2016 Courses}, page~1. ACM, 2016.
-
-\bibitem{max1999weights}
-N.~Max.
-\newblock Weights for computing vertex normals from facet normals.
-\newblock {\em Journal of Graphics Tools}, 4(2):1--6, 1999.
 
 \bibitem{monti2017geometric}
 F.~Monti, D.~Boscaini, and J.~Masci.

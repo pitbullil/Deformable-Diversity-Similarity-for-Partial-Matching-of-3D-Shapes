@@ -430,78 +430,130 @@ In the general case, the contribution of every point is inversely weighted by it
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 \label{section:results}
+
+We have evaluated our method both qualitatively and quantitatively on several datasets:
+(1) the benchmark of {\em SHREC'16A---partial matching of deformable shapes}~\cite{cosmo2016shrec};
+(2) the even more challenging benchmark of {\em SHREC’16B---matching of deformable shapes with topological noise}~\cite{lahner2016shrec}.
+\ayellet{(3) Faust, (4) Archaeology}
+In all cases, our method wither outperformed the state-of-the-art methods or was competitive.
+
+{\em SHREC'16A} contains $400$ partial shapes, each is a near-isometrically deformed version of one of eight base model, given in a neutral pose.
+% Each class is provided with a "null" shape in a neutral pose. 
+The dataset is further divided into two subsets, according to the type of partiality:
+(1) \textit{cuts}, which is composed of shapes produced by dividing shapes by a plane, and (2) \textit{holes}, obtained by eroding many areas around random vertices. 
+% The size of the parts ranges from ~800-9k vertices.
+%%%%
+{\em SHREC’16B} is contains $10$ shapes, which are
+% with ~10K vertices each, 
+derived from the same base human shape that undergoes deformations and topological changes stemming from self-intersections. 
+% Each shape is matched to all the others resulting in 90 matching problems.
+
+\ayellet{paragraph: explain that there are two distinct, yer related challenges: sparse and dense}
+
+\ayellet{paragraph: explain that you compute only sparse and then use... to convert it into dense.}
+ 
+\paragraph{Qualitative results:} 
+Figure~\ref{Shrec16Qualitative} illustrates our results on two models from {\em SHREC'16A}.
+In this figure, the input model $\mathcal{M}$ is color-coded according to its coordinates.
+The matches on the partial model $\mathcal{N}$ (partial models and holes) are colored according to the match.
+Therefore, it is easy to visually verify if the match is correct or not.
+
+It can be seen that our method obtains sparse correspondences of a high quality, since the dots on the model suit in color to the matching parts of $\mathcal{M}$ .
+Furthermore, when comparing our dense-correspondence results to those of~\cite{rodola2017partial} (which computes dense correspondence directly), our method produces better results.
+It should be noted that symmetries are less of a problem in our method, due to distance preservation between points in Equation~\eqref{eq:DDIS} (note the legs).
+This is especially important when the model contains holes.
 \begin{figure*}[htb]
 	\label{Shrec16Qualitative}
 	\centering
+	\begin{tabular}{c|ccc|ccc}
+	     input & sparse & dense &  \cite{rodola2017partial}
+	           & sparse & dense & \cite{rodola2017partial}\\
+	\end{tabular}
 	\includegraphics[width=1\textwidth]{figures/SHREC16Partial.png}
-	\caption{Results on Shrec'16 partial benchmark. in the right column we have the null shape. Each part triplet includes our sparse result, the dense correspondence extension, and the result obtained by PFM\cite{rodola2017partial}. Below each dense correspondence we illustrate the geodesic error.}
+	\caption{{\bf Results on Shrec'16A.} 
+	Our results outperform those of~\cite{rodola2017partial}, when run with the default parameters.
+	\ayellet{(1) create little images (2) remove boundaries (3) change the model color in sparse correspondences (4) the models must be in the same size}
+	}
 \end{figure*}
 
+Figure~\ref{Shrec16Qualitative-error} further demonstrates it, by color-coding the errors.
+The larger the error, the more reddish the color is.
+\ayellet{add this figure}
 
-\ayellet{first paragraph: generally the datasets we ran on}
-\nadav{We have evaluated our method both qualitatively and quantitatively on the challenging benchmarks of SHREC 16 Partial Matching of Deformable Shapes\cite{cosmo2016shrec}and SHREC’16: Matching of deformable shapes with topological noise\cite{lahner2016shrec}, achieving results comparable or better to state of the art on both.}
-\paragraph{Qualitative results:} xxx
+Figure~\ref{fig:Shrec16TopImage} shows a couple of examples from the {\em SHREC'16B} dataset.
+On the topological noise benchmark we can see bad matches are typically limited to the area of the topological noise, while PFM breaks completely on occassions.
 
-\ayellet{second paragraph: qualitative results - images + comparisons + explanation}
-\nadav{We provide a qualitative visual evaluation of our method along with a comparison to the method with that of \cite{rodola2017partial} in the case of the Partial Matching of Deformable Shapes dataset in Fig~\ref{Shrec16Qualitative} and on the Topological Noise dataset in Fig~\ref{Shrec16TopImage}. 
-It can be seen  that our method can obtain sparse correspondences of a high quality, which can be then turned into dense ones with negligent loss of quality by feeding them to the method of \cite{litany2017fully} as delta functions. 
-Our methods explicit usage of distance preservation tends to result in more coherent solutions and mostly avoid symmetrical assignments, which plague \cite{rodola2017partial}. 
-The improvement is especially felt in the case of the holes dataset.
-On the topological noise benchmark we can see bad matches are typically limited to the area of the topological noise, while PFM breaks completely on occassions.}
-
-\paragraph{Quantitative results:} xxx
 \begin{figure}[htb]
-	\label{Shrec16Cumulative}
+	\label{fig:Shrec16TopImage}
+	\centering
+	\begin{tabular}{ccc}
+	    base object & 
+	    \ayellet{add citation} & 
+	    Ours\\
+	\end{tabular}
+	\includegraphics[width=0.4\textwidth]{figures/SHRECTopology.png}
+	\caption{{\bf Results on Shrec'16B.} 
+	Our results outperform those of~\cite{rodola2017partial}.}
+\end{figure}
+
+
+
+\paragraph{Quantitative results:}
+Next, we provide quantitative evaluation of our method on the above datasets w.r.t previously reported results.
+The common error metric used is the normalized geodesic distance~\cite{kim2011blended}.
+Specifically, let the corresponding point of $(q \in \mathcal{N}$, as found by the algorithm, be $ p \in \mathcal{M})$ and let the ground truth corresponding point of $q$ be $p^* \in \mathcal{M})$. 
+The error of for $q$ is the normalized geodesic distance between  $p$ and $p^*$ on $\mathcal{M}$:
+\begin{equation}
+\varepsilon(q)=\frac{GeoDist_{\mathcal{M}}(p,p^*)}{\sqrt{area(\mathcal{M})}}
+\end{equation}
+
+Figure~\ref{fig:Shrec16Cumulative} shows the cumulative curve, which indicates the percentage of errors falling below a varying geodesic threshold on {\em SHREC'16A}. 
+% Symmetric solutions are accepted with no penalty.
+The figure shows both sparse correspondences (dashed lines) and dense correspondences (solid lines), compared to other state-of-the-art algorithms~\cite{litany2017fully,rodola2017partial},
+\ayellet{add all references}
+as provided in the benchmark site. \ayellet{cite the site}
+In both cases, our method considerably outperforms state-of-the-art algorithms, both on the subset of the dataset that contains models with holes and on the subset that contains partial models.
+The obtained increase in performance in by $~10\%$ for the cuts subset and by $20\%$ for the holes subset.
+% We compare them with the results reported in Fully Spectral Partial Matching(FSPM)\cite{litany2017fully}, which also compares results with partial functional maps(PFM)\cite{rodola2017partial}, random forests(RF), scale-invariant isometric matching(IM), game-theoretic matching(GT), elastic net matching(EN) and joint diagnolization. 
+
+\begin{figure}[htb]
+	\label{fig:Shrec16Cumulative}
 	\centering
 	\includegraphics[width=0.5\textwidth]{figures/ROCSHRECCumulative16.png}
-	\caption{Cumulative geodesic error curves on Shrec16 Partial matching benchmark. Our method is illustrated in magenta}
+	\caption{{\bf Cumulative geodesic error curves on Shrec16A.} 
+	Our method (in magenta) outperforms other algorithms, both for the dense correspondence and for the sparse correspondence, on the two subsets of the dataset.
+	\ayellet{1. three images, (2) [Author'19] or Ours}}
 \end{figure}
+
+\ayellet{Add a paragraph describing Figure~\ref{fig:Shrec16Part}}
+
 \begin{figure}[htb]
-	\label{Shrec16Part}
+	\label{fig:Shrec16Part}
 	\centering
 	\includegraphics[width=0.5\textwidth]{figures/ROCSHREC16Part.png}
 	\caption{Error as a function of model partiality.}
 \end{figure}
-\ayellet{next paragraphs: quantitative results - explain the datasets in one paragraph, the error metrics in one paragraph, and explanations of the graphs+tables/results - one paragraph per graph}
-\nadav{We provide quantitative evaluation of our method on both datasets w.r.t previously reported results on the benchmarks.
-\subparagraph{Error Metrics}
-We evaluate correspondence quality according to the princeton benchmark protocol\cite{kim2011blended} detailed hereafter. 
-Given a correspondence points $(q,p)\in \mathcal{N}\times \mathcal{M}$ produced by an algorithm, when the ground truth correspondence is $(q,p*)$. The error of the said correspondence is measured by the normalized geodesic distance on $\mathcal{M}$:
-\begin{equation}
-\varepsilon(q)=\frac{GeoDist_{\mathcal{M}}(q,p^*)}{\sqrt{area(\mathcal{M})}}
-\end{equation}
-We plot cumulative curves showing the percentage of errors falling below a variable threshold. 
-Symmetric solutions are accepted with no penalty.
-We report results both for the sparse correspondences produced by our algorithm, and dense ones, produced by feeding the former to the method of \cite{litany2017fully}.
-\paragraph{Part to Full}
-We have carried out a quantitative evaluation of the partial matching scenario on the SHREC'16 Partial Deformable Shapes benchmark. The benchmark contains 400 partial shapes, each a near isometrically deformed version of one of 8 base class.
-Each class is provided with a "null" shape in a neutral pose. The partial shapes are further divided into 2 subsets, determined by the type of partiality. 
-\textit{cuts}, which is composed of shapes produced by dividing shapes by a plane, and \textit{holes}, obtained by eroding many areas around random vertices. The size of the parts ranges from ~800-9k vertices.
-We report our results in Figures ~\ref{Shrec16Cumulative}\ref{Shrec16Part}. We compare them with the results reported in Fully Spectral Partial Matching(FSPM)\cite{litany2017fully}, which also compares results with partial functional maps(PFM)\cite{rodola2017partial}, random forests(RF), scale-invariant isometric matching(IM), game-theoretic matching(GT), elastic net matching(EN) and joint diagnolization. 
-Methods producing sparse matches are marked in a dashed line, whereas full correspondences are marked with a full line. 
-We produced the graphs for our method using the code provided in the benchmark site.
-We can see from the plots that our method produces a considerable improvement over the previous state of the art method of FSPM. 
-On the cuts dataset an improvement of ~10\% is seen while an impressive 20\% is achieved over the holes dataset.
 
-\paragraph{Topological changes}
+Figure~\ref{fig:Shrec16Top} compares our results to results of state-of-the-art algorithms for {\em SHREC'16B}.
+Our method is competitive with that of~\cite{vestner2017efficient}, despite of the fact that our algorithm heavily depends on geodesic distances, and topological noise e.g., connecting the hand to the face) shortns these distances.
+% We can see from the plot that we fall short of achieving state of the art results on this benchmark.
+% The additional paths between points introduced by topological noise causes significant problems in matching, especially around the noisy areas, a fact that\cite{vestner2017efficient} manages to tackle partially by optimizing over different distance kernels along with descriptor similarity. 
+% It might be worthwhile to find a way to incorporate these kernels into the 3D-DDIS framework.
+
 \begin{figure}[htb]
-	\label{Shrec16Top}
+	\label{fig:Shrec16Top}
 	\centering
 	\includegraphics[width=0.5\textwidth]{figures/SHREC16Top.png}
-	\caption{Cumulative error curve on SHREC 16 Topology benchmark.}
+	\caption{{\bf Cumulative error curve on SHREC'16B.} \ayellet{same changes to the figure}}
 \end{figure}
-\begin{figure}[htb]
-	\label{Shrec16TopImage}
-	\centering
-	\includegraphics[width=0.5\textwidth]{figures/SHRECTopology.png}
-	\caption{Improvements achieved by our method on the SHREC Topological Noise benchmark.}
-\end{figure}
-
-We have also performed a quantitative evaluation on the SHREC 16 Topological noise benchmark\cite{lahner2016shrec}. The low resolution benchmark includes 10 shapes with ~10K vertices each, derived from the same base human shape which undergoes deformations and topolgical changes stemming from self intersection. Each shape is matched to all the others resulting in 90 matching problems. We compare our results with those reported in\cite{vestner2017efficient} in Figure ~\ref{Shrec16Top}.
-
-We can see from the plot that we fall short of achieving state of the art results on this benchmark. The additional paths between points introduced by topological noise causes significant problems in matching, especially around the noisy areas, a fact that\cite{vestner2017efficient} manages to tackle partially by optimizing over different distance kernels along with descriptor similarity. It might be worthwhile to find a way to incorporate these kernels into the 3D-DDIS framework.}
 
 \paragraph{Drawbacks:} xxx
+\begin{figure*}[htb]
+	\centering
+	\includegraphics[width=1\textwidth]{figures/failures.png}
+	\caption{Some notable failure cases. Correspondence 'leakage' and misassignments happen near topological noise. Narrow parts with few matches are hard to match(dog's tail). Severe isometry and shape altering deformations on occasion still produces a match which is completely incorrect.}
+\end{figure*}
+
 \ayellet{fifth paragraph: drawbacks with examples}
 \nadav{Our method exhibits a few drawbacks. First and foremost is the asymptotic runtime - generating geodesic distances has an asymptotic complexity of $O(n^2 logn)$ and computing 3D-DDIS similarity has an asymptotic runtime of $O(|S|n^2)$, which makes running on meshes with more than 15K vertices prohibitive. The algorithm  also has six parameters which should be tuned. Additionally, surface patches such as the cat's tail, which are low in distinct shapes are hard to match. Finally, the method exhibits real difficulty dealing with topological noise.}
 
@@ -512,9 +564,13 @@ FPFH is calculated using the Point Cloud library\cite{} using a radius of $0.03\
 The entire code is parallelized using OpenMP. Since computing similarity for a given patch is totally independent from similarity calculations of all other patches the speedup is nearly linear in the number of threads.
 To move from sparse to dense correspondence we employ the method of \cite{litany2017fully}, and replace the SHOT descriptors with localized smooth delta functions, effectively skipping straight to the refinement stage of that algorithm. It is also only necessary to run one iteration instead of 5 when using our correspondences to achieve superior quality of correspondences.}
 
-\paragraph{Alternatives:} xxx
-\ayellet{sixth paragraph: alternatives---comparison to Lihi's function, parameter tuning}
-\paragraph{Alternatives:} xxx
+\paragraph{Alternatives:} 
+\ayellet{sixth paragraph: alternatives---comparison to Lihi's function}
+
+\paragraph{Robustness:} 
+\ayellet{parameter tuning}
+
+\paragraph{Applications:} xxx
 \ayellet{seventh paragraph: uses in archaeology}
 
 \subsection{Experimental Results}
@@ -564,11 +620,6 @@ We achieve results comparable to the state of the art \cite{litany2017fully} qua
 \end{figure*}
 
 
-\begin{figure*}[htb]
-	\centering
-	\includegraphics[width=1\textwidth]{figures/fail2.png}
-	\caption{Some notable failure cases}
-\end{figure*}
 
 \paragraph{implementation}
 Our code which produces the sparse correspondences is implemented entirely in C++ using the Point Cloud Library. For geodesics we have used  Fast Marching Geodesics adapted from the code published by Ron Kimmel to run in parallel on multiple cores. We calculate FPFH using $R_{FPFH}=0.03\cdot \sqrt{Area(\mathcal{M})}$, and NNF using FLANN. The average runtime on i7-4790 for 2 surfaces of ~12000 vertices is 150s.

@@ -75,6 +75,11 @@ V.~G. Kim, Y.~Lipman, and T.~Funkhouser.
 \newblock In {\em ACM Transactions on Graphics (TOG)}, volume~30, page~79. ACM,
   2011.
 
+\bibitem{kimmel1996fast}
+R.~Kimmel.
+\newblock Fast marching methods for computing distance maps and shortest paths.
+\newblock 1996.
+
 \bibitem{kovnatsky2015functional}
 A.~Kovnatsky, M.~M. Bronstein, X.~Bresson, and P.~Vandergheynst.
 \newblock Functional correspondence by matrix completion.
@@ -107,6 +112,12 @@ J.~Masci, E.~Rodol{\`a}, D.~Boscaini, M.~M. Bronstein, and H.~Li.
 F.~Monti, D.~Boscaini, and J.~Masci.
 \newblock Geometric deep learning on graphs and manifolds using mixture model
   cnns.
+
+\bibitem{muja2009fast}
+M.~Muja and D.~G. Lowe.
+\newblock Fast approximate nearest neighbors with automatic algorithm
+  configuration.
+\newblock {\em VISAPP (1)}, 2(331-340):2, 2009.
 
 \bibitem{Ovsjanikov:2012:FMF:2185520.2185526}
 M.~Ovsjanikov, M.~Ben-Chen, J.~Solomon, A.~Butscher, and L.~Guibas.
@@ -149,6 +160,12 @@ R.~B. Rusu, N.~Blodow, and M.~Beetz.
 \newblock Fast point feature histograms (fpfh) for 3d registration.
 \newblock In {\em Robotics and Automation, 2009. ICRA'09. IEEE International
   Conference on}, pages 3212--3217. Citeseer, 2009.
+
+\bibitem{Rusu_ICRA2011_PCL}
+R.~B. Rusu and S.~Cousins.
+\newblock {3D is here: Point Cloud Library (PCL)}.
+\newblock In {\em {IEEE International Conference on Robotics and Automation
+  (ICRA)}}, Shanghai, China, May 9-13 2011.
 
 \bibitem{rusu2008learning}
 R.~B. Rusu, Z.~C. Marton, N.~Blodow, and M.~Beetz.

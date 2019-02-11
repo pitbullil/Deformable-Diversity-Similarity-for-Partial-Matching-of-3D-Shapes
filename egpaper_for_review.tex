@@ -595,12 +595,18 @@ Our method is competitive with that of~\cite{vestner2017efficient}, despite of t
 
 
 \ayellet{fifth paragraph: drawbacks with examples}
-\nadav{Our method exhibits a few drawbacks. First and foremost is the asymptotic runtime - generating geodesic distances has an asymptotic complexity of $O(n^2 logn)$ and computing 3D-DDIS similarity has an asymptotic runtime of $O(|S|n^2)$. This limits the utilization of our method to relatively small shapes with less than ~15K vertices. The algorithm also has six parameters which need to be tuned. Additionally, surface patches such as the cat's tail, which are low in distinct shapes are hard to match. Finally, the method exhibits difficulty dealing with topological noise.}
+\nadav{Our method exhibits a few drawbacks.
+    First and foremost the algorithm has a high asymptotic runtime - $O(n^2logn) + O(|S|n^2)$(App.~\ref{app:Runtime}). 
+	This limits the utilization of our method to relatively small shapes with less than ~15K vertices. 
+	The algorithm also has six parameters which need to be tuned. 
+	In addition,the algorithm has some typical failure cases that can be seen in Figure~\ref{fig:FailureCases}: 
+	(1)Surface patches such as the dog's tail that are low in distinct shapes are hard to match. (2)Topological noise due to the intersection of different model parts changes the geodesic paths of the deformed model w.r.t to the base model.
+(3) Extreme deformations can cause shape descriptors of the deformed model to be vastly different than those of the base model.}
 
 \begin{figure*}[htb]
 	\centering
 	\includegraphics[width=1\textwidth]{figures/failures.png}
-	\caption{Some notable failure cases. Correspondence 'leakage' and misassignments happen near topological noise. Narrow parts with few matches are hard to match(dog's tail). Severe isometry and shape altering deformations on occasion still produces a match which is completely incorrect.}
+	\caption{\nadav{Some notable failure cases. Correspondence 'leakage' and misassignments happen near topological noise. Narrow parts with few matches are hard to match(dog's tail). Severe isometry and shape altering deformations on occasion still produces a match which is completely incorrect.}}
 	\label{fig:FailureCases}
 \end{figure*}
 
@@ -608,7 +614,7 @@ Our method is competitive with that of~\cite{vestner2017efficient}, despite of t
 \ayellet{sixth paragraph: implementation details, how do we move from sparse to dense}
 \nadav{Our code which produces the sparse correspondences is implemented entirely in C++ . 
 We have used the Fast Marching Method\cite{kimmel1996fast} to obtain geodesic distances.
-FPFH is calculated using the Point Cloud library\cite{Rusu_ICRA2011_PCL}. 
+FPFH shape descriptors are calculated using the Point Cloud library\cite{Rusu_ICRA2011_PCL}. 
 The Nearest Neighbor field is computed with FLANN\cite{muja2009fast} with $\chi^2$ distance.
 The entire code is parallelized using OpenMP. Since computing similarity for a given patch is totally independent from its calculation for other patches, the obtained speedup is nearly linear in the number of threads. 
 }
@@ -616,41 +622,18 @@ The entire code is parallelized using OpenMP. Since computing similarity for a g
 \nadav{
 To move from sparse to dense correspondence we employ the method of \cite{litany2017fully}. 
 We had replaced the input dense descriptor field with localized smooth delta functions around our corresponding pairs.
-Instead of running 5 iterations we have found the best results are already achieved after only 1 iteration on SHREC16'A, and 2 on SHREC'16B. Since no default parameters are provided we have tuned the parameters loosely to achieve and aesthetically pleasing result on 15 models of cats from the SHREC16'A training set.}
+We have found that satisfying results are already achieved after 1 iteration on SHREC16'A, and 2 on SHREC'16B. We have tuned the parameters of \cite{litany2017fully} on 15 models of cats from the SHREC16'A training set.}
 
-\nadav{
-\emph{Runtime and complexity} We calculate asymptotic runtime complexity using the following valid assumptions:
-(a)$|S|<<|\mathcal{M}|$ - this is satisfied since we only compute sparse correspondences typically <300 for a full model. 
-(b) $|\mathcal{N}|\approx |\mathcal{M}|$. 
-For simplicity sake we also treat each surface patch as though it contains all the points on its part. 
-The complexity of different algorithm stages is thus:
-}
-\begin{enumerate}
-	
-	\item \nadav{\textit{FPFH Calculation} Calculation of FPFH takes $O((|\mathcal{M}|+|\mathcal{N}|) \cdot k)$ , where $k$ is the number of neighbors for each point in a defined neighborhood of a radius $R_F$. In the radiuses we use typically $k << n$ .
-	}
-	
-	\item \nadav{\textit{NN search} Approximate nearest neighbor are calculated by building a kd-tree for $\mathcal{N}$ which takes $O(d|\mathcal{N}|log|\mathcal{N}|)$, where $d$ is the feature dimension, which is 33 for FPFH, and then performing $|\mathcal{M}|$ NN searches, each taking $O(log|\mathcal{N}|)$, thus the overall complexity of this stage is $O(|\mathcal{M}|log|\mathcal{N}|)$.}
-	
-	\item \nadav{\textit{Geodesics} Calculating fast marching geodesics for a single point takes $O(nlogn)$.
-	Since we calculate geodesics for all points on the mesh his stage takes $O(|\mathcal{M}|log|\mathcal{M}|+|\mathcal{N}|log|\mathcal{N}|)$}
 
-	\item \nadav{\textit{Similarity map calculation} Calculation of similarity between a pair of patches $P,Q$, given the NNF and geodesics requires a single pass over all the points in both, and thus $O(|P|+|Q|)$. 
-	We calculate similarity scores for all possible $|\mathcal{M}|$ patches of $\mathcal{M}$ to each of the $|S|$ patches around our samples, thus the total complexity of this stage, in the worst case is $O(|S||\mathcal{M}|(|\mathcal{M}|+|\mathcal{N}|))\approx O(|S||\mathcal{M}|^2)$.}
-
-	\item \nadav{\textit{Correspondence Refinement} Detecting outliers is done in $O(|S|^2)$ - we sum the distance for each sample to all the others. We set the numbers of alternative 3DDIS maximas to 100 for each point, these are found in linear time in $|S|$, thus the whole stage takes $O(|S|^2)$}.
-\end{enumerate}
- \nadav{In total, the algorithm has an effective runtime complexity of $O(|S||\mathcal{M}|^2) + O(|\mathcal{M}|^2log|\mathcal{M}|)$, which effectively limits us to running on models of ~15,000k vertices. Simplification algorithms can be applied if running on larger models is required.}
- 
 \paragraph{Alternatives:} 
 \ayellet{sixth paragraph: alternatives---comparison to Lihi's function}
 \nadav{ We have used the training set provided with SHREC'16A to experiment with different variations and parameters of our method, which will be described hereafter.}
 
 \nadav{
-\textit{Similarity formulation}	We have tested our 3DDIS formulation against the formulation of \cite{talmi2017template}, from which this work is inspired. 
+\textit{Similarity formulation}	We have tested our 3DDIS formulation against the formulation of \cite{talmi2017template}. 
 The main difference between the two is as follows:
-In \cite{talmi2017template}, the sharing of a nearest neighbor by multiple points is penalized. 
-Different points which share a nearest neighbor with $\kappa$ other points will have their similarity contribution attenuated by $e^{(1-\kappa)}$. The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation, stemming from a higher robustness to partiality.}
+The similarity metric of\cite{talmi2017template}, penalizes the sharing of a NN in $P$ by multiple points in $Q$. 
+Points that share a NN with $\kappa$ other points will have their contribution to the similarity score attenuated by $e^{(1-\kappa)}$. The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation, stemming from a higher robustness to partiality.}
 
 \begin{figure}[htb]
 
@@ -697,6 +680,44 @@ The application of our multiscale framework results in an overall better result 
 
 \paragraph{Applications:} xxx
 \ayellet{seventh paragraph: uses in archaeology}
+
+
+\paragraph{Appendix A: Runtime and complexity}
+\label{app:Runtime}
+\nadav{
+	We calculate asymptotic runtime complexity using the following valid assumptions:
+	(a)$|S|<<|\mathcal{M}|$ - this is satisfied since we only compute sparse correspondences typically <300 for a full model. 
+	(b) $|\mathcal{N}|\approx |\mathcal{M}|=n$. 
+	The complexity of different algorithm stages is thus:
+}
+\begin{enumerate}
+	
+	\item \nadav{\textit{FPFH Calculation} Calculation of FPFH takes $O(n \cdot k)$ where $k$ is the number of neighbors for each point in a defined spherical neighborhood of a radius $R_F$. In our case $R_F=0.03\sqrt{area(\mathcal{M})}$ which implies $k << n$ .
+	}
+	
+	\item \nadav{\textit{NN search} Approximate nearest neighbor are calculated by building a kd-tree for $\mathcal{N}$ which takes $O(dnlogn)$, where $d$ is the feature dimension,
+		In the case of FPFH, $d=33$ and is thus treated as a constant. 
+		We perform a NN search for each vertex of $\mathcal{M}$, each taking $O(logn)$ operations. 
+		Thus the overall complexity of this stage is $O(nlogn)$.}
+	
+	\item \nadav{\textit{Geodesics} Calculating fast marching geodesics distances from a single point to all other points on a mesh has a runtime complexity of $O(nlogn)$.
+		Since we repeat this process for each point on both meshes the total complexity of this stage becomes $O(n^2logn)$}
+	
+	\item \nadav{\textit{Similarity map calculation} Calculation of similarity between a pair of patches $P,Q$, requires a single pass over all the points in both. 
+		Thus, requires $O(|P|+|Q|)\approx O(n)$ operations. 
+		We compute  similarity scores for all possible patches in $\mathcal{M}$ to all sample patches in $S$. 
+		Overall we make $O(|S|n)$ similarity calculations. 
+		Thus the runtime complexity of this stage has an upper bound of $O(|S|n^2)$ operations.}
+	
+	\item \nadav{\textit{Correspondence Refinement} 
+		Detecting outliers is done in $O(|S|^2)$ - we sum the geodesic distance differences of each sample point to all other points on its respective model. 
+		We set the numbers of alternative 3DDIS maximas to 100 for each point. This can be done in a linear time in $|S|$ for each sample, thus the maxima detection also requires $O(|S|^2)$ operations.
+		Overall the stage has a runtime complexity of $O(|S|^2)$}.
+	
+\end{enumerate}
+\nadav{In total, the algorithm has an effective runtime complexity of $O(|S|n^2) + O(n^2logn)$.
+	As previously mentioned, this limits us to running on models of ~15,000k vertices. 
+	Mesh simplification algorithms can be applied for downsampling if running on larger models is required.}
 
 \subsection{Experimental Results}
 In this section we will briefly go over the available Datasets

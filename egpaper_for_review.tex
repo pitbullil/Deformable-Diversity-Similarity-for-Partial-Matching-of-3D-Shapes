@@ -8,6 +8,7 @@
 \usepackage{amssymb}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage[toc,page]{appendix}
 
 % Include other packages here, before hyperref.
 
@@ -686,6 +687,26 @@ The application of our multiscale framework results in an overall better result 
 \ayellet{seventh paragraph: uses in archaeology}
 \nadav{We have also used 3DDIS to detect repeating patterns in archaeological artifact. }
 
+
+
+\begin{table}[h]
+	\centering
+	\setlength\tabcolsep{1.5pt}
+	\begin{tabular}{c  c  c  c  c  c  c c} 
+		\hline
+		& PFM & RF & IM & EN & GT & DDIS  \\ \hline
+		cuts & dense & dense & 61.3 & 87.8 & 51.0 & 132.2\\ \hline
+		holes & dense & dense & 78.2 & 112.6 & 76.4 & 77.3 \\ \hline
+		
+	\end{tabular}
+	\caption{mean number of correspondence obtained by the algorithms in the SHREC 16 competiton and our algorithm. Note that our algorithm can combine wi}
+	\label{table:1}
+\end{table}
+
+\begin{appendices}
+\chapter{Some Appendix}
+The contents...
+\end{appendices}
 \paragraph{Appendix A: Runtime and complexity}
 \label{app:Runtime}
 \nadav{
@@ -723,60 +744,4 @@ The application of our multiscale framework results in an overall better result 
 	As previously mentioned, this limits us to running on models of ~15,000k vertices. 
 	Mesh simplification algorithms can be applied for downsampling if running on larger models is required.}
 
-\subsection{Experimental Results}
-In this section we will briefly go over the available Datasets
-\textbf{SHREC 2016 Partial Correspondence}  
-The SHREC partial matching dataset\cite{cosmo2016shrec} consists of 8 base, neutral pose models: cat, centaur, dog, horse, wolf, and 3 humans – 2 males, and 1 female, each containing 10,000 vertices except for the wolf which contains only ~4,500 vertices. Each basic model has corresponding deformed partial shapes obtained either by cutting the shape with a plane or by adding holes on a deformed shape. The set has been divided into train and test sets. The train set is composed of 15 cuts for each base models totaling 120 models,and 10 holed shapes for each model for which ground truth point to polygon correspondences has been provided in barycentric coordinates. The test set is composed of additional 200 cuts and 200 holed shapes. We have tuned our parameters only on the 120 pairs of cuts.
-
-\begin{figure*}[htb]
-	\centering
-
-	\includegraphics[width=1\textwidth]{figures/ROCSHREC16.png}[htb]
-	\caption{comparison with other state of the art algorithms - it can be seen that although sparse in nature, the correspondence obtained by DDIS are much more accurate than the other methods. 
-		A separate analysis has been done for correspondences which include boundary points, which tend to be more noisy, and internal points which are more sparse}
-\end{figure*}
-
-\subsection{Error Metrics}
-The output of partial matching algorithms (as defined in\cite{cosmo2016shrec}) are sub-vertex point-to-point correspondences between partial shapes.
-For all experiments we use the standard practice of not penalizing symmetric solutions. Quality is measured according to the Princeton benchmark protocol \cite{kim2011blended}. For a pair of points $(x,y)\in \mathcal{N}\times \mathcal{M}$ between the full object $\mathcal{M}$ and the partial shape $\mathcal{N}$ produced by an algorithm, where $(x,y^*)$ is the ground truth correspondence the inaccuracy is measured by. We plot curves showing the fraction of correspondences whose errors are below a threshold of the normalized geodesic error
-\begin{equation}
-\varepsilon(x)=\frac{d_{\mathcal{M}}(y,y^*)}{\sqrt{area(\mathcal{M})}}
-\end{equation}
-where $d_{\mathcal{M}}(y,y^*)$ is the geodesic distance on $\mathcal{M}$, and has units of normalized length on $\mathcal{M}$. For dense correspondences over a dataset, $\varepsilon(x)$ is averaged over all matching instances.
-
-\subsection{Sparse Correspondences on the SHREC16 Test set}
-We have tested the performance of DDIS in producing sparse correspondences on the SHREC16 Partial Matching of Deformable Shapes competition. 
-We had tuned our parameters on the SHREC16 training dataset using only the cuts part of it. The best results had been produced using FPFH with $r_F = 0.03\sqrt{Area(\mathcal{M}}$, and a piece size radii of $R_T=[0.6,0.4,0.2]\sqrt{Area(\mathcal{M})}$. For Geodesic distances we have found the fast marching algorithm to work the fastest, while giving the lowest error w.r.t. to exact geodesics. For a 10,000 vertices mesh it takes 60s to produce a full distance matrix, Though it should be noted this algorithm has a more efficient GPU implementation, and parallelization on a core brought the run time to ~12s with 6 threads. FPFH and Nearest Neighbor field takes 2s, and similarity between 2 pieces of ~10000 vertices each takes 120s on average, running on 6 threads of i7-4790. Unlike optimization based algorithms this is highly parallelizable.
-We achieve results comparable to the state of the art \cite{litany2017fully} quality wise, even though sparser in nature on both the Cuts and the Holes datasets, Where a particularly impressive result is reported on the Holes dataset, which can then be expanded with a minimal loss of quality by feeding these to the FSPM\cite{litany2017fully} as input instead of low level shape descriptors.
-
-\begin{table}[h]
-	\centering
-	\setlength\tabcolsep{1.5pt}
-	\begin{tabular}{c  c  c  c  c  c  c c} 
-		\hline
-		& PFM & RF & IM & EN & GT & DDIS  \\ \hline
-		cuts & dense & dense & 61.3 & 87.8 & 51.0 & 132.2\\ \hline
-		holes & dense & dense & 78.2 & 112.6 & 76.4 & 77.3 \\ \hline
-		
-	\end{tabular}
-	\caption{mean number of correspondence obtained by the algorithms in the SHREC 16 competiton and our algorithm. Note that our algorithm can combine wi}
-	\label{table:1}
-\end{table}
-
-\begin{figure*}[htb]
-	\centering
-
-	\includegraphics[width=1\textwidth]{figures/success_1}
-	\caption{Good correspondences obtained by our method}
-\end{figure*}
-
-
-
-\paragraph{implementation}
-Our code which produces the sparse correspondences is implemented entirely in C++ using the Point Cloud Library. For geodesics we have used  Fast Marching Geodesics adapted from the code published by Ron Kimmel to run in parallel on multiple cores. We calculate FPFH using $R_{FPFH}=0.03\cdot \sqrt{Area(\mathcal{M})}$, and NNF using FLANN. The average runtime on i7-4790 for 2 surfaces of ~12000 vertices is 150s.
-
-{\small
-	\bibliographystyle{ieee}
-	\bibliography{egbib}
-}
 \end{document}

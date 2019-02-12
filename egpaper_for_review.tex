@@ -437,7 +437,7 @@ We have evaluated our method both qualitatively and quantitatively on several da
 (2) the even more challenging benchmark of {\em SHREC’16B---matching of deformable shapes with topological noise}~\cite{lahner2016shrec}.
 \ayellet{(3) Faust, (4) Archaeology}
 \nadav{(3) {\em FAUST}\cite{bogo2014faust} includes real scans of human subjects. For this set we provide only qualitative evaluation.}
-\nadav{(4) {\em Archeological artifacts}\cite{bogo2014faust} which include different archeological artifacts.}
+\nadav{(4) {\em Archaeology} includes various scans of archaeological artifacts with repeating patters.}
 In all cases, our method either outperformed the state-of-the-art methods or was competitive.
 
 {\em SHREC'16A} contains $400$ partial shapes, each is a near-isometrically deformed version of one of eight base model, given in a neutral pose.
@@ -483,14 +483,14 @@ This is especially important when the model contains holes.
 	\end{tabular}
 	\caption{{\bf Results on Shrec'16A.} 
 	Our results outperform those of~\cite{rodola2017partial}, when run with the default parameters.
-	\ayellet{(1) create little images (2) remove boundaries (3) change the model color in sparse correspondences (4) the models must be in the same size}
+	\ayellet{(1) create little images (2) remove boundaries (3) change the model color in sparse correspondences (4) the models must be in the same size}\nadav{done}
 	}
 	\label{fig:Shrec16Qualitative}
 \end{figure*}
 
 Figure~\ref{fig:Shrec16Qualitative-error} further demonstrates it, by color-coding the errors.
 The larger the error, the more reddish the color is.
-\ayellet{add this figure}
+\ayellet{add this figure}\nadav{done}
 \begin{figure}[htb]
 
 	\centering
@@ -501,8 +501,8 @@ The larger the error, the more reddish the color is.
 		\includegraphics[scale=0.5]{figures/holes_horse_12_err.png} & \includegraphics[scale=0.5]{figures/holes_horse_12_err_PFM.png} &  \includegraphics[scale=0.5]{figures/holes_horse_16_err.png} &  \includegraphics[scale=0.5]{figures/holes_horse_16_err_PFM.png}\\
 		\includegraphics[scale=0.5]{figures/cuts_dog_8_err.png} & \includegraphics[scale=0.5]{figures/cuts_dog_8_err_PFM.png} &  \includegraphics[scale=0.5]{figures/holes_dog_13_err.png} &  \includegraphics[scale=0.5]{figures/holes_dog_13_PFM_err.png}\\
 	\end{tabular}
-	\caption{{\bf Errors on Shrec'16A.} 
-		Our results outperform those of~\cite{rodola2017partial}
+	\caption{{\bf Errors on SHREC'16A.} 
+		\nadav{ Errors are coded from white(no error) to red. Our method outperforms that of~\cite{rodola2017partial}}
 	}
 	\label{fig:Shrec16Qualitative-error}
 \end{figure}
@@ -536,9 +536,9 @@ The error of for $q$ is the normalized geodesic distance between  $p$ and $p^*$ 
 
 Figure~\ref{fig:Shrec16Cumulative} shows the cumulative curve, which indicates the percentage of errors falling below a varying geodesic threshold on {\em SHREC'16A}. 
 % Symmetric solutions are accepted with no penalty.
-The figure shows both sparse correspondences (dashed lines) and dense correspondences (solid lines), compared to other state-of-the-art algorithms~\cite{litany2017fully,rodola2017partial},
-\ayellet{add all references}
-as provided in the benchmark site. \ayellet{cite the site}
+The figure shows both sparse correspondences (dashed lines) and dense correspondences (solid lines), compared to other state-of-the-art algorithms~\cite{litany2017fully,rodola2017partial,sahillioglu2011coarse,rodola2013elastic,Rodola:2014:DNS:2679600.2679987,Torsello:2012:GAD:2354409.2354702,kovnatsky2013coupled},
+\ayellet{add all references}\nadav{Done.}
+as provided in the benchmark site. \ayellet{cite the site}\nadav{\hyperlink{url:shrec16A}{http://www.dais.unive.it/~shrec2016/}}
 In both cases, our method considerably outperforms state-of-the-art algorithms, both on the subset of the dataset that contains models with holes and on the subset that contains partial models.
 The obtained increase in performance in by $~10\%$ for the cuts subset and by $20\%$ for the holes subset.
 % We compare them with the results reported in Fully Spectral Partial Matching(FSPM)\cite{litany2017fully}, which also compares results with partial functional maps(PFM)\cite{rodola2017partial}, random forests(RF), scale-invariant isometric matching(IM), game-theoretic matching(GT), elastic net matching(EN) and joint diagnolization. 
@@ -575,7 +575,7 @@ The obtained increase in performance in by $~10\%$ for the cuts subset and by $2
 		\label{fig:Shrec16Part}
 \end{figure}
 
-Figure~\ref{fig:Shrec16Top} compares our results to results of state-of-the-art algorithms for {\em SHREC'16B}.
+Figure~\ref{fig:Shrec16Top} compares our results to results of state-of-the-art algorithms\cite{vestner2017efficient,litany2017fully,rodola2017partial,chen2015robust,sahilliouglu2012scale,Rodola:2014:DNS:2679600.2679987,cosmo2016shrec} for {\em SHREC'16B}.
 Our method is competitive with that of~\cite{vestner2017efficient}, despite of the fact that our algorithm heavily depends on geodesic distances, and topological noise e.g., connecting the hand to the face) shortens these distances.
 % We can see from the plot that we fall short of achieving state of the art results on this benchmark.
 % The additional paths between points introduced by topological noise causes significant problems in matching, especially around the noisy areas, a fact that\cite{vestner2017efficient} manages to tackle partially by optimizing over different distance kernels along with descriptor similarity. 
@@ -643,9 +643,37 @@ We have found that satisfying results are already achieved after 1 iteration on 
 
 
 \paragraph{Alternatives:} 
-\ayellet{sixth paragraph: alternatives---comparison to Lihi's function}\nadav{I have moved this to the end}
+\ayellet{sixth paragraph: alternatives---comparison to Lihi's function}
+\nadav{I have moved this to the end - it is difficult to write as we didn't introduce their formulation...}
+
 \nadav{ We have used the training set provided with SHREC'16A to experiment with different variations and parameters of our method, which will be described hereafter.}
 
+\nadav{\textit{Coherency based refinement} We evaluate the effect of our coherency based refinement on the SHREC16'A training set. A qualitative comparison is shown in Figure~\ref{fig:CoherencyQual}. The quantitative comparison in Figure~\ref{fig:CoherencyQuant}   shows an improvement of 1.5\% additional matches which fall below the 5\% threshold.}
+
+\begin{figure}[htb]
+	\centering
+	\begin{tabular}{ccc}
+		base object & Before & After  
+		\\
+		\includegraphics[scale=0.7]{figures/FailCutsbase.png} & \includegraphics[scale=0.4]{figures/cat_7_non_greedy.png} & \includegraphics[scale=0.4]{figures/cat_7_greedy.png} \\ 
+	\end{tabular}
+	
+	\caption{\nadav{{\bf Coherency based refinement.} 
+		The outlier incoherent matches on the cat's tail got replaced by the coherent and correct ones.}}
+	\label{fig:CoherencyQual}
+\end{figure}
+
+\begin{figure}[htb]
+	\centering
+	\setlength\tabcolsep{0.5pt}
+	\begin{tabular}{cc}
+		\rotatebox{90}{    \, \% Correspondences} &
+		\includegraphics[scale=0.4]{figures/CoherencyRefinement.png}\\
+		& Geodesic Error \\
+	\end{tabular}
+	\caption{\nadav{{\bf Coherency based refinement} quantitative comparison. A 1.5\% improvement is achieved}}
+	\label{fig:CoherencyQuant}
+\end{figure}
 
 
 \paragraph{Robustness:} 
@@ -674,35 +702,6 @@ The application of our multiscale framework results in an overall better result 
 \end{figure*}
 }
 
-\nadav{\textit{Coherency based refinement} The effect of our coherency based refinement has been tested on SHREC16'A training set. A qualitative comparison is shown in Figure~\ref{fig:CoherencyQual}. The quantitative comparison is shown  in  1.5\% improvement in performance can be seen}
-
-\begin{figure}[htb]
-	
-	\centering
-	\begin{tabular}{ccc}
-		base object & Before & After  
-		\\
-		\includegraphics[scale=0.7]{figures/FailCutsbase.png} & \includegraphics[scale=0.4]{figures/cat_7_non_greedy.png} & \includegraphics[scale=0.4]{figures/cat_7_greedy.png} \\ 
-	\end{tabular}
-	
-	\caption{\nadav{{\bf Coherency based refinement.} 
-		The outlier incoherent matches on the cat's tail got replaced by the coherent and correct ones.}}
-	\label{fig:CoherencyQual}
-\end{figure}
-
-\begin{figure}[htb]
-	
-	\centering
-	\setlength\tabcolsep{0.5pt}
-	\begin{tabular}{cc}
-		\rotatebox{90}{    \, \% Correspondences} &
-		\includegraphics[scale=0.4]{figures/CoherencyRefinement.png}\\
-		& Geodesic Error \\
-	\end{tabular}
-	\caption{\nadav{{\bf Coherency based refinement} quantitative comparison. A 1.5\% improvement is achieved}}
-	\label{fig:CoherencyQuant}
-\end{figure}
-
 \nadav{
 	\textit{Similarity formulation}	We have tested our 3DDIS formulation against the formulation of \cite{talmi2017template}. 
 	The main difference between the two is as follows:
@@ -711,7 +710,6 @@ The application of our multiscale framework results in an overall better result 
 	The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation. stemming from a higher robustness to partiality. Figure~\ref{fig:OriginalDDIS}b implies that 3DDIS handles high model partiality better.}
 
 \begin{figure}[htb]
-	
 	\centering
 	\setlength\tabcolsep{0.5pt}
 	\begin{tabular}{cccc}
@@ -723,7 +721,8 @@ The application of our multiscale framework results in an overall better result 
 		\\
 		& Geodesic Error & & Partiality(\%)\\
 	\end{tabular}
-	\caption{\nadav{\bf A comparison between Our formulation and the original DDIS.} \ayellet{same changes to the figure}}
+	\caption{\nadav{\bf A comparison between Our formulation and the original DDIS. (a) Shows a 5
+	\% improvement in match quality. (b) shows our formulation can tackle cases of extreme partiality better.} \ayellet{same changes to the figure}\nadav{done}}
 	\label{fig:OriginalDDIS}
 \end{figure}
 

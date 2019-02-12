@@ -45,9 +45,9 @@
 \backcite {rodola2017partial}{{7}{5}{figure.4}}
 \backcite {rodola2017partial}{{7}{5}{figure.5}}
 \backcite {kim2011blended}{{7}{5}{section*.2}}
-\backcite {litany2017fully,rodola2017partial}{{7}{5}{equation.5.9}}
 \backcite {rodola2017partial}{{7}{5}{figure.5}}
 \backcite {rodola2017partial}{{7}{6}{figure.6}}
+\backcite {litany2017fully,rodola2017partial}{{7}{5}{equation.5.9}}
 \backcite {vestner2017efficient}{{8}{5}{figure.8}}
 \backcite {kimmel1996fast}{{8}{5}{section*.4}}
 \backcite {Rusu_ICRA2011_PCL}{{8}{5}{section*.4}}
@@ -56,8 +56,3 @@
 \backcite {litany2017fully}{{8}{5}{section*.4}}
 \backcite {talmi2017template}{{9}{5}{section*.5}}
 \backcite {talmi2017template}{{9}{5}{section*.5}}
-\backcite {cosmo2016shrec}{{10}{5.1}{subsection.5.1}}
-\backcite {cosmo2016shrec}{{10}{5.2}{subsection.5.2}}
-\backcite {kim2011blended}{{10}{5.2}{subsection.5.2}}
-\backcite {litany2017fully}{{10}{5.3}{subsection.5.3}}
-\backcite {litany2017fully}{{10}{5.3}{subsection.5.3}}

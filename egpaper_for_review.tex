@@ -523,7 +523,7 @@ On the topological noise benchmark we can see bad matches are typically limited 
 	\label{fig:Shrec16TopImage}
 \end{figure}
 
-
+\nadav{TBA: Faust}
 
 \paragraph{Quantitative results:}
 Next, we provide quantitative evaluation of our method on the above datasets w.r.t previously reported results.
@@ -601,7 +601,7 @@ Our method is competitive with that of~\cite{vestner2017efficient}, despite of t
 \ayellet{fifth paragraph: drawbacks with examples}
 \nadav{Our method exhibits a few drawbacks.
     First and foremost the algorithm has a high asymptotic runtime - $O(n^2logn) + O(|S|n^2)$(App.~\ref{app:Runtime}). 
-	This limits the utilization of our method to relatively small shapes with less than ~15K vertices. 
+	This limits the utilization of our method to relatively small shapes with less than ~15K vertices, which takes ~200s. 
 	The algorithm also has six parameters which need to be tuned. 
 	In addition,the algorithm has some typical failure cases that can be seen in Figure~\ref{fig:FailureCases}: 
 	(1)Surface patches such as the dog's tail that are low in distinct shapes are hard to match. (2)Topological noise due to the intersection of different model parts changes the geodesic paths of the deformed model w.r.t to the base model.
@@ -609,8 +609,21 @@ Our method is competitive with that of~\cite{vestner2017efficient}, despite of t
 
 \begin{figure*}[htb]
 	\centering
-	\includegraphics[width=1\textwidth]{figures/failures.png}
-	\caption{\nadav{Some notable failure cases. Correspondence 'leakage' and misassignments happen near topological noise. Narrow parts with few matches are hard to match(dog's tail). Severe isometry and shape altering deformations on occasion still produces a match which is completely incorrect.}}
+\setlength\tabcolsep{0.5pt}
+\begin{tabular}{cccccc}
+	
+	\multicolumn{2}{c}{a} & 	\multicolumn{2}{c}{b} & \multicolumn{2}{c}{c} \\ 
+	\includegraphics[scale=0.7]{figures/FailTopBase.png} &
+	\includegraphics[scale=0.7]{figures/FailTopmatch.png} &
+	\includegraphics[scale=0.7]{figures/FailHolesbase.png} &
+	\includegraphics[scale=0.7]{figures/FailHolesmatch.png} &
+	\includegraphics[scale=0.7]{figures/FailCutsbase.png} &
+	\includegraphics[scale=0.7]{figures/FailCutsMatch.png}
+\end{tabular}
+\caption{\nadav{Typical failure cases of our method.
+		 (a) Strong topological noise affects geodesic distances, causing the right hand to be mapped to the leg.
+		 (b) Narrow surfaces which contain a low number of points are harder to match.
+	     (c)Extreme deformations make shape descriptors unreliable.}}
 	\label{fig:FailureCases}
 \end{figure*}
 
@@ -636,15 +649,16 @@ We have found that satisfying results are already achieved after 1 iteration on 
 \nadav{
 \textit{Similarity formulation}	We have tested our 3DDIS formulation against the formulation of \cite{talmi2017template}. 
 The main difference between the two is as follows:
-The similarity metric of\cite{talmi2017template}, penalizes the sharing of a NN in $P$ by multiple points in $Q$. 
-Points that share a NN with $\kappa$ other points will have their contribution to the similarity score attenuated by $e^{(1-\kappa)}$. The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation. stemming from a higher robustness to partiality. Figure~\ref{fig:OriginalDDIS}b implies that 3DDIS handles high model partiality better.}
+The similarity metric of\cite{talmi2017template}, expects the NNF to be nearly bijective.
+Thus, it penalizes the similarity score of a point in $P$ being a nearest neighbor of multiple points in $Q$. 
+ The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation. stemming from a higher robustness to partiality. Figure~\ref{fig:OriginalDDIS}b implies that 3DDIS handles high model partiality better.}
 
 \begin{figure}[htb]
 
 	\centering
 	\setlength\tabcolsep{0.5pt}
 	\begin{tabular}{cccc}
-		& \textbf{a} & & \textbf{b} \\
+		& \textbf{(a)} & & \textbf{(b)} \\
 		\rotatebox{90}{    \, \% Correspondences} &
 		\includegraphics[scale=0.7]{figures/DDISvs3DDISCumulative.png} & 
 		\rotatebox{90}{Mean Geodesic Error} & 
@@ -652,14 +666,14 @@ Points that share a NN with $\kappa$ other points will have their contribution t
 		\\
 		& Geodesic Error & & Partiality(\%)\\
 	\end{tabular}
-	\caption{{\bf A comparison between Our formulation and the original DDIS.} \ayellet{same changes to the figure}}
+	\caption{\nadav{\bf A comparison between Our formulation and the original DDIS.} \ayellet{same changes to the figure}}
 		\label{fig:OriginalDDIS}
 \end{figure}
 
 \paragraph{Robustness:} 
 \ayellet{parameter tuning}
 \nadav{
-\textit{Surface patch radius} We have experimented with various patch radii. 
+\textit{Surface patch radius} We have explored the behaviour of 3DDIS given different values of the surface patch radius $R_T$. 
 The effects of different choices are illustrated in Figure~\ref{fig:DifferentRadii}.
 It can be seen that in general, a smaller surface radius leads to results which are better locally, as evident from the higher percentage of matches below 0.1\% error. 
 This, however, comes at the cost of some globally inconsistent matches, which cause this precentage to drop the farther along the curve we go.
@@ -669,6 +683,7 @@ The application of our multiscale framework results in an overall better result 
 	\centering
 	\setlength\tabcolsep{0.5pt}
 	\begin{tabular}{cccc}
+		& \textbf{(a)} & \textbf{(b)} & \textbf{(c)}\\
 		\rotatebox{90}{    \, \% Correspondences} &
 		\includegraphics[scale=0.5]{figures/PieceSizeLow.png} &  
 		\includegraphics[scale=0.5]{figures/PieceSizeMedium.png}&
@@ -676,32 +691,27 @@ The application of our multiscale framework results in an overall better result 
 		\\
 		& Geodesic Error &  Geodesic Error &  Geodesic Error\\
 	\end{tabular}
-	\caption{{\bf A comparison of different piece radii.} \ayellet{same changes to the figure}}
+	\caption{\nadav{{\bf A comparison of different piece radii}. (a) We can see that a radius of 20\%$\sqrt{area(\mathcal{M})}$ has the most correspondences with an error below the threshold 0.01\%.(b) shows a 40\% radius overtakes it near the 0.1\% mark.}} 
 		\label{fig:DifferentRadii}
 \end{figure*}
 }
 
-\textit{Feature radius} 
+\nadav{\textit{Coherency based refinement} The effect of our coherency based refinement has been tested on SHREC16'A training set. A comparison is shown in Figure~\ref{}. A 1.5\% improvement in performace can be seen}
 
+\nadav{
+\textit{Feature radius} We have also 
+}
 \paragraph{Applications:} xxx
 \ayellet{seventh paragraph: uses in archaeology}
-\nadav{We have also used 3DDIS to detect repeating patterns in archaeological artifact. }
+\nadav{We have also used 3DDIS to detect repeating patterns in archaeological artifact. 
+Here we first found the geodesic center of the desired pattern in the scene, and extracted the geodesic disc around it.
+Then we employed our DDIS pipeline between our part and the geodesic disc. TBA -figures}
 
 
+{\small
+\bibliographystyle{ieee}
+\bibliography{egbib}}
 
-\begin{table}[h]
-	\centering
-	\setlength\tabcolsep{1.5pt}
-	\begin{tabular}{c  c  c  c  c  c  c c} 
-		\hline
-		& PFM & RF & IM & EN & GT & DDIS  \\ \hline
-		cuts & dense & dense & 61.3 & 87.8 & 51.0 & 132.2\\ \hline
-		holes & dense & dense & 78.2 & 112.6 & 76.4 & 77.3 \\ \hline
-		
-	\end{tabular}
-	\caption{mean number of correspondence obtained by the algorithms in the SHREC 16 competiton and our algorithm. Note that our algorithm can combine wi}
-	\label{table:1}
-\end{table}
 
 \begin{appendices}
 \chapter{Some Appendix}
@@ -743,5 +753,6 @@ The contents...
 \nadav{In total, the algorithm has an effective runtime complexity of $O(|S|n^2) + O(n^2logn)$.
 	As previously mentioned, this limits us to running on models of ~15,000k vertices. 
 	Mesh simplification algorithms can be applied for downsampling if running on larger models is required.}
+
 
 \end{document}

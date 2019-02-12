@@ -643,32 +643,10 @@ We have found that satisfying results are already achieved after 1 iteration on 
 
 
 \paragraph{Alternatives:} 
-\ayellet{sixth paragraph: alternatives---comparison to Lihi's function}
+\ayellet{sixth paragraph: alternatives---comparison to Lihi's function}\nadav{I have moved this to the end}
 \nadav{ We have used the training set provided with SHREC'16A to experiment with different variations and parameters of our method, which will be described hereafter.}
 
-\nadav{
-\textit{Similarity formulation}	We have tested our 3DDIS formulation against the formulation of \cite{talmi2017template}. 
-The main difference between the two is as follows:
-The similarity metric of\cite{talmi2017template}, expects the NNF to be nearly bijective.
-Thus, it penalizes the similarity score of a point in $P$ being a nearest neighbor of multiple points in $Q$. 
- The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation. stemming from a higher robustness to partiality. Figure~\ref{fig:OriginalDDIS}b implies that 3DDIS handles high model partiality better.}
 
-\begin{figure}[htb]
-
-	\centering
-	\setlength\tabcolsep{0.5pt}
-	\begin{tabular}{cccc}
-		& \textbf{(a)} & & \textbf{(b)} \\
-		\rotatebox{90}{    \, \% Correspondences} &
-		\includegraphics[scale=0.7]{figures/DDISvs3DDISCumulative.png} & 
-		\rotatebox{90}{Mean Geodesic Error} & 
-		\includegraphics[scale=0.7]{figures/DDISv3DDISPartial.png}
-		\\
-		& Geodesic Error & & Partiality(\%)\\
-	\end{tabular}
-	\caption{\nadav{\bf A comparison between Our formulation and the original DDIS.} \ayellet{same changes to the figure}}
-		\label{fig:OriginalDDIS}
-\end{figure}
 
 \paragraph{Robustness:} 
 \ayellet{parameter tuning}
@@ -696,11 +674,59 @@ The application of our multiscale framework results in an overall better result 
 \end{figure*}
 }
 
-\nadav{\textit{Coherency based refinement} The effect of our coherency based refinement has been tested on SHREC16'A training set. A comparison is shown in Figure~\ref{}. A 1.5\% improvement in performace can be seen}
+\nadav{\textit{Coherency based refinement} The effect of our coherency based refinement has been tested on SHREC16'A training set. A qualitative comparison is shown in Figure~\ref{fig:CoherencyQual}. The quantitative comparison is shown  in  1.5\% improvement in performance can be seen}
+
+\begin{figure}[htb]
+	
+	\centering
+	\begin{tabular}{ccc}
+		base object & Before & After  
+		\\
+		\includegraphics[scale=0.7]{figures/FailCutsbase.png} & \includegraphics[scale=0.4]{figures/cat_7_non_greedy.png} & \includegraphics[scale=0.4]{figures/cat_7_greedy.png} \\ 
+	\end{tabular}
+	
+	\caption{\nadav{{\bf Coherency based refinement.} 
+		The outlier incoherent matches on the cat's tail got replaced by the coherent and correct ones.}}
+	\label{fig:CoherencyQual}
+\end{figure}
+
+\begin{figure}[htb]
+	
+	\centering
+	\setlength\tabcolsep{0.5pt}
+	\begin{tabular}{cc}
+		\rotatebox{90}{    \, \% Correspondences} &
+		\includegraphics[scale=0.4]{figures/CoherencyRefinement.png}\\
+		& Geodesic Error \\
+	\end{tabular}
+	\caption{\nadav{{\bf Coherency based refinement} quantitative comparison. A 1.5\% improvement is achieved}}
+	\label{fig:CoherencyQuant}
+\end{figure}
 
 \nadav{
-\textit{Feature radius} We have also 
-}
+	\textit{Similarity formulation}	We have tested our 3DDIS formulation against the formulation of \cite{talmi2017template}. 
+	The main difference between the two is as follows:
+	The similarity metric of\cite{talmi2017template}, expects the NNF to be nearly bijective.
+	Thus, it penalizes the similarity score of a point in $P$ being a nearest neighbor of multiple points in $Q$. 
+	The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation. stemming from a higher robustness to partiality. Figure~\ref{fig:OriginalDDIS}b implies that 3DDIS handles high model partiality better.}
+
+\begin{figure}[htb]
+	
+	\centering
+	\setlength\tabcolsep{0.5pt}
+	\begin{tabular}{cccc}
+		& \textbf{(a)} & & \textbf{(b)} \\
+		\rotatebox{90}{    \, \% Correspondences} &
+		\includegraphics[scale=0.7]{figures/DDISvs3DDISCumulative.png} & 
+		\rotatebox{90}{Mean Geodesic Error} & 
+		\includegraphics[scale=0.7]{figures/DDISv3DDISPartial.png}
+		\\
+		& Geodesic Error & & Partiality(\%)\\
+	\end{tabular}
+	\caption{\nadav{\bf A comparison between Our formulation and the original DDIS.} \ayellet{same changes to the figure}}
+	\label{fig:OriginalDDIS}
+\end{figure}
+
 \paragraph{Applications:} xxx
 \ayellet{seventh paragraph: uses in archaeology}
 \nadav{We have also used 3DDIS to detect repeating patterns in archaeological artifact. 

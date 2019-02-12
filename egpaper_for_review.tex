@@ -435,6 +435,8 @@ We have evaluated our method both qualitatively and quantitatively on several da
 (1) the benchmark of {\em SHREC'16A---partial matching of deformable shapes}~\cite{cosmo2016shrec};
 (2) the even more challenging benchmark of {\em SHREC’16B---matching of deformable shapes with topological noise}~\cite{lahner2016shrec}.
 \ayellet{(3) Faust, (4) Archaeology}
+\nadav{(3) {\em FAUST}\cite{bogo2014faust} includes real scans of human subjects. For this set we provide only qualitative evaluation.}
+\nadav{(4) {\em Archeological artifacts}\cite{bogo2014faust} which include different archeological artifacts.}
 In all cases, our method either outperformed the state-of-the-art methods or was competitive.
 
 {\em SHREC'16A} contains $400$ partial shapes, each is a near-isometrically deformed version of one of eight base model, given in a neutral pose.
@@ -447,6 +449,8 @@ The dataset is further divided into two subsets, according to the type of partia
 % with ~10K vertices each, 
 derived from the same base human shape that undergoes deformations and topological changes stemming from self-intersections. 
 % Each shape is matched to all the others resulting in 90 matching problems.
+
+\nadav{{\em FAUST} contains $200$ real world scans of 10 different human subjects. The acquisition process of which introduces topological artifacts and missing parts due to occlusions.}
 
 \ayellet{paragraph: explain that there are two distinct, yer related challenges: sparse and dense}
 \nadav{Surface correspondence algorithms can divided into 2 by the density of their correspondences. 
@@ -508,9 +512,8 @@ On the topological noise benchmark we can see bad matches are typically limited 
 
 	\centering
 	\begin{tabular}{ccc}
-	    base object & 
-	    \cite{rodola2017partial} & 
-	    Ours\\
+	    base object & Ours & \cite{rodola2017partial}  
+	    \\
 	    	\includegraphics[scale=0.5]{figures/Top1Base.png} & \includegraphics[scale=0.5]{figures/Top1DDIS.png} & \includegraphics[scale=0.5]{figures/Top1PFM.png} \\ \includegraphics[scale=0.5]{figures/Top2Base.png} & \includegraphics[scale=0.5]{figures/Top2DDIS.png} & \includegraphics[scale=0.5]{figures/Top2PFM.png}
 	\end{tabular}
 
@@ -633,13 +636,14 @@ We have found that satisfying results are already achieved after 1 iteration on 
 \textit{Similarity formulation}	We have tested our 3DDIS formulation against the formulation of \cite{talmi2017template}. 
 The main difference between the two is as follows:
 The similarity metric of\cite{talmi2017template}, penalizes the sharing of a NN in $P$ by multiple points in $Q$. 
-Points that share a NN with $\kappa$ other points will have their contribution to the similarity score attenuated by $e^{(1-\kappa)}$. The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation, stemming from a higher robustness to partiality.}
+Points that share a NN with $\kappa$ other points will have their contribution to the similarity score attenuated by $e^{(1-\kappa)}$. The comparison, illustrated in Figure~\ref{fig:OriginalDDIS} shows a significant improvement over the original formulation. stemming from a higher robustness to partiality. Figure~\ref{fig:OriginalDDIS}b implies that 3DDIS handles high model partiality better.}
 
 \begin{figure}[htb]
 
 	\centering
 	\setlength\tabcolsep{0.5pt}
 	\begin{tabular}{cccc}
+		& \textbf{a} & & \textbf{b} \\
 		\rotatebox{90}{    \, \% Correspondences} &
 		\includegraphics[scale=0.7]{figures/DDISvs3DDISCumulative.png} & 
 		\rotatebox{90}{Mean Geodesic Error} & 
@@ -680,7 +684,7 @@ The application of our multiscale framework results in an overall better result 
 
 \paragraph{Applications:} xxx
 \ayellet{seventh paragraph: uses in archaeology}
-
+\nadav{We have also used 3DDIS to detect repeating patterns in archaeological artifact. }
 
 \paragraph{Appendix A: Runtime and complexity}
 \label{app:Runtime}

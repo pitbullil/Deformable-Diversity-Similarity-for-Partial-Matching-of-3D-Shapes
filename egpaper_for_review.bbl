@@ -12,6 +12,12 @@ M.~Aubry, U.~Schlickewei, and D.~Cremers.
 \newblock In {\em Computer Vision Workshops (ICCV Workshops), 2011 IEEE
   International Conference on}, pages 1626--1633. IEEE, 2011.
 
+\bibitem{bogo2014faust}
+F.~Bogo, J.~Romero, M.~Loper, and M.~J. Black.
+\newblock Faust: Dataset and evaluation for 3d mesh registration.
+\newblock In {\em Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}, pages 3794--3801, 2014.
+
 \bibitem{boscaini2016learning}
 D.~Boscaini, J.~Masci, E.~Rodol{\`a}, and M.~Bronstein.
 \newblock Learning shape correspondence with anisotropic convolutional neural

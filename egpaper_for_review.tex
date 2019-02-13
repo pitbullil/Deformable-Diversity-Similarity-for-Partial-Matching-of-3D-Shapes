@@ -435,10 +435,10 @@ In the general case, the contribution of every point is inversely weighted by it
 We have evaluated our method both qualitatively and quantitatively on several datasets:
 (1) the benchmark of {\em SHREC'16A---partial matching of deformable shapes}~\cite{cosmo2016shrec};
 (2) the even more challenging benchmark of {\em SHREC’16B---matching of deformable shapes with topological noise}~\cite{lahner2016shrec}.
-\ayellet{(3) Faust, (4) Archaeology}
-\nadav{(3) {\em FAUST}\cite{bogo2014faust} includes real scans of human subjects. For this set we provide only qualitative evaluation.}
-\nadav{(4) {\em Archaeology} includes various scans of archaeological artifacts with repeating patters.}
-In all cases, our method either outperformed the state-of-the-art methods or was competitive.
+% \ayellet{(3) Faust, (4) Archaeology}
+% \nadav{(3) {\em FAUST}\cite{bogo2014faust} includes real scans of human subjects. For this set we provide only qualitative evaluation.}
+% \nadav{(4) {\em Archaeology} includes various scans of archaeological artifacts with repeating patters.}
+In both cases, our method either outperforms the results of state-of-the-art methods or is competitive.
 
 {\em SHREC'16A} contains $400$ partial shapes, each is a near-isometrically deformed version of one of eight base model, given in a neutral pose.
 % Each class is provided with a "null" shape in a neutral pose. 
@@ -451,15 +451,15 @@ The dataset is further divided into two subsets, according to the type of partia
 derived from the same base human shape that undergoes deformations and topological changes stemming from self-intersections. 
 % Each shape is matched to all the others resulting in 90 matching problems.
 
-\nadav{{\em FAUST} contains $200$ real world scans of 10 different human subjects. The acquisition process of which introduces topological artifacts and missing parts due to occlusions.}
+% \nadav{{\em FAUST} contains $200$ real world scans of 10 different human subjects. The acquisition process of which introduces topological artifacts and missing parts due to occlusions.}
 
-\ayellet{paragraph: explain that there are two distinct, yer related challenges: sparse and dense}
-\nadav{Surface correspondence algorithms can divided into 2 by the density of their correspondences. 
-	(1) Sparse correspondences which aim to cover the surface area uniformly, but sparsely.
-	(2) Dense correspondences which match every vertex on one shape to the other shape.}
-\ayellet{paragraph: explain that you compute only sparse and then use... to convert it into dense.}
- \nadav{ Our method produces sparse correspondences, yet these can be converted to dense ones with a minimal loss of quality.
- This is achieved by using the sparse correspondences as input to the method of \cite{litany2017fully}.}
+Correspondence algorithms can be categorized into two classes, according to the density of the resulting correspondences: sparse and dense.
+Dense-correspondences algorithms match every vertex on one shape to a vertex on the other shape.
+Sparse-correspondence algorithms cover the surface by a sparse set of points and find correspondences only for them.
+	
+Our algorithm belongs to the latter class: it produces a sparse set of correspondences.
+However, as a post-processing step, we convert the set of sparse correspondences to a dense set using the method of \cite{litany2017fully}.
+
 \paragraph{Qualitative results:} 
 Figure~\ref{fig:Shrec16Qualitative} illustrates our results on two models from {\em SHREC'16A}.
 In this figure, the input model $\mathcal{M}$ is color-coded according to its coordinates.
@@ -470,29 +470,30 @@ It can be seen that our method obtains sparse correspondences of a high quality,
 Furthermore, when comparing our dense-correspondence results to those of~\cite{rodola2017partial} (which computes dense correspondence directly), our method produces better results.
 It should be noted that symmetries are less of a problem in our method, due to distance preservation between points in Equation~\eqref{eq:DDIS} (note the legs).
 This is especially important when the model contains holes.
-\begin{figure*}[htb]
 
+\begin{figure*}[htb]
 	\centering
 		\setlength\tabcolsep{0.5pt}
 	\begin{tabular}[width=0.8\textwidth]{c|ccc|ccc}
-	     input & sparse & dense &  \cite{rodola2017partial}
-	           & sparse & dense & \cite{rodola2017partial}\\ \hline
-	\includegraphics[scale=0.5]{figures/horse_base.png} & \includegraphics[scale=0.5]{figures/holes_horse_12_sparse.png} & \includegraphics[scale=0.5]{figures/holes_horse_12.png} & \includegraphics[scale=0.5]{figures/holes_horse_12_PFM.png}  & \includegraphics[scale=0.5]{figures/holes_horse_16_sparse.png} & \includegraphics[scale=0.5]{figures/holes_horse_16.png} & \includegraphics[scale=0.5]{figures/holes_horse_16_PFM.png}\\
-	\includegraphics[scale=0.5]{figures/dog_base.png} &
-	 \includegraphics[scale=0.5]{figures/cuts_dog_8_sparse.png} & \includegraphics[scale=0.5]{figures/cuts_dog_8.png} & \includegraphics[scale=0.5]{figures/cuts_dog_8_PFM.png}  & \includegraphics[scale=0.5]{figures/holes_dog_13_sparse.png} & \includegraphics[scale=0.5]{figures/holes_dog_13.png} & \includegraphics[scale=0.5]{figures/holes_dog_13_PFM.png}\\
+	     input &  \cite{rodola2017partial} & ours-dense & ours-sparse 
+	           & \cite{rodola2017partial} & ours-dense & ours-sparse  \\ \hline
+	\includegraphics[scale=0.5]{figures/horse_base.png} & \includegraphics[scale=0.5]{figures/holes_horse_12_PFM.png}  & \includegraphics[scale=0.5]{figures/holes_horse_12.png} & \includegraphics[scale=0.5]{figures/holes_horse_12_sparse.png} & \includegraphics[scale=0.5]{figures/holes_horse_16_PFM.png}&
+	\includegraphics[scale=0.5]{figures/holes_horse_16.png} & \includegraphics[scale=0.5]{figures/holes_horse_16_sparse.png} \\ \includegraphics[scale=0.5]{figures/dog_base.png} &
+	 \includegraphics[scale=0.5]{figures/cuts_dog_8_PFM.png}  & \includegraphics[scale=0.5]{figures/cuts_dog_8.png} & \includegraphics[scale=0.5]{figures/cuts_dog_8_sparse.png} & \includegraphics[scale=0.5]{figures/holes_dog_13_PFM.png} & \includegraphics[scale=0.5]{figures/holes_dog_13.png} & 
+	 \includegraphics[scale=0.5]{figures/holes_dog_13_sparse.png}\\
 	\end{tabular}
-	\caption{{\bf Results on Shrec'16A.} 
+	\caption{{\bf Results on examples from SHREC'16A.} 
+	The left column shows the input model in a neutral pose.
+	The other columns compare our results (both dense and sparse) to SOTA results of~cite{rodola2017partial}, for which the code is provided, on partial deformed models that also have many holes.
 	Our results outperform those of~\cite{rodola2017partial}, when run with the default parameters.
-	\ayellet{(1) create little images (2) remove boundaries (3) change the model color in sparse correspondences (4) the models must be in the same size}\nadav{done}
 	}
 	\label{fig:Shrec16Qualitative}
 \end{figure*}
 
 Figure~\ref{fig:Shrec16Qualitative-error} further demonstrates it, by color-coding the errors.
 The larger the error, the more reddish the color is.
-\ayellet{add this figure}\nadav{done}
-\begin{figure}[htb]
 
+\begin{figure}[htb]
 	\centering
 	\setlength\tabcolsep{0.5pt}
 	\begin{tabular}[width=0.8\textwidth]{cc|cc}
@@ -501,44 +502,43 @@ The larger the error, the more reddish the color is.
 		\includegraphics[scale=0.5]{figures/holes_horse_12_err.png} & \includegraphics[scale=0.5]{figures/holes_horse_12_err_PFM.png} &  \includegraphics[scale=0.5]{figures/holes_horse_16_err.png} &  \includegraphics[scale=0.5]{figures/holes_horse_16_err_PFM.png}\\
 		\includegraphics[scale=0.5]{figures/cuts_dog_8_err.png} & \includegraphics[scale=0.5]{figures/cuts_dog_8_err_PFM.png} &  \includegraphics[scale=0.5]{figures/holes_dog_13_err.png} &  \includegraphics[scale=0.5]{figures/holes_dog_13_PFM_err.png}\\
 	\end{tabular}
-	\caption{{\bf Errors on SHREC'16A.} 
-		\nadav{ Errors are coded from white(no error) to red. Our method outperforms that of~\cite{rodola2017partial}}
+	\caption{{\bf Errors on examples from SHREC'16A.} 
+		The error is color-coded from white (no error) to red (large error). 
+		Our method evidently is less erroneous than~\cite{rodola2017partial}
 	}
 	\label{fig:Shrec16Qualitative-error}
 \end{figure}
-Figure~\ref{fig:Shrec16TopImage} shows a couple of examples from the {\em SHREC'16B} dataset.
-On the topological noise benchmark we can see bad matches are typically limited to the area of the topological noise, while PFM breaks completely on occasions.
+
+Similarly, Figure~\ref{fig:Shrec16TopImage} shows a couple of examples from {\em SHREC'16B}, which have topological noise.
+Generally, our method outperforms that of ~\cite{rodola2017partial}.
+It sometimes fails near the regions of the topological noise (i.e., when regions intersect), but the failures are fewer and scarce.
 
 \begin{figure}[htb]
-
 	\centering
 	\begin{tabular}{ccc}
-	    base object & Ours & \cite{rodola2017partial}  
-	    \\
-	    	\includegraphics[scale=0.5]{figures/Top1Base.png} & \includegraphics[scale=0.5]{figures/Top1DDIS.png} & \includegraphics[scale=0.5]{figures/Top1PFM.png} \\ \includegraphics[scale=0.5]{figures/Top2Base.png} & \includegraphics[scale=0.5]{figures/Top2DDIS.png} & \includegraphics[scale=0.5]{figures/Top2PFM.png}
+	   input & our-dense & \cite{rodola2017partial}  \\
+	    	\includegraphics[scale=0.4]{figures/Top1Base.png} & \includegraphics[scale=0.4]{figures/Top1DDIS.png} & \includegraphics[scale=0.4]{figures/Top1PFM.png} \\ \includegraphics[scale=0.4]{figures/Top2Base.png} & \includegraphics[scale=0.4]{figures/Top2DDIS.png} & \includegraphics[scale=0.4]{figures/Top2PFM.png}
 	\end{tabular}
-
 	\caption{{\bf Results on Shrec'16B.} 
-	Our results outperform those of~\cite{rodola2017partial}.}
+	Our results outperform those of~\cite{rodola2017partial}.
+	Furthermore, failures are constrained to the regions of the topological noise.}
 	\label{fig:Shrec16TopImage}
 \end{figure}
 
-\nadav{TBA: Faust}
-
+%%%%%%%%%%%%%%%%   Quantitative results
 \paragraph{Quantitative results:}
 Next, we provide quantitative evaluation of our method on the above datasets w.r.t previously reported results.
-The common error metric used is the normalized geodesic distance~\cite{kim2011blended}.
-Specifically, let the corresponding point of $(q \in \mathcal{N}$, as found by the algorithm, be $ p \in \mathcal{M})$ and let the ground truth corresponding point of $q$ be $p^* \in \mathcal{M})$. 
-The error of for $q$ is the normalized geodesic distance between  $p$ and $p^*$ on $\mathcal{M}$:
+The common error metric used in previous work is the {\em normalized geodesic distance (NGD)}~\cite{kim2011blended}.
+Specifically, let the corresponding point of $p \in \mathcal{N}$, as found by the algorithm, be $q \in \mathcal{M}$, and let the ground truth corresponding point of $p$ be $q^* \in \mathcal{M}$.
+The error for $p$ is the normalized geodesic distance between  $q$ and $q^*$ on $\mathcal{M}$:
 \begin{equation}
-\varepsilon(q)=\frac{GeoDist_{\mathcal{M}}(p,p^*)}{\sqrt{area(\mathcal{M})}}
+\varepsilon(p)=\frac{GeoDist_{\mathcal{M}}(q,q^*)}{\sqrt{area(\mathcal{M})}}.
 \end{equation}
 
-Figure~\ref{fig:Shrec16Cumulative} shows the cumulative curve, which indicates the percentage of errors falling below a varying geodesic threshold on {\em SHREC'16A}. 
+Figure~\ref{fig:Shrec16Cumulative} shows the cumulative curve, which indicates the percentage of NGD errors falling below a varying threshold for {\em SHREC'16A}. 
 % Symmetric solutions are accepted with no penalty.
 The figure shows both sparse correspondences (dashed lines) and dense correspondences (solid lines), compared to other state-of-the-art algorithms~\cite{litany2017fully,rodola2017partial,sahillioglu2011coarse,rodola2013elastic,Rodola:2014:DNS:2679600.2679987,Torsello:2012:GAD:2354409.2354702,kovnatsky2013coupled},
-\ayellet{add all references}\nadav{Done.}
-as provided in the benchmark site. \ayellet{cite the site}\nadav{\hyperlink{url:shrec16A}{http://www.dais.unive.it/~shrec2016/}}
+as provided in the benchmark site~\cite{cosmo2016shrec}. %\hyperlink{url:shrec16A}{http://www.dais.unive.it/~shrec2016/}
 In both cases, our method considerably outperforms state-of-the-art algorithms, both on the subset of the dataset that contains models with holes and on the subset that contains partial models.
 The obtained increase in performance in by $~10\%$ for the cuts subset and by $20\%$ for the holes subset.
 % We compare them with the results reported in Fully Spectral Partial Matching(FSPM)\cite{litany2017fully}, which also compares results with partial functional maps(PFM)\cite{rodola2017partial}, random forests(RF), scale-invariant isometric matching(IM), game-theoretic matching(GT), elastic net matching(EN) and joint diagnolization. 
@@ -547,31 +547,33 @@ The obtained increase in performance in by $~10\%$ for the cuts subset and by $2
 	\centering
 		\setlength\tabcolsep{0.5pt}
 	\begin{tabular}{ccc}
-		& Cuts & Holes \\
+		& \small{SHREC'16A-Cuts} & \small{SHREC'16A-Holes} \\
 		\rotatebox{90}{    \, \% Correspondences} &
 		\includegraphics[scale=0.35]{figures/SHRECCutsCumulative16.png} & \includegraphics[scale=0.35]{figures/SHRECHolesCumulative16.png} \\
-		& Geodesic Error & Geodesic Error\\
-		\multicolumn{3}{c}{\includegraphics[width=0.5\textwidth]{figures/SHREC16Amethods.png}}
+		& \small{NGD} & \small{NGD}\\[0.1in]
+		\multicolumn{3}{c}{\includegraphics[width=0.4\textwidth]{figures/SHREC16Amethods.png}}
 	\end{tabular}
-	\caption{{\bf Cumulative geodesic error curves on Shrec16A.} 
+	\caption{{\bf Cumulative normalized geodesic error (NGD) curves on SHREC'16A.} 
 	Our method (in magenta) outperforms other algorithms, both for the dense correspondence and for the sparse correspondence, on the two subsets of the dataset.
-	\ayellet{1. three images, (2) [Author'19] or Ours}}
+	\ayellet{Add a dashed line below the solid line in "ours"}}
 	\label{fig:Shrec16Cumulative}
 \end{figure}
 
-\ayellet{Add a paragraph describing Figure~\ref{fig:Shrec16Part}}
-\nadav{Figure~\ref{fig:Shrec16Part} shows the mean geodesic error of the mapping from a partial model $\mathcal{N}$ to the full model $\mathcal{M}$ as a function of $area(\mathcal{N})/area(\mathcal{M})$, hereafter referred to as partiality. It can be seen that our method is weakly dependent on the partiality of the model.}
-\begin{figure}[htb]
+Figure~\ref{fig:Shrec16Part} shows the mean NGD error of the correspondence between a partial model $\mathcal{N}$ and a full model $\mathcal{M}$, as a function of the ratio between their surface area $1-area(\mathcal{N})/area(\mathcal{M})$, hereafter referred to as {\em partiality}. 
+It can be seen that our method is less dependent on the partiality of the model than other models, which is a benefit of our method.
 
+\begin{figure}[htb]
 		\setlength\tabcolsep{0.5pt}
 \begin{tabular}{ccc}
-	& Cuts & Holes \\
+	& \small{SHREC'16A-Cuts} & \small{SHREC'16A-Holes} \\
 	\rotatebox{90}{Mean Geodesic Error} &
 	\includegraphics[scale=0.35]{figures/SHRECCutsPartiality16.png} & \includegraphics[scale=0.35]{figures/SHRECHolesPartiality16.png} \\
-	& Partiality (\%) & Partiality (\%)\\
-	\multicolumn{3}{c}{\includegraphics[width=0.5\textwidth]{figures/SHREC16Amethods.png}}
+	& \small{Partiality (\%)} & \small{Partiality (\%)}\\[0.1in]
+	\multicolumn{3}{c}{\includegraphics[width=0.4\textwidth]{figures/SHREC16Amethods.png}}
 \end{tabular}
-	\caption{Error as a function of model partiality.}
+	\caption{{\bf Mean NGD as a function of model partiality.} 
+	The larger the partiality, the more missing area of $\mathcal{N}$.
+	Out method increases less than others and thus, which is beneficial.}
 		\label{fig:Shrec16Part}
 \end{figure}
 
@@ -582,101 +584,99 @@ Our method is competitive with that of~\cite{vestner2017efficient}, despite of t
 % It might be worthwhile to find a way to incorporate these kernels into the 3D-DDIS framework.
 
 \begin{figure}[htb]
-
 	\centering
 \setlength\tabcolsep{0.5pt}
 \begin{tabular}{cc}
 	\rotatebox{90}{    \, \% Correspondences} &
 	\includegraphics[scale=0.3]{figures/SHREC16BCummulative.png}\\
-	& Geodesic Error \\
+	& \small{NGD} \\[0.1in]
 		\multicolumn{2}{c}{\includegraphics[width=0.35\textwidth]{figures/SHREC16Bmethods.png}}
 \end{tabular}
-	\caption{{\bf Cumulative error curve on SHREC'16B.} \ayellet{same changes to the figure}}
+	\caption{{\bf Cumulative NGD on SHREC'16B.}
+	Our method is competitive with~\cite{vestner2017efficient} and better than other method.
+	Note that~\cite{vestner2017efficient} do not report on results for SHREC'16A due to complexity.}
 		\label{fig:Shrec16Top}
 \end{figure}
 
-\paragraph{Drawbacks:} xxx
 
 
-\ayellet{fifth paragraph: drawbacks with examples}
-\nadav{Our method exhibits a few drawbacks.
-    First and foremost the algorithm has a high asymptotic runtime - $O(n^2logn) + O(|S|n^2)$(App.~\ref{app:Runtime}). 
-	This limits the utilization of our method to relatively small shapes with less than ~15K vertices, which takes ~200s. 
-	The algorithm also has six parameters which need to be tuned. 
-	In addition,the algorithm has some typical failure cases that can be seen in Figure~\ref{fig:FailureCases}: 
-	(1)Surface patches such as the dog's tail that are low in distinct shapes are hard to match. (2)Topological noise due to the intersection of different model parts changes the geodesic paths of the deformed model w.r.t to the base model.
-(3) Extreme deformations can cause shape descriptors of the deformed model to be vastly different than those of the base model.}
+\paragraph{Implementation details:} 
+We implemented our code in C++  and used the Point Cloud library\cite{Rusu_ICRA2011_PCL}'s implementation for the FPFH shape descriptors, for the Nearest Neighbor field computation, and for the $\chi^2$ distance between the descriptors.
+% We have used the Fast Marching Method\cite{kimmel1996fast} to obtain geodesic distances.
+% The Nearest Neighbor field is computed with FLANN\cite{muja2009fast} with $\chi^2$ distance.
+The entire code is parallelized using OpenMP. 
+Since most of the work is devoted to computing the similarities between points, and the points are independent on each other, the obtained speedup is almost linear.
+% Since computing similarity for a given patch is totally independent from its calculation for other patches, the obtained speedup is nearly linear in the number of threads. 
 
-\begin{figure*}[htb]
+% \nadav{
+% To move from sparse to dense correspondence we employ the method of \cite{litany2017fully}. 
+% We had replaced the input dense descriptor field with localized smooth delta functions around our corresponding pairs.
+% We have found that satisfying results are already achieved after 1 iteration on SHREC16'A, and 2 on SHREC'16B. We have tuned the parameters of \cite{litany2017fully} on 15 models of cats from the SHREC16'A training set.}
+
+\paragraph{Limitations:} 
+%    First and foremost the algorithm has a high asymptotic runtime - $O(n^2logn) + O(|S|n^2)$(App.~\ref{app:Runtime}). 
+%	This limits the utilization of our method to relatively small shapes with less than ~15K vertices, which takes ~200s. 
+Figure~\ref{fig:FailureCases} shows two types of typical failures, the first is due to strong topological noise and the other is due to highly-complex deformation.
+In both cases this is due to two reasons: the FPFH descriptor does not capture the shape of the vertices well and the geodesic distance err due to the elasticity of some of the models.
+We note that competing methods also fail on these examples.
+%	(1)Surface patches such as the dog's tail that are low in distinct shapes are hard to match. 
+%	(2)Topological noise due to the intersection of different model parts changes the geodesic paths of the deformed model w.r.t to the base model.
+% (3) Extreme deformations can cause shape descriptors of the deformed model to be vastly different than those of the base model.
+
+\begin{figure}[htb]
 	\centering
 \setlength\tabcolsep{0.5pt}
-\begin{tabular}{cccccc}
-	
-	\multicolumn{2}{c}{a} & 	\multicolumn{2}{c}{b} & \multicolumn{2}{c}{c} \\ 
+\begin{tabular}{cc}
+%	\multicolumn{2}{c}{a} & 	\multicolumn{2}{c}{b} & \multicolumn{2}{c}{c} \\ 
 	\includegraphics[scale=0.7]{figures/FailTopBase.png} &
-	\includegraphics[scale=0.7]{figures/FailTopmatch.png} &
-	\includegraphics[scale=0.7]{figures/FailHolesbase.png} &
-	\includegraphics[scale=0.7]{figures/FailHolesmatch.png} &
+	\includegraphics[scale=0.7]{figures/FailTopmatch.png} \\
+%	\includegraphics[scale=0.7]{figures/FailHolesbase.png} &
+%	\includegraphics[scale=0.7]{figures/FailHolesmatch.png} &
 	\includegraphics[scale=0.4]{figures/FailCutsbase.png} &
 	\includegraphics[scale=0.4]{figures/FailCutsMatch.png}
 \end{tabular}
-\caption{\nadav{Typical failure cases of our method.
-		 (a) Strong topological noise affects geodesic distances, causing the right hand to be mapped to the leg.
-		 (b) Narrow surfaces which contain a low number of points are harder to match.
-	     (c)Extreme deformations make shape descriptors unreliable.}}
+\caption{{\bf Limitations.} Our method might fail in cases of topological noise (top) or highly-deformed partial shapes (bottom).
+\ayellet{change the bottom images}}
 	\label{fig:FailureCases}
-\end{figure*}
+\end{figure}
 
-\paragraph{Implementation details:} xxx
-\ayellet{sixth paragraph: implementation details, how do we move from sparse to dense}
-\nadav{Our code which produces the sparse correspondences is implemented entirely in C++ . 
-We have used the Fast Marching Method\cite{kimmel1996fast} to obtain geodesic distances.
-FPFH shape descriptors are calculated using the Point Cloud library\cite{Rusu_ICRA2011_PCL}. 
-The Nearest Neighbor field is computed with FLANN\cite{muja2009fast} with $\chi^2$ distance.
-The entire code is parallelized using OpenMP. Since computing similarity for a given patch is totally independent from its calculation for other patches, the obtained speedup is nearly linear in the number of threads. 
-}
+%%%%%%%%%% Alternatives
+% \paragraph{Alternatives:} 
+% \ayellet{sixth paragraph: alternatives---comparison to Lihi's function}
+% \nadav{I have moved this to the end - it is difficult to write as we didn't introduce their formulation...}
 
-\nadav{
-To move from sparse to dense correspondence we employ the method of \cite{litany2017fully}. 
-We had replaced the input dense descriptor field with localized smooth delta functions around our corresponding pairs.
-We have found that satisfying results are already achieved after 1 iteration on SHREC16'A, and 2 on SHREC'16B. We have tuned the parameters of \cite{litany2017fully} on 15 models of cats from the SHREC16'A training set.}
+% \nadav{ We have used the training set provided with SHREC'16A to experiment with different variations and parameters of our method, which will be described hereafter.}
 
+% \nadav{\textit{Coherency based refinement} We evaluate the effect of our coherency based refinement on the SHREC16'A training set. A qualitative comparison is shown in Figure~\ref{fig:CoherencyQual}. The quantitative comparison in Figure~\ref{fig:CoherencyQuant}   shows an improvement of 1.5\% additional matches which fall below the 5\% threshold.}
 
-\paragraph{Alternatives:} 
-\ayellet{sixth paragraph: alternatives---comparison to Lihi's function}
-\nadav{I have moved this to the end - it is difficult to write as we didn't introduce their formulation...}
-
-\nadav{ We have used the training set provided with SHREC'16A to experiment with different variations and parameters of our method, which will be described hereafter.}
-
-\nadav{\textit{Coherency based refinement} We evaluate the effect of our coherency based refinement on the SHREC16'A training set. A qualitative comparison is shown in Figure~\ref{fig:CoherencyQual}. The quantitative comparison in Figure~\ref{fig:CoherencyQuant}   shows an improvement of 1.5\% additional matches which fall below the 5\% threshold.}
-
-\begin{figure}[htb]
-	\centering
-	\begin{tabular}{ccc}
-		base object & Before & After  
-		\\
-		\includegraphics[scale=0.7]{figures/cat_base.png} & \includegraphics[scale=0.4]{figures/cat_7_non_greedy.png} & \includegraphics[scale=0.4]{figures/cat_7_greedy.png} \\ 
-	\end{tabular}
+% \begin{figure}[htb]
+% 	\centering
+% 	\begin{tabular}{ccc}
+% 		base object & Before & After  
+% 		\\
+% 		\includegraphics[scale=0.7]{figures/cat_base.png} & \includegraphics[scale=0.4]{figures/cat_7_non_greedy.png} & \includegraphics[scale=0.4]{figures/cat_7_greedy.png} \\ 
+% 	\end{tabular}
 	
-	\caption{\nadav{{\bf Coherency based refinement.} 
-		The outlier incoherent matches on the cat's tail got replaced by the coherent and correct ones.}}
-	\label{fig:CoherencyQual}
-\end{figure}
+% 	\caption{\nadav{{\bf Coherency based refinement.} 
+% 		The outlier incoherent matches on the cat's tail got replaced by the coherent and correct ones.}}
+% 	\label{fig:CoherencyQual}
+% \end{figure}
 
-\begin{figure}[htb]
-	\centering
-	\setlength\tabcolsep{0.5pt}
-	\begin{tabular}{cc}
-		\rotatebox{90}{    \, \% Correspondences} &
-		\includegraphics[scale=0.4]{figures/CoherencyRefinement.png}\\
-		& Geodesic Error \\
-	\end{tabular}
-	\caption{\nadav{{\bf Coherency based refinement} quantitative comparison. A 1.5\% improvement is achieved}}
-	\label{fig:CoherencyQuant}
-\end{figure}
+% \begin{figure}[htb]
+% 	\centering
+% 	\setlength\tabcolsep{0.5pt}
+% 	\begin{tabular}{cc}
+% 		\rotatebox{90}{    \, \% Correspondences} &
+% 		\includegraphics[scale=0.4]{figures/CoherencyRefinement.png}\\
+% 		& Geodesic Error \\
+% 	\end{tabular}
+% 	\caption{\nadav{{\bf Coherency based refinement} quantitative comparison. A 1.5\% improvement is achieved}}
+% 	\label{fig:CoherencyQuant}
+% \end{figure}
 
 
 \paragraph{Robustness:} 
+	The algorithm also has six parameters which need to be tuned. 
 \ayellet{parameter tuning}
 \nadav{
 \textit{Surface patch radius} We have explored the behaviour of 3DDIS given different values of the surface patch radius $R_T$. 
@@ -725,13 +725,6 @@ The application of our multiscale framework results in an overall better result 
 	\% improvement in match quality. (b) shows our formulation can tackle cases of extreme partiality better.} \ayellet{same changes to the figure}\nadav{done}}
 	\label{fig:OriginalDDIS}
 \end{figure}
-
-\paragraph{Applications:} xxx
-\ayellet{seventh paragraph: uses in archaeology}
-\nadav{We have also used 3DDIS to detect repeating patterns in archaeological artifact. 
-Here we first found the geodesic center of the desired pattern in the scene, and extracted the geodesic disc around it.
-Then we employed our DDIS pipeline between our part and the geodesic disc. TBA -figures}
-
 
 {\small
 \bibliographystyle{ieee}
